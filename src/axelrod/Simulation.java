@@ -10,11 +10,11 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 
-public class World implements Callable<String> {
+public class Simulation implements Callable<String> {
 	// Template experiment:  AXELROD,  FLACHE_EXPERIMENT1, FLACHE_EXPERIMENT2
 	public String TYPE = "AXELROD";
 	public int BUFFERED_SIZE = 512;
-	private static int RUN = 0;
+	public static int RUN = 0;
 	private int IDENTIFIER = 0;
 	
 	// Main world boundaries
@@ -63,75 +63,23 @@ public class World implements Callable<String> {
 	private int cluster_size = 0;
 	private int cultureN;
 	
+	// Thread control variables
+	private volatile boolean playing = true;  
+	private volatile boolean suspended = true;  
+	private Object o = new Object();
+	public boolean is_finished = false;
+	
 	// I/O variables
 	BufferedWriter writer = null;
 	
-	public World (){
+	public Simulation (){
 		RUN++;
 		IDENTIFIER = RUN;		
 	}
-	
 
-	public World clone (){
-		World clone = new World();
-    	clone.ITERATIONS = this.ITERATIONS;
-    	clone.CHECKPOINT = this.CHECKPOINT; 
-    	clone.TYPE = this.TYPE;
-    	clone.ROWS = this.ROWS;
-    	clone.COLS = this.COLS;
-    	clone.FEATURES = this.FEATURES; 
-    	clone.TRAITS = this.TRAITS;
-    	clone.RADIUS = this.RADIUS;
-    	clone.MUTATION = this.MUTATION;
-    	clone.SELECTION_ERROR = this.SELECTION_ERROR;
-    	return clone;	
-	}
-	
-	public static String header(){
-		return "id,iterations,checkpoint,type,rows,cols,features,traits,radius,mutation,selection_error,iteration,cultures,cultures_norm,biggest_cluster,biggest_norm\n";		
-	}
-	
-	public String results() {
-		count_clusters();
-		return  IDENTIFIER + "," +
-				ITERATIONS + "," +  
-				CHECKPOINT + "," +  
-				TYPE + "," +  
-				ROWS + "," +
-				COLS + "," +  
-				FEATURES + "," +  
-				TRAITS + "," +  
-				RADIUS + "," +  
-				MUTATION + "," +  
-				SELECTION_ERROR + "," +
-				iteration * CHECKPOINT+ "," +
-				cultureN  + "," +
-				(float) cultureN / TOTAL_AGENTS + "," +
-				biggest_cluster + "," +
-				(float) biggest_cluster / TOTAL_AGENTS + "\n";				
-	}
-	
-	public String call(){
-		setup();
-		try {
-			writer.write(results());				
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        switch (TYPE) {
-        	case "AXELROD":	axelrod();	break;
-            case "FLACHE_EXPERIMENT1":	flache_experiment1();	break;
-            case "FLACHE_EXPERIMENT2":	flache_experiment2();	break;
-            case "FLACHE_EXPERIMENT3":	flache_experiment3();	break;
-        }
-        String r = results();
-        System.out.println("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r);
-        finish();
-
-		return r;			
-	}
-	
+	/**
+	 * Setups the object in order to run the experiment. Initialize all the variables
+	 */
 	public void setup() {
 		NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 		TOTAL_AGENTS = ROWS * COLS;
@@ -190,7 +138,7 @@ public class World implements Callable<String> {
 		
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-			        new FileOutputStream(IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+			        new FileOutputStream(CulturalSimulator.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
 			writer.write(header());
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -200,9 +148,124 @@ public class World implements Callable<String> {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Starting point of execution
+	 * @returns the last line of results
+	 */
+	public String call(){
+		setup();
+		try {
+			writer.write(results());				
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    switch (TYPE) {
+	    	case "AXELROD":	axelrod();	break;
+	        case "FLACHE_EXPERIMENT1":	flache_experiment1();	break;
+	        case "FLACHE_EXPERIMENT2":	flache_experiment2();	break;
+	        case "FLACHE_EXPERIMENT3":	flache_experiment3();	break;
+	    }
+	    String r = results();
+
+	    CulturalSimulator.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+	    finish();
+	
+		return r;			
+	}
+
+	/**
+	 * Suspend this thread
+	 */
+	public void suspend(){          
+        playing = false;  
+        suspended = true;
+    }
+	
+	/**
+	 * Cancel this thread
+	 */
+	public void cancel(){          
+        playing = false;  
+    }  
+
+
+	/**
+	 * Continue the execution of the thread
+	 */
+    public void resume(){       
+        playing = true;
+        suspended = false;
+        synchronized (o) {  
+            o.notifyAll();  
+        }  
+    } 
+
+    /**
+     * Clone this object
+     * @return a clone of this object
+     */
+	public Simulation clone (){
+		Simulation clone = new Simulation();
+    	clone.ITERATIONS = this.ITERATIONS;
+    	clone.CHECKPOINT = this.CHECKPOINT; 
+    	clone.TYPE = this.TYPE;
+    	clone.ROWS = this.ROWS;
+    	clone.COLS = this.COLS;
+    	clone.FEATURES = this.FEATURES; 
+    	clone.TRAITS = this.TRAITS;
+    	clone.RADIUS = this.RADIUS;
+    	clone.MUTATION = this.MUTATION;
+    	clone.SELECTION_ERROR = this.SELECTION_ERROR;
+    	return clone;	
+	}
+	
+	/**
+	 * Return a csv header for the output
+	 * @return
+	 */
+	public static String header(){
+		return "id,iterations,checkpoint,type,rows,cols,features,traits,radius,mutation,selection_error,iteration,cultures,cultures_norm,biggest_cluster,biggest_norm\n";		
+	}
+	
+	/**
+	 * Count the cluster and returns a CSV line with the results
+	 * @return a CSV line with the results
+	 */
+	private String results() {
+		count_clusters();
+		return this.get_results();				
+	}
+	
+	/**
+	 * Create a CSV line for the results
+	 * @return a CSV line with current results
+	 */
+	public String get_results() {
+		return  IDENTIFIER + "," +
+				ITERATIONS + "," +  
+				CHECKPOINT + "," +  
+				TYPE + "," +  
+				ROWS + "," +
+				COLS + "," +  
+				FEATURES + "," +  
+				TRAITS + "," +  
+				RADIUS + "," +  
+				MUTATION + "," +  
+				SELECTION_ERROR + "," +
+				iteration * CHECKPOINT+ "," +
+				cultureN  + "," +
+				(float) cultureN / TOTAL_AGENTS + "," +
+				biggest_cluster + "," +
+				(float) biggest_cluster / TOTAL_AGENTS + "\n";				
+	}
 	
 	
 	
+	/**
+	 * It is a sort of destructor to help the garbage collector
+	 */
 	public void finish() {
 		
 		try {
@@ -231,10 +294,10 @@ public class World implements Callable<String> {
 		
 	}
 	
-	
 	public void flache_experiment3() {
+		int ic = 0;
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			for (int ic = 0; ic < CHECKPOINT; ic++) {
+			for (ic = 0; ic < CHECKPOINT && playing; ic++) {
 				for (int i = 0; i < TOTAL_AGENTS; i++) {
 					
 					// row and column of the participating agent
@@ -334,13 +397,52 @@ public class World implements Callable<String> {
 					}
 				}
 			} // END of checkpoint
-			try {
-				writer.write(results());				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			// if finalize the loop correctly
+			if (ic == CHECKPOINT) {
+				try {
+					writer.write(results());				
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				// moving the counter down so it is possible to suspend
+				// and resume from the same point
+				ic = 0;
+			} else {
+				iteration--;
+			}
+			
+			
+			if (!playing){
+				// if the thread is suspended, then wait 
+				if (suspended){
+					 while(suspended){  
+                         synchronized(o){  
+                        	 try {                   
+                                 while(suspended){  
+                                     synchronized(o){  
+                                         o.wait();  
+                                     }                           
+                                 }                       
+                             }  
+                             catch (InterruptedException e) {                    
+                            	 CulturalSimulator.TA_OUTPUT.append("Error while trying to wait" + "\n");
+                             }    
+                         }                           
+                     } 
+				} 
+				// if the thread is suspended or cancelled, stop the loop
+				else { // if cancelled
+					break; 
+				}
 			}
 		} // END of iterations
+		
+		if (iteration == ITERATIONS){
+			is_finished = true;
+		}
 	}
 	
 	
@@ -572,7 +674,7 @@ public class World implements Callable<String> {
 			}
 			s += "\n";
 		}
-		System.out.println(s);
+		CulturalSimulator.TA_OUTPUT.append(s);
 
 	}
 	
