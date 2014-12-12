@@ -50,23 +50,29 @@ public class Controller
         {
         	int repetitions = Integer.parseInt(scanner.next());
         	if (repetitions > 0) {
-	        	Simulation world = new Simulation();
-	        	world.ITERATIONS = Integer.parseInt(scanner.next());
-	        	world.CHECKPOINT = Integer.parseInt(scanner.next());
-	        	world.TYPE = scanner.next();
-	        	world.BUFFERED_SIZE = Integer.parseInt(scanner.next());
-	        	world.ROWS = Integer.parseInt(scanner.next());
-	        	world.COLS = Integer.parseInt(scanner.next());
-	        	world.FEATURES = Integer.parseInt(scanner.next());
-	        	world.TRAITS = Integer.parseInt(scanner.next());
-	        	world.RADIUS = Integer.parseInt(scanner.next());
-	        	world.MUTATION = Float.parseFloat(scanner.next());
-	        	world.SELECTION_ERROR = Float.parseFloat(scanner.next());
-	        	tasks.add(world);
+        		Simulation simulation = null;
+        		String type = scanner.next();
+        		switch (type) {
+        			case "AXELROD":	simulation = new Axelrod();	break;
+        			case "FLACHE_EXPERIMENT1":	simulation = new FlacheExperiment1();	break;
+        			case "FLACHE_EXPERIMENT2":	simulation = new FlacheExperiment2();	break;
+	    	        case "FLACHE_EXPERIMENT3":	simulation = new FlacheExperiment3();	break;
+        		}
+	        	simulation.ITERATIONS = Integer.parseInt(scanner.next());
+	        	simulation.CHECKPOINT = Integer.parseInt(scanner.next());
+	        	simulation.BUFFERED_SIZE = Integer.parseInt(scanner.next());
+	        	simulation.ROWS = Integer.parseInt(scanner.next());
+	        	simulation.COLS = Integer.parseInt(scanner.next());
+	        	simulation.FEATURES = Integer.parseInt(scanner.next());
+	        	simulation.TRAITS = Integer.parseInt(scanner.next());
+	        	simulation.RADIUS = Integer.parseInt(scanner.next());
+	        	simulation.MUTATION = Float.parseFloat(scanner.next());
+	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
+	        	tasks.add(simulation);
 	        	
 	        	// Generate tasks per repetitions
 	        	for (int r = 1; r < repetitions; r++) {
-		        	tasks.add(world.clone());
+		        	tasks.add(simulation.clone());
 	        	}
 	        	
 	        	if (scanner.hasNextLine()) {
@@ -88,7 +94,7 @@ public class Controller
     	// Write the results to the file
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
               new FileOutputStream(CulturalSimulator.RESULTS_DIR + "results.csv"), "utf-8"));
-        writer.write(Simulation.header());
+        writer.write(FlacheExperiment3.header());
         for(Simulation w : tasks) {
 			writer.write(w.get_results());
         }

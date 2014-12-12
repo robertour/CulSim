@@ -9,53 +9,61 @@ import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+public abstract class Simulation  implements Callable<String>  {
 
-public class Simulation implements Callable<String> {
-	// Template experiment:  AXELROD,  FLACHE_EXPERIMENT1, FLACHE_EXPERIMENT2
-	public String TYPE = "AXELROD";
+	public String TYPE = null;
 	public int BUFFERED_SIZE = 512;
 	public static int RUN = 0;
-	private int IDENTIFIER = 0;
+	protected int IDENTIFIER = 0;
 	
-	// Main world boundaries
+	// Size of the world
+	/**
+	 * ROWS of the world
+	 */
 	public int ROWS = 32;
+	/**
+	 * COLS of the World
+	 */
 	public int COLS = 32;
-	private int TOTAL_AGENTS = ROWS * COLS;
+	/**
+	 * Total agents in the world
+	 */
+	protected int TOTAL_AGENTS = ROWS * COLS;
 	
-	// Culture space
+	// Cultural Space
 	public int FEATURES = 5;
 	public int TRAITS = 15;
 	
-	// Radius of the neighborhood
+	// Neighborhood
 	public int RADIUS = 6;
 	private int NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 	
-	// Noise variables
+	// Noise
 	public float MUTATION = 0.0001f;
-	public float SELECTION_ERROR = 0.0001f;	
-	
-	// Main matrix. It keeps the internal beliefs of the agents
-	private int [][][] beliefs = null;
-	
-	// Auxiliary variables that keeps the neighbors of each agent
-	private int [][][] neighboursX = null;
-	private int [][][] neighboursY = null;
-	private int [][] neighboursN = null;
+	public float SELECTION_ERROR = 0.0001f;
 	
 	
-	// Internal variables declared just one
-	private int [][] votes ;
-	private int [] mismatches;
-	private int [] feature_candidates;
-	private int [] trait_candidates;	
-
-	// Control variables
+	protected int [][][] beliefs = null;
+	
+	
+	
+	protected int [][][] neighboursX = null;
+	protected int [][][] neighboursY = null;
+	protected int [][] neighboursN = null;
+	
+	
+	protected int [][] votes;
+	protected int [] mismatches;
+	protected int [] feature_candidates;
+	protected int [] trait_candidates;
+	
+	
 	public int ITERATIONS = 10;
 	public int CHECKPOINT = 1000;
-	private Random rand = new Random();
-	private int iteration = 0;
 	
-	// Recursive variables to count clusters
+	
+	protected Random rand = new Random();
+	protected int iteration = 0;
 	private boolean flag_mark = true;
 	private boolean [][] flags;
 	private int [][] cultures;
@@ -63,18 +71,41 @@ public class Simulation implements Callable<String> {
 	private int cluster_size = 0;
 	private int cultureN;
 	
-	// Thread control variables
-	private volatile boolean playing = true;  
-	private volatile boolean suspended = true;  
-	private Object o = new Object();
+	/**
+	 * Indicates if the thread should be running. If not, it would stop or suspend as 
+	 * soon as it can if not. This is when a checkpoint is finalized.
+	 */
+	protected volatile boolean playing = true;
+	/**
+	 * Indicates if the thread was suspended. It would suspend as soon as it can.
+	 * This is when a checkpoint is finalized.
+	 */
+	protected volatile boolean suspended = false;
+	/**
+	 * Indicates if the thread was cancelled. It would be cancelled as soon as it can.
+	 * This is when a checkpoint is finalized.
+	 */
+	protected volatile boolean cancelled = false;
+	/**
+	 * This object is necessary in order to suspend the thread
+	 */
+	protected Object o = new Object();
+	
+	/**
+	 * Indicates if the simulation ended completely, without any interruptions.
+	 */
 	public boolean is_finished = false;
-	
-	// I/O variables
-	BufferedWriter writer = null;
-	
-	public Simulation (){
-		RUN++;
-		IDENTIFIER = RUN;		
+	/**
+	 * Buffer to write the output
+	 */
+	protected BufferedWriter writer = null;
+
+	/**
+	 * Return a csv header for the output
+	 * @return
+	 */
+	public static String header() {
+		return "id,iterations,checkpoint,type,rows,cols,features,traits,radius,mutation,selection_error,iteration,cultures,cultures_norm,biggest_cluster,biggest_norm\n";		
 	}
 
 	/**
@@ -153,7 +184,7 @@ public class Simulation implements Callable<String> {
 	 * Starting point of execution
 	 * @returns the last line of results
 	 */
-	public String call(){
+	public String call() {
 		setup();
 		try {
 			writer.write(results());				
@@ -161,83 +192,104 @@ public class Simulation implements Callable<String> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	    switch (TYPE) {
-	    	case "AXELROD":	axelrod();	break;
-	        case "FLACHE_EXPERIMENT1":	flache_experiment1();	break;
-	        case "FLACHE_EXPERIMENT2":	flache_experiment2();	break;
-	        case "FLACHE_EXPERIMENT3":	flache_experiment3();	break;
-	    }
+		
+	    run_experiment();
+		
 	    String r = results();
-
+	
 	    CulturalSimulator.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
 	    finish();
 	
 		return r;			
 	}
+	
+	public abstract void run_experiment();
 
 	/**
 	 * Suspend this thread
 	 */
-	public void suspend(){          
-        playing = false;  
-        suspended = true;
-    }
+	public void suspend() {          
+	    playing = false;  
+	    suspended = true;
+	}
 	
+	/**
+	 * Set a suspended state. Just wait until the thread is resumed.
+	 */
+	protected void set_suspended(){
+		 while(suspended){  
+             synchronized(o){  
+            	 try {                   
+                     while(suspended){  
+                         synchronized(o){  
+                             o.wait();  
+                         }                           
+                     }                       
+                 }  
+                 catch (InterruptedException e) {                    
+                	 CulturalSimulator.TA_OUTPUT.append("Error while trying to wait" + "\n");
+                 }    
+             }                           
+         } 
+	}
+
 	/**
 	 * Cancel this thread
 	 */
-	public void cancel(){          
-        playing = false;  
-    }  
-
+	public void cancel() {          
+	    playing = false;  
+	    cancelled = true;
+	}
 
 	/**
 	 * Continue the execution of the thread
 	 */
-    public void resume(){       
-        playing = true;
-        suspended = false;
-        synchronized (o) {  
-            o.notifyAll();  
-        }  
-    } 
+	public void resume() {       
+	    playing = true;
+	    suspended = false;
+	    synchronized (o) {  
+	        o.notifyAll();  
+	    }  
+	}
 
-    /**
-     * Clone this object
-     * @return a clone of this object
-     */
-	public Simulation clone (){
-		Simulation clone = new Simulation();
-    	clone.ITERATIONS = this.ITERATIONS;
-    	clone.CHECKPOINT = this.CHECKPOINT; 
-    	clone.TYPE = this.TYPE;
-    	clone.ROWS = this.ROWS;
-    	clone.COLS = this.COLS;
-    	clone.FEATURES = this.FEATURES; 
-    	clone.TRAITS = this.TRAITS;
-    	clone.RADIUS = this.RADIUS;
-    	clone.MUTATION = this.MUTATION;
-    	clone.SELECTION_ERROR = this.SELECTION_ERROR;
-    	return clone;	
-	}
-	
 	/**
-	 * Return a csv header for the output
-	 * @return
+	 * Clone this object
+	 * @return a clone of this object
 	 */
-	public static String header(){
-		return "id,iterations,checkpoint,type,rows,cols,features,traits,radius,mutation,selection_error,iteration,cultures,cultures_norm,biggest_cluster,biggest_norm\n";		
+	public Simulation clone() {
+		Simulation clone = null;
+		try {
+			clone = this.getClass().newInstance();
+			clone.ITERATIONS = this.ITERATIONS;
+			clone.CHECKPOINT = this.CHECKPOINT; 
+			clone.TYPE = this.TYPE;
+			clone.ROWS = this.ROWS;
+			clone.COLS = this.COLS;
+			clone.FEATURES = this.FEATURES; 
+			clone.TRAITS = this.TRAITS;
+			clone.RADIUS = this.RADIUS;
+			clone.MUTATION = this.MUTATION;
+			clone.SELECTION_ERROR = this.SELECTION_ERROR;
+		} catch (InstantiationException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return clone;	
 	}
-	
+
+	public Simulation() {
+		super();
+	}
+
 	/**
 	 * Count the cluster and returns a CSV line with the results
 	 * @return a CSV line with the results
 	 */
-	private String results() {
+	protected String results() {
 		count_clusters();
 		return this.get_results();				
 	}
-	
+
 	/**
 	 * Create a CSV line for the results
 	 * @return a CSV line with current results
@@ -260,9 +312,7 @@ public class Simulation implements Callable<String> {
 				biggest_cluster + "," +
 				(float) biggest_cluster / TOTAL_AGENTS + "\n";				
 	}
-	
-	
-	
+
 	/**
 	 * It is a sort of destructor to help the garbage collector
 	 */
@@ -293,324 +343,8 @@ public class Simulation implements Callable<String> {
 		System.gc();
 		
 	}
-	
-	public void flache_experiment3() {
-		int ic = 0;
-		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			for (ic = 0; ic < CHECKPOINT && playing; ic++) {
-				for (int i = 0; i < TOTAL_AGENTS; i++) {
-					
-					// row and column of the participating agent
-					int r = rand.nextInt(ROWS);
-					int c = rand.nextInt(COLS);
-	
-					// clean the votes
-					for (int f = 0; f < FEATURES; f++) {
-						for (int t = 0; t < TRAITS; t++) {
-							votes[f][t] = 0;
-						}
-					}
-					
-					// iterate over the neighbors to calculate the votes
-					for (int n = 0; n < neighboursN[r][c]; n++){
-						
-						// row and column of the neighbor
-						int nr = neighboursX[r][c][n];
-						int nc = neighboursY[r][c][n];
-						
-						// get the number of identical traits
-						int matches = 0;
-						for (int f = 0; f < FEATURES; f++) {
-							if (beliefs[r][c][f] == beliefs[nr][nc][f]) {
-								matches++;
-							}
-						}						
 
-						//selection error
-						boolean is_selection_error = rand.nextFloat() > 1 - SELECTION_ERROR;
-						
-						// check homophily
-						if (rand.nextFloat() < matches / (float) FEATURES) {
-							
-							// if there isn't selection error, then don't include the neighbor
-							if (!is_selection_error) { 
-								
-								// include the neighbor's beliefs
-								for (int f = 0; f < FEATURES; f++) {
-									votes[f][beliefs[nr][nc][f]]++;	
-								}
-							}
-						} 
-						
-						// if it was not selected but there was a selection error, then include the neighbor
-						else if (is_selection_error){ 
-							
-							// include the neighbor's beliefs
-							for (int f = 0; f < FEATURES; f++) {
-								votes[f][beliefs[nr][nc][f]]++;	
-							}							
-						}
-					} 
-					
-					// get the candidates features
-					int feature_candidatesN = 0;
-					for (int f = 0; f < FEATURES; f++) {
-						int current_trait = beliefs[r][c][f];
-						int current_trait_votes = votes[f][current_trait];
-						for (int t = 0; t < TRAITS; t++) {
-							if (t != current_trait && votes[f][t] >= current_trait_votes){
-								feature_candidates[feature_candidatesN++] = f;
-								t = TRAITS;
-							}
-						}					
-					}
-					
-					// select the candidate
-					if (feature_candidatesN > 0){
-						int selected_feature = feature_candidates[rand.nextInt(feature_candidatesN)];
-						int max_trait = beliefs[r][c][selected_feature];
-						int current_votes = votes[selected_feature][max_trait];
-						int max_votes = current_votes;
-						int trait_candidatesN = 0;
-						
-						// get the candidate traits
-						for (int t = 0; t < TRAITS; t++) {
-							int v = votes[selected_feature][t];
-							if (max_votes == v) {
-								trait_candidates[trait_candidatesN++] = t;							
-							} else if (max_votes < v) {
-								trait_candidates[0] = t;
-								trait_candidatesN = 1;
-								max_votes = v;
-							}						
-						}
-						
-						// select the trait
-						if (max_votes > current_votes){
-							beliefs[r][c][selected_feature] = trait_candidates[rand.nextInt(trait_candidatesN)];
-						}
-					}
-					
-					// mutation
-					if ( rand.nextFloat() >= 1 - MUTATION ) {
-						beliefs[r][c][rand.nextInt(FEATURES)] = rand.nextInt(TRAITS);
-					}
-				}
-			} // END of checkpoint
-			
-			// if finalize the loop correctly
-			if (ic == CHECKPOINT) {
-				try {
-					writer.write(results());				
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				// moving the counter down so it is possible to suspend
-				// and resume from the same point
-				ic = 0;
-			} else {
-				iteration--;
-			}
-			
-			
-			if (!playing){
-				// if the thread is suspended, then wait 
-				if (suspended){
-					 while(suspended){  
-                         synchronized(o){  
-                        	 try {                   
-                                 while(suspended){  
-                                     synchronized(o){  
-                                         o.wait();  
-                                     }                           
-                                 }                       
-                             }  
-                             catch (InterruptedException e) {                    
-                            	 CulturalSimulator.TA_OUTPUT.append("Error while trying to wait" + "\n");
-                             }    
-                         }                           
-                     } 
-				} 
-				// if the thread is suspended or cancelled, stop the loop
-				else { // if cancelled
-					break; 
-				}
-			}
-		} // END of iterations
-		
-		if (iteration == ITERATIONS){
-			is_finished = true;
-		}
-	}
-	
-	
-	public void flache_experiment2() {
-		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			for (int ic = 0; ic < CHECKPOINT; ic++) {
-				for (int i = 0; i < TOTAL_AGENTS; i++) {
-					int r = rand.nextInt(ROWS);
-					int c = rand.nextInt(COLS);
-	
-					// clean the votes
-					for (int f = 0; f < FEATURES; f++) {
-						for (int t = 0; t < TRAITS; t++) {
-							votes[f][t] = 0;
-						}
-					}
-					
-					// iterate over the neighbors to calculate the votes
-					for (int n = 0; n < neighboursN[r][c]; n++){
-						// selection error
-						if (rand.nextFloat() < 1 - SELECTION_ERROR){
-							int nr = neighboursX[r][c][n];
-							int nc = neighboursY[r][c][n];
-							for (int f = 0; f < FEATURES; f++) {
-								votes[f][beliefs[nr][nc][f]]++;	
-							}						
-						}
-					} 
-					
-					// get the candidates features
-					int feature_candidatesN = 0;
-					for (int f = 0; f < FEATURES; f++) {
-						int current_trait = beliefs[r][c][f];
-						int current_trait_votes = votes[f][current_trait];
-						for (int t = 0; t < TRAITS; t++) {
-							if (t != current_trait && votes[f][t] >= current_trait_votes){
-								feature_candidates[feature_candidatesN++] = f;
-								t = TRAITS;
-							}
-						}					
-					}
-					
-					// select the candidate
-					if (feature_candidatesN > 0){
-						int selected_feature = feature_candidates[rand.nextInt(feature_candidatesN)];
-						int max_trait = beliefs[r][c][selected_feature];
-						int current_votes = votes[selected_feature][max_trait];
-						int max_votes = current_votes;
-						int trait_candidatesN = 0;
-						
-						// get the candidate traits
-						for (int t = 0; t < TRAITS; t++) {
-							int v = votes[selected_feature][t];
-							if (max_votes == v) {
-								trait_candidates[trait_candidatesN++] = t;							
-							} else if (max_votes < v) {
-								trait_candidates[0] = t;
-								trait_candidatesN = 1;
-								max_votes = v;
-							}						
-						}
-						
-						// select the trait
-						if (max_votes > current_votes){
-							beliefs[r][c][selected_feature] = trait_candidates[rand.nextInt(trait_candidatesN)];
-						}
-					}
-					
-					// mutation
-					if ( rand.nextFloat() >= 1 - MUTATION ) {
-						beliefs[r][c][rand.nextInt(FEATURES)] = rand.nextInt(TRAITS);
-					}
-				}
-			} // END of checkpoint
-			try {
-				writer.write(results());				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} // END of iterations
-	}
-	
-	public void flache_experiment1() {
-		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			for (int ic = 0; ic < CHECKPOINT; ic++) {
-				for (int i = 0; i < TOTAL_AGENTS; i++) {
-					int r = rand.nextInt(ROWS);
-					int c = rand.nextInt(COLS);
-	
-					int n = rand.nextInt(neighboursN[r][c]);
-					int nr = neighboursX[r][c][n];
-					int nc = neighboursY[r][c][n];
-	
-					// get the mismatches
-					int mismatchesN = 0;
-					for (int f = 0; f < FEATURES; f++) {
-						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
-							mismatches[mismatchesN] = f;
-							mismatchesN++;
-						}
-					}
-					int overlap = FEATURES - mismatchesN;
-					
-					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
-					boolean is_interaction = rand.nextFloat() >= 1 - ((float) overlap / (float) FEATURES);
-					
-					// check if there is actual interaction 
-					if (overlap != FEATURES
-							&& (is_interaction && !is_selection_error || !is_interaction && is_selection_error)) {
-						int selected_feature = mismatches[rand.nextInt(mismatchesN)];
-						beliefs[r][c][selected_feature] = beliefs[nr][nc][selected_feature];
-					}
-					
-					// mutation
-					if ( rand.nextFloat() >= 1 - MUTATION ) {
-						beliefs[r][c][rand.nextInt(FEATURES)] = rand.nextInt(TRAITS);
-					}
-				}
-			} // END of checkpoint
-			try {
-				writer.write(results());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} // END of iterations
-	}
-	
-	public void axelrod() {
-		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			for (int ic = 0; ic < CHECKPOINT; ic++) {
-				for (int i = 0; i < TOTAL_AGENTS; i++) {
-					int r = rand.nextInt(ROWS);
-					int c = rand.nextInt(COLS);
-	
-					int n = rand.nextInt(neighboursN[r][c]);
-					int nr = neighboursX[r][c][n];
-					int nc = neighboursY[r][c][n];
-	
-					// get the mismatches
-					int mismatchesN = 0;
-					for (int f = 0; f < FEATURES; f++) {
-						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
-							mismatches[mismatchesN] = f;
-							mismatchesN++;
-						}
-					}
-					int overlap = FEATURES - mismatchesN;
-	
-					// check if there is actual interaction 
-					if (overlap != FEATURES
-							&& rand.nextFloat() > 1 - ((float) overlap / (float) FEATURES)) {
-						int selected_feature = mismatches[rand.nextInt(mismatchesN)];
-						beliefs[r][c][selected_feature] = beliefs[nr][nc][selected_feature];
-					}
-				}
-			} // END of checkpoint
-			try {
-				writer.write(results());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} // END of iterations
-	}
-	
-	public void count_clusters(){
+	public void count_clusters() {
 		biggest_cluster = 0;
 		cultureN = 0;
 		for (int r = 0; r < ROWS; r++) {
@@ -627,8 +361,8 @@ public class Simulation implements Callable<String> {
 		}
 		flag_mark = !flag_mark;
 	}
-	
-	public void expand(int r, int c){
+
+	public void expand(int r, int c) {
 		flags[r][c] = flag_mark;
 		cultures[r][c] = cultureN;
 		cluster_size++;
@@ -654,8 +388,8 @@ public class Simulation implements Callable<String> {
 		
 		
 	}
-	
-	public boolean is_same_culture(int [] c1, int [] c2){
+
+	public boolean is_same_culture(int [] c1, int [] c2) {
 		boolean fellow = true;				
 		for (int f = 0; f < FEATURES; f++) {
 			if ( c1[f] != c2[f] ) {
@@ -665,8 +399,8 @@ public class Simulation implements Callable<String> {
 		}
 		return fellow;
 	}
-	
-	public void print_cultures(){
+
+	public void print_cultures() {
 		String s = "";
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
@@ -675,9 +409,7 @@ public class Simulation implements Callable<String> {
 			s += "\n";
 		}
 		CulturalSimulator.TA_OUTPUT.append(s);
-
+	
 	}
-	
-	
 
 }
