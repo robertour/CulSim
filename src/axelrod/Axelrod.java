@@ -4,12 +4,28 @@ import java.io.IOException;
 
 
 public class Axelrod extends Simulation {
+	
+	/**
+	 * Register all the mismatches between two neighbors.
+	 */
+	protected int [] mismatches;
+	
 	public Axelrod (){
-		TYPE = "AXELROD";
-		RUN++;
-		IDENTIFIER = RUN;		
+		super();
+		TYPE = "AXELROD";	
 	}
 
+	@Override
+	public void setup() {
+		mismatches = new int [TRAITS];		
+	}
+	
+	@Override
+	protected void reset() {
+		mismatches = null;	
+	}
+	
+	@Override
 	public void run_experiment() {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT; ic++) {
@@ -66,5 +82,6 @@ public class Axelrod extends Simulation {
 			is_finished = true;
 		}
 	} // END of run_experiment
+
 	
 }

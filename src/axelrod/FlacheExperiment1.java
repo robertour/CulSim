@@ -3,13 +3,13 @@ package axelrod;
 import java.io.IOException;
 
 
-public class FlacheExperiment1 extends Simulation {
+public class FlacheExperiment1 extends Axelrod {
 	public FlacheExperiment1 (){
+		super();
 		TYPE = "FLACHE_EXPERIMENT1";
-		RUN++;
-		IDENTIFIER = RUN;		
 	}
-
+	
+	@Override
 	public void run_experiment() {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT; ic++) {
@@ -31,7 +31,9 @@ public class FlacheExperiment1 extends Simulation {
 					}
 					int overlap = FEATURES - mismatchesN;
 					
+					// Check for selection error
 					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
+					// Check for interaction
 					boolean is_interaction = rand.nextFloat() >= 1 - ((float) overlap / (float) FEATURES);
 					
 					// check if there is actual interaction 
@@ -45,7 +47,9 @@ public class FlacheExperiment1 extends Simulation {
 					if ( rand.nextFloat() >= 1 - MUTATION ) {
 						beliefs[r][c][rand.nextInt(FEATURES)] = rand.nextInt(TRAITS);
 					}
-				}
+					
+				} // END of total agents
+				
 			} // END of checkpoint
 			// write results of the current checkpoint
 			try {

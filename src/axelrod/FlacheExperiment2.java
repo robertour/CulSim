@@ -4,12 +4,42 @@ import java.io.IOException;
 
 
 public class FlacheExperiment2 extends Simulation {
+
+	// Internal variables declared just one
+	/**
+	 * Counts the votes of each trait per feature
+	 */
+	protected int [][] votes;
+	/**
+	 * Candidates for the feature
+	 */
+	protected int [] feature_candidates;
+	/**
+	 * Candidates for the trait
+	 */
+	protected int [] trait_candidates;
+	
 	public FlacheExperiment2 (){
-		TYPE = "FLACHE_EXPERIMENT2";
-		RUN++;
-		IDENTIFIER = RUN;		
+		super();
+		TYPE = "FLACHE_EXPERIMENT2";	
+	}
+	
+	@Override
+	public void setup() {
+		votes = new int[FEATURES][TRAITS];
+		feature_candidates = new int[FEATURES];
+		trait_candidates = new int[TRAITS];
+		
+	}
+	
+	@Override
+	protected void reset() {			
+		votes = null;
+		feature_candidates = null;
+		trait_candidates = null;
 	}
 
+	@Override
 	public void run_experiment() {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT; ic++) {
@@ -109,5 +139,7 @@ public class FlacheExperiment2 extends Simulation {
 		}
 	
 	} // END of run_experiment
+
+
 	
 }

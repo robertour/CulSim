@@ -11,10 +11,26 @@ import java.util.concurrent.Callable;
 
 public abstract class Simulation  implements Callable<String>  {
 
+	/**
+	 * String text to identify the type of simulation
+	 */
 	public String TYPE = null;
+	/**
+	 * Buffered size to avoid writing each time.
+	 */
 	public int BUFFERED_SIZE = 512;
+	
+	
+	// Identify the simulation
+	/**
+	 * Counter of the simulation run
+	 */
 	public static int RUN = 0;
+	/**
+	 * Identify the current simulation object
+	 */
 	protected int IDENTIFIER = 0;
+	
 	
 	// Size of the world
 	/**
@@ -30,46 +46,107 @@ public abstract class Simulation  implements Callable<String>  {
 	 */
 	protected int TOTAL_AGENTS = ROWS * COLS;
 	
+	
 	// Cultural Space
+	/**
+	 * Number of FEATURES of the cultural space
+	 */
 	public int FEATURES = 5;
+	/**
+	 * Number of FEATURES of the cultural space
+	 */
 	public int TRAITS = 15;
 	
+	
 	// Neighborhood
+	/**
+	 * Define the RADIOUS of the cultural space
+	 */
 	public int RADIUS = 6;
+	/**
+	 * Number of NEIGHOURS Of the cultural space
+	 */
 	private int NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
-	
-	// Noise
-	public float MUTATION = 0.0001f;
-	public float SELECTION_ERROR = 0.0001f;
-	
-	
-	protected int [][][] beliefs = null;
-	
-	
-	
+	/**
+	 * Define X coordinates of the neighbors
+	 */
 	protected int [][][] neighboursX = null;
+	/**
+	 * Define Y coordinates of the neighbors
+	 */
 	protected int [][][] neighboursY = null;
+	/**
+	 * Define the total number of neighbors. It is different per agent because of
+	 * the non-toroidal configuration.
+	 */
 	protected int [][] neighboursN = null;
 	
 	
-	protected int [][] votes;
-	protected int [] mismatches;
-	protected int [] feature_candidates;
-	protected int [] trait_candidates;
+	// Noise
+	/**
+	 * Define the MUTATION error. This is when the agent changes one trait randomly
+	 */
+	public float MUTATION = 0.0001f;
+	/**
+	 * Define SELECTION_ERROR. This is when the agent randomly changes its decision to 
+	 * interact or not with an specific agent 
+	 */
+	public float SELECTION_ERROR = 0.0001f;
+	
+	/**
+	 * Individual belief space
+	 */
+	protected int [][][] beliefs = null;
 	
 	
+	// Main loop control
+	/**
+	 * Number of ITERATIONS of the checkpoints
+	 */
 	public int ITERATIONS = 10;
+	/**
+	 * Save results and check thread status each 1000 iterations
+	 */
 	public int CHECKPOINT = 1000;
 	
-	
+	// Internal control
+	/**
+	 * Random number generator
+	 */
 	protected Random rand = new Random();
+	
+	// Recursion control
+	/**
+	 * Internal iteration of the simulation counter
+	 */
 	protected int iteration = 0;
+	/**
+	 * Flag for recursion
+	 */
 	private boolean flag_mark = true;
+	/**
+	 * Controls recursion
+	 */
 	private boolean [][] flags;
+	/**
+	 * Internal recursion matrix to indicate culture
+	 */
 	private int [][] cultures;
-	private int biggest_cluster = 0;
+	/**
+	 * Size of the current cluster
+	 */
 	private int cluster_size = 0;
+
+	// Main simulation outputs
+	/**
+	 * Number of members of the biggest cluster
+	 */
+	private int biggest_cluster = 0;
+	/**
+	 * Number of clusters
+	 */
 	private int cultureN;
+
 	
 	/**
 	 * Indicates if the thread should be running. If not, it would stop or suspend as 
@@ -101,6 +178,15 @@ public abstract class Simulation  implements Callable<String>  {
 	protected BufferedWriter writer = null;
 
 	/**
+	 * Constructor
+	 */
+	public Simulation() {
+		super();
+		RUN++;
+		IDENTIFIER = RUN;	
+	}
+
+	/**
 	 * Return a csv header for the output
 	 * @return
 	 */
@@ -111,14 +197,9 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Setups the object in order to run the experiment. Initialize all the variables
 	 */
-	public void setup() {
+	private void simulation_setup() {
 		NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 		TOTAL_AGENTS = ROWS * COLS;
-		
-		votes = new int[FEATURES][TRAITS];
-		feature_candidates = new int[FEATURES];
-		trait_candidates = new int[TRAITS];
-		mismatches = new int [TRAITS];
 				
 		beliefs = new int[ROWS][COLS][FEATURES];
 		neighboursX = new int[ROWS][COLS][NEIGHBOURS];
@@ -185,7 +266,12 @@ public abstract class Simulation  implements Callable<String>  {
 	 * @returns the last line of results
 	 */
 	public String call() {
+		
+		simulation_setup();
+		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
 		setup();
+		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
+		
 		try {
 			writer.write(results());				
 		} catch (IOException e) {
@@ -193,17 +279,22 @@ public abstract class Simulation  implements Callable<String>  {
 			e.printStackTrace();
 		}
 		
+		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
 	    run_experiment();
 		
 	    String r = results();
 	
 	    CulturalSimulator.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
 	    finish();
+	    reset();
+		System.gc();
 	
 		return r;			
 	}
 	
-	public abstract void run_experiment();
+	protected abstract void setup();
+	protected abstract void run_experiment();
+	protected abstract void reset();
 
 	/**
 	 * Suspend this thread
@@ -277,9 +368,6 @@ public abstract class Simulation  implements Callable<String>  {
 		return clone;	
 	}
 
-	public Simulation() {
-		super();
-	}
 
 	/**
 	 * Count the cluster and returns a CSV line with the results
@@ -332,15 +420,6 @@ public abstract class Simulation  implements Callable<String>  {
 		neighboursX = null;
 		neighboursY = null;
 		neighboursN = null;
-		
-		
-		// Internal variables declared just one
-		votes = null;
-		mismatches = null;
-		feature_candidates = null;
-		trait_candidates = null;
-				
-		System.gc();
 		
 	}
 

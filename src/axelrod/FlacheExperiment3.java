@@ -3,13 +3,13 @@ package axelrod;
 import java.io.IOException;
 
 
-public class FlacheExperiment3 extends Simulation {
+public class FlacheExperiment3 extends FlacheExperiment2 {
 	public FlacheExperiment3 (){
+		super();
 		TYPE = "FLACHE_EXPERIMENT3";
-		RUN++;
-		IDENTIFIER = RUN;
 	}
 
+	@Override
 	public void run_experiment() {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT ; ic++) {

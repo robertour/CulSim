@@ -6,6 +6,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.DefaultCaret;
 import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
@@ -218,5 +219,7 @@ public class CulturalSimulator extends JFrame {
 		TA_OUTPUT = new JTextArea();
 		TA_OUTPUT.setEditable(false);
 		scrollPane.setViewportView(TA_OUTPUT);
+		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 }
