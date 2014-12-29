@@ -53,12 +53,18 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
         		switch (type) {
+        			case "ULLOA1B":	simulation = new Ulloa1B();	break;
+        			case "ULLOA1C":	simulation = new Ulloa1C();	break;
         			case "ULLOA1":	simulation = new Ulloa1();	break;
         			case "ULLOA2":	simulation = new Ulloa2();	break;
         			case "ULLOA3":	simulation = new Ulloa3();	break;
         			case "ULLOA4":	simulation = new Ulloa4();	break;
         			case "ULLOA5":	simulation = new Ulloa5();	break;
         			case "ULLOA6":	simulation = new Ulloa6();	break;
+        			case "ULLOA7":	simulation = new Ulloa7();	break;
+        			case "ULLOA8":	simulation = new Ulloa8();	break;
+        			case "ULLOA9":	simulation = new Ulloa9();	break;
+        			case "ULLOA10":	simulation = new Ulloa10();	break;
         			case "AXELROD":	simulation = new Axelrod();	break;
         			case "FLACHE_EXPERIMENT1":	simulation = new FlacheExperiment1();	break;
         			case "FLACHE_EXPERIMENT2":	simulation = new FlacheExperiment2();	break;
