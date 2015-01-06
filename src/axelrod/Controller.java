@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,14 +28,15 @@ public class Controller
 	
 	// References the Executor service that handles the threads
 	private ExecutorService exec = null;
-	
+		
 	/**
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
     public void load_tasks() throws FileNotFoundException {
     	
-    	Simulation.RUN = 0;
+    	// This is used to randomize the experiment.
+    	Random rand = new Random();
     	
     	//Get scanner instance        
     	Scanner scanner = new Scanner(new File(CulturalSimulator.EXPERIMENTAL_FILE));
@@ -80,11 +82,11 @@ public class Controller
 	        	simulation.RADIUS = Integer.parseInt(scanner.next());
 	        	simulation.MUTATION = Float.parseFloat(scanner.next());
 	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
-	        	tasks.add(simulation);
+	        	tasks.add(rand.nextInt(tasks.size()+1), simulation);
 	        	
 	        	// Generate tasks per repetitions
 	        	for (int r = 1; r < repetitions; r++) {
-		        	tasks.add(simulation.clone());
+		        	tasks.add( rand.nextInt(tasks.size()+1), simulation.clone());
 	        	}
 	        	
 	        	if (scanner.hasNextLine()) {
@@ -122,7 +124,9 @@ public class Controller
     	// This is a pool of threads of the size of the cores of the computer
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
+    	int id = 0;
     	for(Simulation w : tasks) {
+    		w.IDENTIFIER = id++;
     		exec.submit(w);
     	} 
     

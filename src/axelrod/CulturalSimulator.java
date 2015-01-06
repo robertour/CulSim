@@ -63,7 +63,7 @@ public class CulturalSimulator extends JFrame {
 	 */
 	public CulturalSimulator() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 586, 409);
+		setBounds(100, 100, 586, 581);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -213,7 +213,7 @@ public class CulturalSimulator extends JFrame {
 		contentPane.add(btn_open_file);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(12, 217, 551, 152);
+		scrollPane.setBounds(12, 217, 551, 324);
 		contentPane.add(scrollPane);
 		
 		TA_OUTPUT = new JTextArea();

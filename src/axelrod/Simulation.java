@@ -23,10 +23,6 @@ public abstract class Simulation  implements Callable<String>  {
 	
 	// Identify the simulation
 	/**
-	 * Counter of the simulation run
-	 */
-	public static int RUN = 0;
-	/**
 	 * Identify the current simulation object
 	 */
 	protected int IDENTIFIER = 0;
@@ -141,11 +137,11 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Number of members of the biggest cluster
 	 */
-	private int biggest_cluster = 0;
+	protected int biggest_cluster = 0;
 	/**
 	 * Number of clusters
 	 */
-	private int cultureN;
+	protected int cultureN;
 
 	
 	/**
@@ -176,22 +172,23 @@ public abstract class Simulation  implements Callable<String>  {
 	 * Buffer to write the output
 	 */
 	protected BufferedWriter writer = null;
-
+	
 	/**
-	 * Constructor
+	 * Register the time when the experiment started
 	 */
-	public Simulation() {
-		super();
-		RUN++;
-		IDENTIFIER = RUN;	
-	}
+	protected long startTime;
+	/**
+	 * Register the time when the experiment finished
+	 */
+	protected long endTime;
 
 	/**
 	 * Return a csv header for the output
 	 * @return
 	 */
 	public static String header() {
-		return "id,iterations,checkpoint,type,rows,cols,features,traits,radius,mutation,selection_error,iteration,cultures,cultures_norm,biggest_cluster,biggest_norm\n";		
+		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,mutation,selection_error,iteration," +
+				"cultures,cultures_norm,biggest_cluster,biggest_norm,culturesU,cultures_normU,biggest_clusterU,biggest_normU\n";		
 	}
 
 	/**
@@ -280,7 +277,9 @@ public abstract class Simulation  implements Callable<String>  {
 		}
 		
 		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
+		startTime = System.currentTimeMillis();
 	    run_experiment();
+	    endTime = System.currentTimeMillis();
 		
 	    String r = results();
 	
@@ -384,6 +383,8 @@ public abstract class Simulation  implements Callable<String>  {
 	 */
 	public String get_results() {
 		return  IDENTIFIER + "," +
+				new java.sql.Timestamp(startTime) + "," +
+				(endTime - startTime) + "," +
 				ITERATIONS + "," +  
 				CHECKPOINT + "," +  
 				TYPE + "," +  
@@ -398,7 +399,7 @@ public abstract class Simulation  implements Callable<String>  {
 				cultureN  + "," +
 				(float) cultureN / TOTAL_AGENTS + "," +
 				biggest_cluster + "," +
-				(float) biggest_cluster / TOTAL_AGENTS + "\n";				
+				(float) biggest_cluster / TOTAL_AGENTS + ",-1,-1,-1,-1\n";				
 	}
 
 	/**
