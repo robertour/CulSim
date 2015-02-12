@@ -12,12 +12,6 @@ import java.io.IOException;
  *
  */
 public class Ulloa2 extends Ulloa1 {
-	
-	public Ulloa2 (){
-		super();
-		TYPE = "ULLOA2";	
-	}
-	
 
 	@Override
 	public void run_experiment() {

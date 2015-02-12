@@ -4,10 +4,6 @@ import java.io.IOException;
 
 
 public class FlacheExperiment1 extends Axelrod {
-	public FlacheExperiment1 (){
-		super();
-		TYPE = "FLACHE_EXPERIMENT1";
-	}
 	
 	@Override
 	public void run_experiment() {

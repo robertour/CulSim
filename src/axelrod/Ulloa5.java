@@ -13,11 +13,6 @@ import java.io.IOException;
  */
 public class Ulloa5 extends Ulloa1 {
 	
-	public Ulloa5 (){
-		super();
-		TYPE = "ULLOA5";	
-	}
-	
 
 	@Override
 	public void run_experiment() {

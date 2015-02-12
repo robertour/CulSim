@@ -26,11 +26,6 @@ public class Ulloa1 extends FlacheExperiment1 {
 	private int culturesU;
 	private int biggest_clusterU;
 	
-	public Ulloa1 (){
-		super();
-		TYPE = "ULLOA1";	
-	}
-	
 	@Override
 	public void setup() {
 		super.setup();
@@ -230,7 +225,7 @@ public class Ulloa1 extends FlacheExperiment1 {
 	public String get_results() {
 		return  IDENTIFIER + "," +
 				new java.sql.Timestamp(startTime) + "," +
-				(endTime - startTime) + "," +
+				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
 				ITERATIONS + "," +  
 				CHECKPOINT + "," +  
 				TYPE + "," +  

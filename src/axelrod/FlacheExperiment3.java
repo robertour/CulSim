@@ -4,10 +4,6 @@ import java.io.IOException;
 
 
 public class FlacheExperiment3 extends FlacheExperiment2 {
-	public FlacheExperiment3 (){
-		super();
-		TYPE = "FLACHE_EXPERIMENT3";
-	}
 
 	@Override
 	public void run_experiment() {

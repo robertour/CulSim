@@ -180,7 +180,7 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Register the time when the experiment finished
 	 */
-	protected long endTime;
+	protected long endTime = 0l;
 
 	/**
 	 * Return a csv header for the output
@@ -195,6 +195,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 * Setups the object in order to run the experiment. Initialize all the variables
 	 */
 	private void simulation_setup() {
+		TYPE = this.getClass().getSimpleName().toUpperCase();
 		NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 		TOTAL_AGENTS = ROWS * COLS;
 				
@@ -384,7 +385,7 @@ public abstract class Simulation  implements Callable<String>  {
 	public String get_results() {
 		return  IDENTIFIER + "," +
 				new java.sql.Timestamp(startTime) + "," +
-				(endTime - startTime) + "," +
+				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
 				ITERATIONS + "," +  
 				CHECKPOINT + "," +  
 				TYPE + "," +  

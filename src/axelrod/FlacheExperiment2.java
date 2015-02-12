@@ -19,11 +19,6 @@ public class FlacheExperiment2 extends Simulation {
 	 */
 	protected int [] trait_candidates;
 	
-	public FlacheExperiment2 (){
-		super();
-		TYPE = "FLACHE_EXPERIMENT2";	
-	}
-	
 	@Override
 	public void setup() {
 		votes = new int[FEATURES][TRAITS];

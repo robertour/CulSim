@@ -14,13 +14,7 @@ import java.io.IOException;
  *
  */
 public class Ulloa1C extends Ulloa1B {
-	
-	
-	public Ulloa1C (){
-		super();
-		TYPE = "ULLOA1C";	
-	}
-		
+
 	
 	public void run_experiment() {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {

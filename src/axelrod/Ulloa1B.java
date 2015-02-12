@@ -50,11 +50,6 @@ public class Ulloa1B extends Ulloa1 {
 	int [] active_features = null;
 	
 	
-	public Ulloa1B (){
-		super();
-		TYPE = "ULLOA1B";	
-	}
-	
 	@Override
 	public void setup() {
 		super.setup();
