@@ -23,6 +23,9 @@ public class Ulloa1 extends FlacheExperiment1 {
 	protected int [][] cultures = null;
 	protected int [] culturesN = null;
 	
+	/**
+	 * Metrics for my own implementation
+	 */
 	private int culturesU;
 	private int biggest_clusterU;
 	
@@ -50,7 +53,8 @@ public class Ulloa1 extends FlacheExperiment1 {
 
 	
 	@Override
-	public void reset(){
+	protected void reset(){
+		super.reset();
 		nationalities = null;
 		cultures = null;
 		culturesN = null;
@@ -91,7 +95,7 @@ public class Ulloa1 extends FlacheExperiment1 {
 					
 					// Check for selection error
 					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
-					// Check for interaction
+					// Check for interaction based on homophily
 					boolean is_interaction = rand.nextFloat() >= 1 - ((float) agents_overlap / (float) FEATURES);
 	
 					// check if there is actual interaction 
@@ -153,9 +157,10 @@ public class Ulloa1 extends FlacheExperiment1 {
 								
 								// if there is no trait selected for the selected feature, then make the
 								// selected trait part of the culture
-								if (cultures[neighbors_nationality][selected_feature] == -1) {
-									cultures[neighbors_nationality][selected_feature] = selected_trait;
-								} // END of add a cultural trait to nationality
+								
+								//if (cultures[neighbors_nationality][selected_feature] == -1) {
+								cultures[neighbors_nationality][selected_feature] = selected_trait;
+								//} // END of add a cultural trait to nationality
 								
 							}// END of change of nationality
 							

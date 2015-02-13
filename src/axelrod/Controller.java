@@ -57,6 +57,7 @@ public class Controller
         		switch (type) {
           			case "ULLOA1B":	simulation = new Ulloa1B();	break;
         			case "ULLOA1C":	simulation = new Ulloa1C();	break;
+        			case "ULLOA1D":	simulation = new Ulloa1D();	break;
         			case "ULLOA1":	simulation = new Ulloa1();	break;
         			case "ULLOA2":	simulation = new Ulloa2();	break;
         			case "ULLOA3":	simulation = new Ulloa3();	break;
@@ -71,6 +72,7 @@ public class Controller
         			case "FLACHE_EXPERIMENT1":	simulation = new FlacheExperiment1();	break;
         			case "FLACHE_EXPERIMENT2":	simulation = new FlacheExperiment2();	break;
 	    	        case "FLACHE_EXPERIMENT3":	simulation = new FlacheExperiment3();	break;
+	    	        case "ULLOA_FLACHE1":	simulation = new UlloaFlache1();	break;
         		}
 	        	simulation.ITERATIONS = Integer.parseInt(scanner.next());
 	        	simulation.CHECKPOINT = Integer.parseInt(scanner.next());

@@ -9,11 +9,11 @@ import java.io.IOException;
  * 3. Probabilistic cultural change according to homophily between neighbor's culture 
  * and the agent's
  * 4. Reconciliation process (votes) in which the members of each culture decides all 
- * the active cultural traits 
+ * the active cultural traits. At the end one of them is selected
  * @author tico
  *
  */
-public class Ulloa1B extends Ulloa1 {
+public class Ulloa1D extends Ulloa1 {
 	
 	/**
 	 * Implements a circular doubled linked list with the members of the 
@@ -43,11 +43,11 @@ public class Ulloa1B extends Ulloa1 {
 	 * Keep the current max traits
 	 */
 	protected int max_traits[] = null;
-	
-		/**
-	 * Keep the active features
+	/**
+	 * Keep the current max features
 	 */
-	int [] active_features = null;
+	protected int max_features[] = null;
+	
 	
 	
 	@Override
@@ -71,8 +71,8 @@ public class Ulloa1B extends Ulloa1 {
 
 		votes_flags = new boolean[ROWS][COLS];
 		votes = new int[FEATURES][TRAITS];
-		max_traits = new int[TRAITS];
-		active_features = new int[FEATURES];
+		max_traits = new int[FEATURES*TRAITS];
+		max_features = new int[FEATURES*TRAITS];
 		
 	}
 	
@@ -88,7 +88,8 @@ public class Ulloa1B extends Ulloa1 {
 		votes_flags = null;
 		votes = null;
 		max_traits = null;
-		active_features = null;
+		max_features = null;
+		
 	}
 	
 	
@@ -251,94 +252,78 @@ public class Ulloa1B extends Ulloa1 {
 							// select the nationality
 							int nationality = nationalities[r][c];
 							
-							// select the features different from -1
-							int active_featuresN = 0;
+														
+							// clean the votes of the features
 							for (int f = 0; f < FEATURES; f++) {
-								if (cultures[nationality][f] != -1) {
-									active_features[active_featuresN++] = f; 
+								for (int t = 0; t < TRAITS; t++) {
+									votes[f][t] = 0;
 								}
 							}
 							
-							// enter the votes if there is at least one active feature
-							if (active_featuresN > 0) {
+							// include my votes
+							int nr = r;
+							int nc = c;
+							int temp_r;
 							
-								// clean the votes of the active features
-								for (int f = 0; f < active_featuresN; f++) {
-									for (int t = 0; t < TRAITS; t++) {
-										votes[active_features[f]][t] = 0;
-									}
+							// country-men votes
+							do {
+								
+								// let the agent vote on all the active features
+								for (int f = 0; f < FEATURES; f++) {
+									votes[f][beliefs[nr][nc][f]]++;
 								}
 								
-								// include my votes
-								int nr = r;
-								int nc = c;
-								int temp_r;
+								votes_flags[nr][nc] = !hasnt_vote_flag;
 								
-								// country-men votes
-								do {
-									
-									// let the agent vote on all the active features
-									for (int f = 0; f < active_featuresN; f++) {
-										votes[active_features[f]][beliefs[nr][nc][active_features[f]]]++;
+								// avoid overwriting the nr before time
+								temp_r = nr;
+								
+								// look for the next country man on the right
+								nr = countryman_right_r[nr][nc];
+								nc = countryman_right_c[temp_r][nc];
+								
+								
+								if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
+									System.out.println("Circular list Kaputt!!! Somebody already voted.");
+								}
+								
+								// while the next agent hasn't vote (nr == r && nc == c)
+							} while (votes_flags[nr][nc] == hasnt_vote_flag ) ;
+							// END of country men votes
+							
+
+							
+							// set winner traits for the current culture
+		
+							int max_trait_votes = -1;
+							int max_feature_traitN = 0;
+							
+							
+							// iterate over the active features
+							for (int f = 0; f < FEATURES; f++) {
+								// search for the traits with most votes
+								for (int t = 0; t < TRAITS; t++){
+									if ( max_trait_votes < votes[f][t] ){
+										max_trait_votes = votes[f][t];
+										max_feature_traitN = 0;										
+										max_traits[max_feature_traitN] = t;
+										max_features[max_feature_traitN++] = f;
+									} else if ( max_trait_votes == votes[f][t] ){
+										max_traits[max_feature_traitN] = t;
+										max_features[max_feature_traitN++] = f;
 									}
-									
-									votes_flags[nr][nc] = !hasnt_vote_flag;
-									
-									// avoid overwriting the nr before time
-									temp_r = nr;
-									
-									// look for the next country man on the right
-									nr = countryman_right_r[nr][nc];
-									nc = countryman_right_c[temp_r][nc];
-									
-									
-									if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
-										System.out.println("Circular list Kaputt!!! Somebody already voted.");
-									}
-									
-									// while the next agent hasn't vote (nr == r && nc == c)
-								} while (votes_flags[nr][nc] == hasnt_vote_flag ) ;
-								// END of country men votes
-								
-	
-								
-								// set winner traits for the current culture
-								int current_feature = -1;
-								int current_trait = -1;
-								int max_trait_votes = -1;
-								
-								int max_traitsN = 0;
-								
-								// iterate over the active features
-								for (int f = 0; f < active_featuresN; f++) {
-									
-									current_feature = active_features[f];
-									current_trait = cultures[nationality][current_feature];
-									max_trait_votes = votes[current_feature][current_trait];
-									max_traitsN = 0;
-									
-									// search for the traits with most votes
-									for (int t = 0; t < TRAITS; t++){
-										if ( max_trait_votes < votes[current_feature][t] ){
-											max_trait_votes = votes[current_feature][t];
-											max_traitsN = 0;
-											max_traits[max_traitsN++] = t;
-										} else if ( max_trait_votes == votes[current_feature][t] ){
-											max_traits[max_traitsN++] = t;
-										}
-									} // END of search for the traits with most votes
-									
-									// if there was actually a trait that got more (and only more) votes
-									// then randomly select one out of the winners and change the trait
-									if (max_trait_votes > votes[current_feature][current_trait]){
-										cultures[nationality][current_feature] = max_traits[rand.nextInt(max_traitsN)];
-									}
-									
-								} // END of the iteration over the active features
-								
-							} // END of if activeN > 0
-							else {
-								votes_flags[r][c] = !hasnt_vote_flag;
+								} // END of search for the traits with most votes
+							
+							} // END of the iteration over the active features
+							
+							int feature_trait_index = rand.nextInt(max_feature_traitN);
+							int selected_feature = max_features[feature_trait_index];
+
+							int current_trait =  cultures[nationality][selected_feature];
+							// if there was actually a trait that got more (and only more) votes
+							// then randomly select one out of the winners and change the trait
+							if (current_trait == -1 || max_trait_votes > votes[selected_feature][current_trait]){
+								cultures[nationality][selected_feature] = max_traits[feature_trait_index];
 							}
 							
 						} // END of it hasn't vote

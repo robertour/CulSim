@@ -62,7 +62,7 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Number of NEIGHOURS Of the cultural space
 	 */
-	private int NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
+	protected int NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 	/**
 	 * Define X coordinates of the neighbors
 	 */
@@ -406,7 +406,7 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * It is a sort of destructor to help the garbage collector
 	 */
-	public void finish() {
+	protected void finish() {
 		
 		try {
 			writer.write(results());
@@ -422,7 +422,8 @@ public abstract class Simulation  implements Callable<String>  {
 		neighboursX = null;
 		neighboursY = null;
 		neighboursN = null;
-		
+		flags = null;
+		cultures = null;
 	}
 
 	public void count_clusters() {
