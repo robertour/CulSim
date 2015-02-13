@@ -9,7 +9,7 @@ import java.io.IOException;
  * @author tico
  *
  */
-public class UlloaFlache1 extends Ulloa1 {
+public class UlloaFlache2 extends Ulloa1 {
 
 	// Internal variables declared just one (same as FLACHE_EXPERIMENT2)
 	/**
@@ -318,7 +318,9 @@ public class UlloaFlache1 extends Ulloa1 {
 							// If, after the interaction, the similarity with the neighbor's culture is bigger 
 							// (or equal to consider the new assimilated trait) than the similarity with its 
 							// own culture then the agent will change its culture to its neighbor's
-							// UNNECESARY CONDITION: if (nationality_overlap <= max_neighbors_nationality_overlap){
+							// according to a related probability
+							if (rand.nextFloat() > (nationality_overlap) / 
+									(float) (max_neighbors_nationality_overlap + nationality_overlap)){
 						
 								// if the nationalities are different, then nationality change to its neighbors
 								if (nationality != neighbors_nationality) {								
@@ -328,14 +330,16 @@ public class UlloaFlache1 extends Ulloa1 {
 									culturesN[neighbors_nationality]++;								
 								} // END of different nationality
 								
+								
 								// if there is no trait selected for the selected feature, then make the
 								// selected trait part of the culture
 								if (cultures[neighbors_nationality][selected_feature] == -1) {
 									cultures[neighbors_nationality][selected_feature] = selected_trait;
-								} // END of add a cultural trait to nationality			
+								} // END of add a cultural trait to nationality
 							
-							//} UNNECESARY CONDITION
-						}
+							}
+							
+						}						
 						
 					}
 					
