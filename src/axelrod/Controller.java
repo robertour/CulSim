@@ -55,9 +55,18 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
         		switch (type) {
+	        		case "NHULLOA1D":	simulation = new NHUlloa1D();	break;
+	    			case "NHULLOA1E":	simulation = new NHUlloa1E();	break;
+	    			case "NHULLOAB1":	simulation = new NHUlloaB1();	break;
+	    			case "NHULLOA2":	simulation = new NHUlloa2();	break;
+	    			case "NHULLOAA2":	simulation = new NHUlloaA2();	break;	    			
+        			case "ULLOAB1":	simulation = new UlloaB1();	break;
+        			case "ULLOAA1":	simulation = new UlloaA1();	break;
+        			case "ULLOAA2":	simulation = new UlloaA2();	break;
           			case "ULLOA1B":	simulation = new Ulloa1B();	break;
         			case "ULLOA1C":	simulation = new Ulloa1C();	break;
         			case "ULLOA1D":	simulation = new Ulloa1D();	break;
+        			case "ULLOA1E":	simulation = new Ulloa1E();	break;
         			case "ULLOA1":	simulation = new Ulloa1();	break;
         			case "ULLOA2":	simulation = new Ulloa2();	break;
         			case "ULLOA3":	simulation = new Ulloa3();	break;
@@ -73,6 +82,7 @@ public class Controller
         			case "FLACHE_EXPERIMENT2":	simulation = new FlacheExperiment2();	break;
 	    	        case "FLACHE_EXPERIMENT3":	simulation = new FlacheExperiment3();	break;
 	    	        case "ULLOA_FLACHE1":	simulation = new UlloaFlache1();	break;
+	    	        case "ULLOA_FLACHE2":	simulation = new UlloaFlache2();	break;
         		}
 	        	simulation.ITERATIONS = Integer.parseInt(scanner.next());
 	        	simulation.CHECKPOINT = Integer.parseInt(scanner.next());

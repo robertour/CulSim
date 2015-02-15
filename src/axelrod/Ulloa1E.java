@@ -13,40 +13,14 @@ import java.io.IOException;
  * @author tico
  *
  */
-public class Ulloa1D extends Ulloa1C {
+public class Ulloa1E extends Ulloa1D {
 	
 
-	/**
-	 * Keep the current max features
-	 */
-	protected int max_features[] = null;
-	
-	
-	
-	@Override
-	public void setup() {
-		super.setup();
-
-		max_traits = new int[FEATURES*TRAITS];
-		max_features = new int[FEATURES*TRAITS];
-		
-	}
-	
-	@Override
-	public void reset() {
-		super.reset();
-		
-		max_traits = null;
-		max_features = null;
-		
-	}
-	
-	
 	@Override
 	public void run_experiment() {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT; ic++) {
-				for (int i = 0; i < TOTAL_AGENTS; i++) {					
+				for (int i = 0; i < TOTAL_AGENTS; i++) {
 					
 					// select the agent
 					int r = rand.nextInt(ROWS);
@@ -122,10 +96,17 @@ public class Ulloa1D extends Ulloa1C {
 								}
 							}
 							
+							// avoid divisions by 0
+							if (cultural_overlap == 0 && neighbors_culture_overlap == 0) {
+								cultural_overlap = neighbors_culture_overlap = 1;
+							}
+
 							// If, after the interaction, the similarity with the neighbor's culture is bigger 
 							// (or equal to consider the new assimilated trait) than the similarity with its 
 							// own culture then the agent will change its culture to its neighbor's
-							if ( neighbors_culture_overlap >= cultural_overlap ) {
+							// according to a related probability
+							if (rand.nextFloat() > (cultural_overlap) / 
+									(float) (neighbors_culture_overlap + cultural_overlap)){
 								
 								// if the nationalities are different, then nationality change to its
 								// neighbors
@@ -245,7 +226,6 @@ public class Ulloa1D extends Ulloa1C {
 							int max_feature_traitN = 0;
 							int culture_current_trait_votes = 0;
 							
-
 							// iterate over the active features
 							for (int f = 0; f < FEATURES; f++) {
 								culture_current_trait_votes = 0;

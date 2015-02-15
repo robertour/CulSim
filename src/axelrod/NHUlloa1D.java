@@ -13,40 +13,13 @@ import java.io.IOException;
  * @author tico
  *
  */
-public class Ulloa1D extends Ulloa1C {
-	
-
-	/**
-	 * Keep the current max features
-	 */
-	protected int max_features[] = null;
-	
-	
-	
-	@Override
-	public void setup() {
-		super.setup();
-
-		max_traits = new int[FEATURES*TRAITS];
-		max_features = new int[FEATURES*TRAITS];
-		
-	}
-	
-	@Override
-	public void reset() {
-		super.reset();
-		
-		max_traits = null;
-		max_features = null;
-		
-	}
-	
+public class NHUlloa1D extends Ulloa1D {
 	
 	@Override
 	public void run_experiment() {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT; ic++) {
-				for (int i = 0; i < TOTAL_AGENTS; i++) {					
+				for (int i = 0; i < TOTAL_AGENTS; i++) {
 					
 					// select the agent
 					int r = rand.nextInt(ROWS);
@@ -60,37 +33,21 @@ public class Ulloa1D extends Ulloa1C {
 					// select the nationality
 					int nationality = nationalities[r][c];
 	
-					// get the number of mismatches between the two agents
-					int mismatchesN = 0;
 					// get the number of identical traits between the agent and its culture
 					int cultural_overlap = 0;
 					for (int f = 0; f < FEATURES; f++) {
-						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
-							mismatches[mismatchesN] = f;
-							mismatchesN++;
-						}
 						if (beliefs[r][c][f] == cultures[nationality][f]) {
 							cultural_overlap++;
 						}
 					}
-					int agents_overlap = FEATURES - mismatchesN;
 					
 					// Check for selection error
 					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
-					// Check for interaction
-					boolean is_interaction = rand.nextFloat() >= 1 - ((float) agents_overlap / (float) FEATURES);
 	
 					// check if there is actual interaction 
-					if (/*agents_overlap != FEATURES // this is avoiding cultural change!!
-							&& */ (is_interaction && !is_selection_error || !is_interaction && is_selection_error)) {
+					if (!is_selection_error ) {
 						
-						int selected_feature = -1;
-						// if arrive here by selection error, there is still a chance of influence the culture
-						if (mismatchesN == 0 ) {  
-							selected_feature = rand.nextInt(FEATURES);
-						} else {
-							selected_feature = mismatches[rand.nextInt(mismatchesN)];
-						}
+						int selected_feature = rand.nextInt(FEATURES);
 						int selected_trait = beliefs[nr][nc][selected_feature];
 						int nationality_trait = cultures[nationality][selected_feature];
 						
@@ -101,12 +58,8 @@ public class Ulloa1D extends Ulloa1C {
 							// then the agent will impose resistance to change depending how identified it is 
 							// with its nationality	(cultural overlap)	
 							beliefs[r][c][selected_feature] == nationality_trait &&
-							// Cultural resilience: resistance to change based on cultural 
-							// similarity or agent similarity
-							(rand.nextFloat() > cultural_overlap / 
-									// Math.max because it might have been a selection error
-									(float) (Math.max(1, agents_overlap) +  
-											cultural_overlap))) {
+							// Cultural resilience: resistance to change based on cultural similarity 
+							(rand.nextFloat() > (float) cultural_overlap / (float) FEATURES )) {
 
 							
 							// If there is no cultural shock or the the agent wins the roll against the culture, 
@@ -245,7 +198,6 @@ public class Ulloa1D extends Ulloa1C {
 							int max_feature_traitN = 0;
 							int culture_current_trait_votes = 0;
 							
-
 							// iterate over the active features
 							for (int f = 0; f < FEATURES; f++) {
 								culture_current_trait_votes = 0;
