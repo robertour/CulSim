@@ -55,6 +55,13 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
         		switch (type) {
+        			case "NHULLOA1EM":	simulation = new NHUlloa1EM();	break;
+        			case "NHULLOAB1M":	simulation = new NHUlloaB1M();	break;
+	    			case "NHULLOAA2M":	simulation = new NHUlloaA2M();	break;
+	    			case "NHULLOA10":	simulation = new NHUlloa10();	break;
+	    			case "ULLOA1EM":	simulation = new Ulloa1EM();	break;
+	    			case "ULLOAA2M":	simulation = new UlloaA2M();	break;
+	    			case "ULLOAB1M":	simulation = new UlloaB1M();	break;	    			
 	        		case "NHULLOA1D":	simulation = new NHUlloa1D();	break;
 	    			case "NHULLOA1E":	simulation = new NHUlloa1E();	break;
 	    			case "NHULLOAB1":	simulation = new NHUlloaB1();	break;
