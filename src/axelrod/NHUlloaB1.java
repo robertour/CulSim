@@ -33,8 +33,7 @@ public class NHUlloaB1 extends Ulloa1E {
 					
 					// select the nationality
 					int nationality = nationalities[r][c];
-	
-
+					
 					// get the number of identical traits between the agent and its culture
 					int cultural_overlap = 0;
 					for (int f = 0; f < FEATURES; f++) {
@@ -45,11 +44,13 @@ public class NHUlloaB1 extends Ulloa1E {
 					
 					// Check for selection error
 					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
-	
+					
 					// check if there is actual interaction 
-					if ( !is_selection_error ) {
+					if (!is_selection_error) {
 						
-						int selected_feature = rand.nextInt(FEATURES);
+						// randomly select the feature to be change
+						int	selected_feature = rand.nextInt(FEATURES);
+						
 						int selected_trait = beliefs[nr][nc][selected_feature];
 						int nationality_trait = cultures[nationality][selected_feature];
 						
@@ -87,16 +88,15 @@ public class NHUlloaB1 extends Ulloa1E {
 							if (cultural_overlap == 0 && neighbors_culture_overlap == 0) {
 								cultural_overlap = neighbors_culture_overlap = 1;
 							}
-
-							// If, after the interaction, the similarity with the neighbor's culture is bigger 
-							// (or equal to consider the new assimilated trait) than the similarity with its 
-							// own culture then the agent will change its culture to its neighbor's
-							// according to a related probability
-							if (rand.nextFloat() > (cultural_overlap) / 
-									(float) (neighbors_culture_overlap + cultural_overlap)){
-								
-								// if the nationalities are different, then nationality change to its
-								// neighbors
+							
+							float cultural_factor = culturesN[neighbors_nationality] * cultural_overlap;
+							// If, after the interaction, the amount of citizens in the neighbors culture times
+							// its similarity is bigger than the agent's then the agent will change its culture 
+							// to its neighbor's according to a related probability
+							if (rand.nextFloat() > cultural_factor  / 
+									(float) (culturesN[nationality] * neighbors_culture_overlap  + cultural_factor )){
+							
+								// if the nationalities are different, then nationality change to its neighbors
 								if (nationality != neighbors_nationality) {
 									
 									// its culture lost a citizen

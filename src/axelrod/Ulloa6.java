@@ -93,6 +93,7 @@ public class Ulloa6 extends Ulloa1 {
 								}
 							}
 							
+							// avoid divisions by 0		
 							if (cultural_overlap == 0 && neighbors_culture_overlap == 0) {
 								cultural_overlap = neighbors_culture_overlap = 1;
 							}

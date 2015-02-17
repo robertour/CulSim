@@ -100,16 +100,15 @@ public class Ulloa1E extends Ulloa1D {
 							if (cultural_overlap == 0 && neighbors_culture_overlap == 0) {
 								cultural_overlap = neighbors_culture_overlap = 1;
 							}
-
-							// If, after the interaction, the similarity with the neighbor's culture is bigger 
-							// (or equal to consider the new assimilated trait) than the similarity with its 
-							// own culture then the agent will change its culture to its neighbor's
-							// according to a related probability
-							if (rand.nextFloat() > (cultural_overlap) / 
-									(float) (neighbors_culture_overlap + cultural_overlap)){
-								
-								// if the nationalities are different, then nationality change to its
-								// neighbors
+							
+							float cultural_factor = culturesN[neighbors_nationality] * cultural_overlap;
+							// If, after the interaction, the amount of citizens in the neighbors culture times
+							// its similarity is bigger than the agent's then the agent will change its culture 
+							// to its neighbor's according to a related probability
+							if (rand.nextFloat() > cultural_factor  / 
+									(float) (culturesN[nationality] * neighbors_culture_overlap  + cultural_factor )){
+							
+								// if the nationalities are different, then nationality change to its neighbors
 								if (nationality != neighbors_nationality) {
 									
 									// its culture lost a citizen

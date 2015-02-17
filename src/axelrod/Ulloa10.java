@@ -18,7 +18,7 @@ public class Ulloa10 extends Ulloa1 {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT; ic++) {
 				for (int i = 0; i < TOTAL_AGENTS; i++) {
-
+					
 					// select the agent
 					int r = rand.nextInt(ROWS);
 					int c = rand.nextInt(COLS);
@@ -93,9 +93,11 @@ public class Ulloa10 extends Ulloa1 {
 								}
 							}
 							
+							// avoid divisions by 0
 							if (cultural_overlap == 0 && neighbors_culture_overlap == 0) {
 								cultural_overlap = neighbors_culture_overlap = 1;
 							}
+							
 							float cultural_factor = culturesN[neighbors_nationality] * cultural_overlap;
 							// If, after the interaction, the amount of citizens in the neighbors culture times
 							// its similarity is bigger than the agent's then the agent will change its culture 

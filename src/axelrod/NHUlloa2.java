@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Based on FlacheExperiment1 this class implements:
  * 1. Central repositories
- * 2. Probabilistic change confronting agents homophily and culture homophily
+ * 2. Probabilistic change confronting agents homophily and culture homophily (no agent homophily)
  * 3. Probabilistic cultural change according to homophily between neighbor's 
  * culture and the agent's
  * @author tico
@@ -30,8 +30,7 @@ public class NHUlloa2 extends Ulloa1 {
 					
 					// select the nationality
 					int nationality = nationalities[r][c];
-	
-
+					
 					// get the number of identical traits between the agent and its culture
 					int cultural_overlap = 0;
 					for (int f = 0; f < FEATURES; f++) {
@@ -42,13 +41,13 @@ public class NHUlloa2 extends Ulloa1 {
 					
 					// Check for selection error
 					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
-	
+					
 					// check if there is actual interaction 
 					if (!is_selection_error) {
 						
 						// randomly select the feature to be change
 						int	selected_feature = rand.nextInt(FEATURES);
-
+						
 						int selected_trait = beliefs[nr][nc][selected_feature];
 						int nationality_trait = cultures[nationality][selected_feature];
 						
@@ -61,7 +60,7 @@ public class NHUlloa2 extends Ulloa1 {
 							beliefs[r][c][selected_feature] == nationality_trait &&
 							// Cultural resilience: resistance to change based on cultural similarity 
 							(rand.nextFloat() > (float) cultural_overlap / (float) FEATURES )) {
-					
+							
 							// If there is no cultural shock or the the agent wins the roll against the culture, 
 							// then change the trait	
 							beliefs[r][c][selected_feature] = selected_trait;
@@ -142,6 +141,7 @@ public class NHUlloa2 extends Ulloa1 {
 		if (iteration == ITERATIONS){
 			is_finished = true;
 		}
-	} // END of run_experiment
+		
+	} // END of run_experiment/ END of run_experiment
 	
 }
