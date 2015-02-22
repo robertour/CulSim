@@ -53,6 +53,12 @@ public abstract class Simulation  implements Callable<String>  {
 	 */
 	public int TRAITS = 15;
 	
+	/**
+	 * alpha value for cultural resilience.0
+	 */
+	public float ALPHA = 0.5f;
+	protected float BETA = 0.5f;
+	
 	
 	// Neighborhood
 	/**
@@ -187,7 +193,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 * @return
 	 */
 	public static String header() {
-		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,mutation,selection_error,iteration," +
+		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,mutation,selection_error,iteration," +
 				"cultures,cultures_norm,biggest_cluster,biggest_norm,culturesU,cultures_normU,biggest_clusterU,biggest_normU\n";		
 	}
 
@@ -198,6 +204,7 @@ public abstract class Simulation  implements Callable<String>  {
 		TYPE = this.getClass().getSimpleName().toUpperCase();
 		NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 		TOTAL_AGENTS = ROWS * COLS;
+		BETA = 1 - ALPHA;
 				
 		beliefs = new int[ROWS][COLS][FEATURES];
 		neighboursX = new int[ROWS][COLS][NEIGHBOURS];
@@ -359,8 +366,9 @@ public abstract class Simulation  implements Callable<String>  {
 			clone.FEATURES = this.FEATURES; 
 			clone.TRAITS = this.TRAITS;
 			clone.RADIUS = this.RADIUS;
+			clone.ALPHA = this.ALPHA;
 			clone.MUTATION = this.MUTATION;
-			clone.SELECTION_ERROR = this.SELECTION_ERROR;
+			clone.SELECTION_ERROR = this.SELECTION_ERROR;			
 		} catch (InstantiationException | IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -393,7 +401,8 @@ public abstract class Simulation  implements Callable<String>  {
 				COLS + "," +  
 				FEATURES + "," +  
 				TRAITS + "," +  
-				RADIUS + "," +  
+				RADIUS + "," +
+				ALPHA + "," +  
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +

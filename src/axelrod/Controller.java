@@ -54,7 +54,13 @@ public class Controller
         	if (repetitions > 0) {
         		Simulation simulation = null;
         		String type = scanner.next();
-        		switch (type) {
+		    		switch (type) {
+					case "ULLOA2EVENSIMPLER":	simulation = new Ulloa2EvenSimpler();	break;
+		    		case "ULLOA2SIMPLERALPHA":	simulation = new Ulloa2SimplerAlpha();	break;
+        			case "ULLOA2SIMPLER":	simulation = new Ulloa2Simpler();	break;
+        			case "ULLOA1EALPHA":	simulation = new Ulloa1EAlpha();	break;
+    				case "ULLOAA2ALPHA":	simulation = new UlloaA2Alpha();	break;
+        			case "ULLOA2ALPHA":	simulation = new Ulloa2Alpha();	break;
         			case "NHULLOA1EM":	simulation = new NHUlloa1EM();	break;
         			case "NHULLOAB1M":	simulation = new NHUlloaB1M();	break;
 	    			case "NHULLOAA2M":	simulation = new NHUlloaA2M();	break;
@@ -99,6 +105,7 @@ public class Controller
 	        	simulation.FEATURES = Integer.parseInt(scanner.next());
 	        	simulation.TRAITS = Integer.parseInt(scanner.next());
 	        	simulation.RADIUS = Integer.parseInt(scanner.next());
+	        	simulation.ALPHA = Float.parseFloat(scanner.next());
 	        	simulation.MUTATION = Float.parseFloat(scanner.next());
 	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
 	        	tasks.add(rand.nextInt(tasks.size()+1), simulation);

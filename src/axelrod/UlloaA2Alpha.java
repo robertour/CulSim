@@ -6,59 +6,14 @@ import java.io.IOException;
  * Based on FlacheExperiment1 this class implements:
  * 1. Central repositories
  * 2. Probabilistic change confronting agents homophily and culture homophily
- * 3. Deterministic cultural change if the neighbor's culture is stronger (bigger) than agent's
+ * 3. Probabilistic cultural change according to homophily between neighbor's 
+ * culture and the agent's
+ * 4. Cultural resilience might be able to set back a trait in an agent
+ * 5. Also, the possibility to go back to its own culture without having to roll again
  * @author tico
  *
  */
-public class Ulloa1 extends FlacheExperiment1 {
-	
-	/**
-	 * Nationality of each culture
-	 */
-	protected int nationalities[][] = null;
-	
-	/**
-	 * Possible cultures
-	 */
-	protected int [][] cultures = null;
-	protected int [] culturesN = null;
-	
-	/**
-	 * Metrics for my own implementation
-	 */
-	private int culturesU;
-	private int biggest_clusterU;
-	
-	@Override
-	public void setup() {
-		super.setup();
-		
-		nationalities = new int[ROWS][COLS];
-		
-		cultures = new int[ROWS*COLS][FEATURES];
-		culturesN = new int[ROWS*COLS];
-		
-		// Initialize cultures and nationalities
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				nationalities[r][c] = r * ROWS + c;
-				culturesN[r * ROWS + c] = 1;
-				for (int f = 0; f < FEATURES; f++) {
-					cultures[r * ROWS + c][f] = -1;
-				}
-			}
-		}
-		
-	}
-
-	
-	@Override
-	protected void reset(){
-		super.reset();
-		nationalities = null;
-		cultures = null;
-		culturesN = null;
-	}
+public class UlloaA2Alpha extends Ulloa1 {
 
 	@Override
 	public void run_experiment() {
@@ -91,11 +46,12 @@ public class Ulloa1 extends FlacheExperiment1 {
 							cultural_overlap++;
 						}
 					}
+					
 					int agents_overlap = FEATURES - mismatchesN;
 					
 					// Check for selection error
 					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
-					// Check for interaction based on homophily
+					// Check for interaction
 					boolean is_interaction = rand.nextFloat() >= 1 - ((float) agents_overlap / (float) FEATURES);
 	
 					// check if there is actual interaction 
@@ -112,21 +68,25 @@ public class Ulloa1 extends FlacheExperiment1 {
 						int selected_trait = beliefs[nr][nc][selected_feature];
 						int nationality_trait = cultures[nationality][selected_feature];
 						
+						// the alpha regulates how resilient the culture is
+						float cultural_factor = cultural_overlap * ALPHA;
+						
+						// Cultural resilience: resistance to change based on cultural 
+						// similarity or agent similarity
+						boolean is_cultural_resilience = nationality_trait != -1 && 
+								rand.nextFloat() <= cultural_factor / 
+										// Math.max because it might have been a selection error
+										(float) (Math.max(1, agents_overlap)*BETA +  
+												cultural_factor);
+						
+						// if the culture roll against the change, it give the
+						// trace back to the agent
+						if (is_cultural_resilience){
+							beliefs[r][c][selected_feature] = nationality_trait;
+						}
 						// if there is no cultural shock (current trait is different to its nationality's), 
 						// accept the change
-						if (beliefs[r][c][selected_feature] != nationality_trait || 
-							// if the agent's current trait is equal to its nationality's (cultural shock),
-							// then the agent will impose resistance to change depending how identified it is 
-							// with its nationality	(cultural overlap)	
-							beliefs[r][c][selected_feature] == nationality_trait &&
-							// Cultural resilience: resistance to change based on cultural 
-							// similarity or agent similarity
-							(rand.nextFloat() > cultural_overlap / 
-									// Math.max because it might have been a selection error
-									(float) (Math.max(1, agents_overlap) +  
-											cultural_overlap))) {
-
-							
+						else  {							
 							// If there is no cultural shock or the the agent wins the roll against the culture, 
 							// then change the trait	
 							beliefs[r][c][selected_feature] = selected_trait;
@@ -140,10 +100,17 @@ public class Ulloa1 extends FlacheExperiment1 {
 								}
 							}
 							
+							// avoid divisions by 0
+							if (cultural_overlap == 0 && neighbors_culture_overlap == 0) {
+								cultural_overlap = neighbors_culture_overlap = 1;
+							}
+							
 							// If, after the interaction, the similarity with the neighbor's culture is bigger 
 							// (or equal to consider the new assimilated trait) than the similarity with its 
 							// own culture then the agent will change its culture to its neighbor's
-							if ( neighbors_culture_overlap >= cultural_overlap ) {
+							// according to a related probability
+							if (rand.nextFloat() > (cultural_overlap) / 
+									(float) (neighbors_culture_overlap + cultural_overlap)){
 								
 								// if the nationalities are different, then nationality change to its neighbors
 								if (nationality != neighbors_nationality) {
@@ -157,12 +124,26 @@ public class Ulloa1 extends FlacheExperiment1 {
 								
 								// if there is no trait selected for the selected feature, then make the
 								// selected trait part of the culture
+								if (cultures[neighbors_nationality][selected_feature] == -1) {
+									cultures[neighbors_nationality][selected_feature] = selected_trait;
+								} // END of add a cultural trait to nationality
 								
-								//if (cultures[neighbors_nationality][selected_feature] == -1) {
-								cultures[neighbors_nationality][selected_feature] = selected_trait;
-								//} // END of add a cultural trait to nationality
+							} 
+							// if after the interaction I realize that there is no identification with
+							// my culture, then go back to free agent
+							else if (cultural_overlap == 0) {
+								System.out.println("identity lost");
+								// its culture lost a citizen
+								culturesN[nationality]--;
+								nationalities[r][c] = r * ROWS + c;
+								culturesN[nationalities[r][c]]++;
 								
-							}// END of change of nationality
+								//delete de agent identity
+								for (int f = 0; f < FEATURES; f++) {
+									cultures[nationalities[r][c]][f] = -1;
+								}
+								
+							} // END of change of nationality
 							
 						} // END of cultural shock
 						
@@ -203,54 +184,5 @@ public class Ulloa1 extends FlacheExperiment1 {
 			is_finished = true;
 		}
 	} // END of run_experiment
-	
-	/**
-	 * Search for the biggest culture and counts the number of cultures so far
-	 */
-	private void count_clustersU(){
-		biggest_clusterU = 0;
-		culturesU = 0;
-		for (int i = 0; i < culturesN.length; i++) {
-			if (culturesN[i] > 0) {
-				culturesU++;
-				if (culturesN[i] > biggest_clusterU){
-					biggest_clusterU = culturesN[i];					
-				}
-			}
-		}
-	}
-
-	@Override
-	protected String results() {
-		count_clustersU();
-		return super.results();
-	}
-
-	@Override
-	public String get_results() {
-		return  IDENTIFIER + "," +
-				new java.sql.Timestamp(startTime) + "," +
-				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
-				ITERATIONS + "," +  
-				CHECKPOINT + "," +  
-				TYPE + "," +  
-				ROWS + "," +
-				COLS + "," +  
-				FEATURES + "," +  
-				TRAITS + "," +  
-				RADIUS + "," +  
-				ALPHA + "," +
-				MUTATION + "," +  
-				SELECTION_ERROR + "," +
-				iteration * CHECKPOINT+ "," +
-				cultureN  + "," +
-				(float) cultureN / TOTAL_AGENTS + "," +
-				biggest_cluster + "," +
-				(float) biggest_cluster / TOTAL_AGENTS + "," + 
-				culturesU  + "," +
-				(float) culturesU / TOTAL_AGENTS + "," +
-				biggest_clusterU + "," +
-				(float) biggest_clusterU / TOTAL_AGENTS +  "\n";				
-	}
 	
 }
