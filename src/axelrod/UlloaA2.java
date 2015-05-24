@@ -135,7 +135,7 @@ public class UlloaA2 extends Ulloa1 {
 								nationalities[r][c] = r * ROWS + c;
 								culturesN[nationalities[r][c]]++;
 								
-								//delete de agent identity
+								//delete the agent identity
 								for (int f = 0; f < FEATURES; f++) {
 									cultures[nationalities[r][c]][f] = -1;
 								}

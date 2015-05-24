@@ -6,8 +6,8 @@ import java.io.IOException;
  * Based on FlacheExperiment1 this class implements:
  * 1. Central repositories
  * 2. Probabilistic change confronting agents homophily and culture homophily
- * 3. Probabilistic cultural change according to the similarity and the number of citizen's of 
- * the neighbor's culture and the agent's
+ * 3. Probabilistic cultural change according to the cultural similarity and the number 
+ * of citizen's of the neighbor's culture and the agent's
  * @author tico
  *
  */

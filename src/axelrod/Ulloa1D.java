@@ -245,7 +245,6 @@ public class Ulloa1D extends Ulloa1C {
 							int max_feature_traitN = 0;
 							int culture_current_trait_votes = 0;
 							
-
 							// iterate over the active features
 							for (int f = 0; f < FEATURES; f++) {
 								culture_current_trait_votes = 0;

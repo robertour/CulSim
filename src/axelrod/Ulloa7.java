@@ -7,7 +7,7 @@ import java.io.IOException;
  * 1. Central repositories
  * 2. Probabilistic change confronting agents homophily and culture homophily
  * 3. Deterministic cultural change according to the number of citizen's of the 
- * neighbor's culture and the agent's (the less the more resilient)
+ * neighbor's culture and the agent's (the less the more resilient - minority protection)
  * @author tico
  *
  */
