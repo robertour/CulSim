@@ -58,6 +58,7 @@ public class Controller
 					case "ULLOA2EVENSIMPLER":	simulation = new Ulloa2EvenSimpler();	break;
 		    		case "ULLOA2SIMPLERALPHA":	simulation = new Ulloa2SimplerAlpha();	break;
         			case "ULLOA2SIMPLER":	simulation = new Ulloa2Simpler();	break;
+        			case "ULLOA10ALPHA":	simulation = new Ulloa10Alpha();	break;
         			case "ULLOAB1ALPHA":	simulation = new UlloaB1Alpha();	break;
         			case "ULLOA1EALPHA":	simulation = new Ulloa1EAlpha();	break;
     				case "ULLOAA2ALPHA":	simulation = new UlloaA2Alpha();	break;
