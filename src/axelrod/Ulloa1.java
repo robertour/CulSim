@@ -10,7 +10,7 @@ import java.io.IOException;
  * @author tico
  *
  */
-public class Ulloa1 extends FlacheExperiment1 {
+public class Ulloa1 extends Flache1 {
 	
 	/**
 	 * Nationality of each culture

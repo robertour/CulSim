@@ -3,7 +3,7 @@ package axelrod;
 import java.io.IOException;
 
 
-public class FlacheExperiment1 extends Axelrod {
+public class Flache1 extends Axelrod {
 	
 	@Override
 	public void run_experiment() {

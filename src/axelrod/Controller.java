@@ -93,9 +93,9 @@ public class Controller
         			case "ULLOA9":	simulation = new Ulloa9();	break;
         			case "ULLOA10":	simulation = new Ulloa10();	break;
         			case "AXELROD":	simulation = new Axelrod();	break;
-        			case "FLACHE_EXPERIMENT1":	simulation = new FlacheExperiment1();	break;
-        			case "FLACHE_EXPERIMENT2":	simulation = new FlacheExperiment2();	break;
-	    	        case "FLACHE_EXPERIMENT3":	simulation = new FlacheExperiment3();	break;
+        			case "FLACHE1":	simulation = new Flache1();	break;
+        			case "FLACHE2":	simulation = new Flache2();	break;
+	    	        case "FLACHE3":	simulation = new Flache3();	break;
 	    	        case "ULLOA_FLACHE1":	simulation = new UlloaFlache1();	break;
 	    	        case "ULLOA_FLACHE2":	simulation = new UlloaFlache2();	break;
         		}
@@ -136,7 +136,7 @@ public class Controller
     	// Write the results to the file
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
               new FileOutputStream(CulturalSimulator.RESULTS_DIR + "results.csv"), "utf-8"));
-        writer.write(FlacheExperiment3.header());
+        writer.write(Flache3.header());
         for(Simulation w : tasks) {
 			writer.write(w.get_results());
         }

@@ -3,7 +3,7 @@ package axelrod;
 import java.io.IOException;
 
 
-public class FlacheExperiment2 extends Simulation {
+public class Flache2 extends Simulation {
 
 	// Internal variables declared just one
 	/**
