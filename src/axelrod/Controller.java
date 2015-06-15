@@ -149,7 +149,11 @@ public class Controller
      */
     public void start() 
     {
-    	// This is a pool of threads of the size of the cores of the computer
+    	
+    	for(Simulation w : tasks) {
+    		w.call();
+    	} 
+/*    	// This is a pool of threads of the size of the cores of the computer
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
     	int id = 0;
@@ -162,7 +166,7 @@ public class Controller
     	
     	exec.shutdown();
     	
-    	(new SimulationExecuter()).start();
+    	(new SimulationExecuter()).start();*/
         
     }
     

@@ -3,7 +3,7 @@ package axelrod;
 import java.io.IOException;
 
 
-public class Flache1 extends Axelrod {
+public class Flache1Ulloa extends Axelrod {
 	
 	@Override
 	public void run_experiment() {
@@ -36,8 +36,8 @@ public class Flache1 extends Axelrod {
 					boolean is_interaction = rand.nextFloat() >= 1 - ((float) agents_overlap / (float) FEATURES);
 
 					// check if there is actual interaction 
-					if (agents_overlap != FEATURES
-							&& (is_interaction && !is_selection_error || !is_interaction && is_selection_error)) {
+					if (/*agents_overlap != FEATURES
+							&& */(is_interaction && !is_selection_error || !is_interaction && is_selection_error)) {
 						int selected_feature = mismatches[rand.nextInt(mismatchesN)];
 						beliefs[r][c][selected_feature] = beliefs[nr][nc][selected_feature];
 					}

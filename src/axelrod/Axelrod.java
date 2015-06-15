@@ -30,14 +30,17 @@ public class Axelrod extends Simulation {
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			for (int ic = 0; ic < CHECKPOINT; ic++) {
 				for (int i = 0; i < TOTAL_AGENTS; i++) {
+					
+					// select the agent
 					int r = rand.nextInt(ROWS);
 					int c = rand.nextInt(COLS);
 	
+					// select the neighbor that might influence the agent
 					int n = rand.nextInt(neighboursN[r][c]);
 					int nr = neighboursX[r][c][n];
 					int nc = neighboursY[r][c][n];
 	
-					// get the mismatches
+					// get the number of mismatches between the two agents
 					int mismatchesN = 0;
 					for (int f = 0; f < FEATURES; f++) {
 						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
@@ -45,11 +48,11 @@ public class Axelrod extends Simulation {
 							mismatchesN++;
 						}
 					}
-					int overlap = FEATURES - mismatchesN;
+					int agents_overlap = FEATURES - mismatchesN;
 	
 					// check if there is actual interaction 
-					if (overlap != FEATURES
-							&& rand.nextFloat() > 1 - ((float) overlap / (float) FEATURES)) {
+					if (agents_overlap != FEATURES
+							&& rand.nextFloat() > 1 - ((float) agents_overlap / (float) FEATURES)) {
 						int selected_feature = mismatches[rand.nextInt(mismatchesN)];
 						beliefs[r][c][selected_feature] = beliefs[nr][nc][selected_feature];
 					}

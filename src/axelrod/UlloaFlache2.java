@@ -27,7 +27,7 @@ public class UlloaFlache2 extends Ulloa1 {
 	/**
 	 * Candidates for the trait
 	 */
-	protected int [] nationality_candidates;	
+	protected int [] nationality_candidates; 	
 	
 	@Override
 	public void setup() {
@@ -35,7 +35,7 @@ public class UlloaFlache2 extends Ulloa1 {
 		votes = new int[FEATURES][TRAITS];
 		feature_candidates = new int[FEATURES];
 		trait_candidates = new int[TRAITS];
-		nationality_candidates = new int[NEIGHBOURS];
+		nationality_candidates = new int[NEIGHBOURS + 1]; // + 1 because own nationality is possible
 		
 	}
 	
@@ -236,14 +236,19 @@ public class UlloaFlache2 extends Ulloa1 {
 									
 									// make sure the nationality is already included, reverse for efficiency
 									for(nation = nationality_candidatesN - 1; nation >= 0; nation--) {
-										if (nationality_candidates[c] == neighbors_nationality ){
+										if (nationality_candidates[nation] == neighbors_nationality ){
 											is_different_culture = false;
 										}
 									}
 									
+									try {
 									// if the nationality is different from the current ones, then add it
 									if (is_different_culture) {										
 										nationality_candidates[nationality_candidatesN++] = neighbors_nationality;
+									}
+									}catch (Exception e) {
+										System.out.println("the nationality candidates is " + nationality_candidates.length);
+										System.out.println("trying to access nationality_candidatesN - 1 " + nationality_candidatesN);
 									}
 										
 								}

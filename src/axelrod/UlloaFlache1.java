@@ -236,7 +236,7 @@ public class UlloaFlache1 extends Ulloa1 {
 									
 									// make sure the nationality is already included, reverse for efficiency
 									for(nation = nationality_candidatesN - 1; nation >= 0; nation--) {
-										if (nationality_candidates[c] == neighbors_nationality ){
+										if (nationality_candidates[nation] == neighbors_nationality ){
 											is_different_culture = false;
 										}
 									}

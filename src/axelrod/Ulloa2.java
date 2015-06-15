@@ -50,7 +50,7 @@ public class Ulloa2 extends Ulloa1 {
 					boolean is_selection_error = rand.nextFloat() >= 1 - SELECTION_ERROR;
 					// Check for interaction
 					boolean is_interaction = rand.nextFloat() >= 1 - ((float) agents_overlap / (float) FEATURES);
-	
+
 					// check if there is actual interaction 
 					if (/*agents_overlap != FEATURES // this is avoiding cultural change!!
 							&& */ (is_interaction && !is_selection_error || !is_interaction && is_selection_error)) {
