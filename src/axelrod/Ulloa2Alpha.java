@@ -77,7 +77,7 @@ public class Ulloa2Alpha extends Ulloa1 {
 							beliefs[r][c][selected_feature] == nationality_trait &&
 							// Cultural resilience: resistance to change based on cultural 
 							// similarity or agent similarity
-							(rand.nextFloat() > cultural_factor / 
+							(rand.nextFloat() > cultural_factor / // TODO this might have to be >=
 									// Math.max because it might have been a selection error
 									(float) (Math.max(1, agents_overlap)*BETA +  
 											cultural_factor))) {

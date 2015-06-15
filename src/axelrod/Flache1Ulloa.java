@@ -38,7 +38,14 @@ public class Flache1Ulloa extends Axelrod {
 					// check if there is actual interaction 
 					if (/*agents_overlap != FEATURES
 							&& */(is_interaction && !is_selection_error || !is_interaction && is_selection_error)) {
-						int selected_feature = mismatches[rand.nextInt(mismatchesN)];
+						
+						int selected_feature = -1;
+						// if arrive here by selection error, there is still a chance of influence the culture
+						if (mismatchesN == 0 ) {  
+							selected_feature = rand.nextInt(FEATURES);
+						} else {
+							selected_feature = mismatches[rand.nextInt(mismatchesN)];
+						}
 						beliefs[r][c][selected_feature] = beliefs[nr][nc][selected_feature];
 					}
 					
