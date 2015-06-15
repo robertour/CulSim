@@ -55,6 +55,7 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
+					case "FLACHE1ULLOA":	simulation = new Flache1Ulloa();	break;
 					case "ULLOA2EVENSIMPLER":	simulation = new Ulloa2EvenSimpler();	break;
 		    		case "ULLOA2SIMPLERALPHA":	simulation = new Ulloa2SimplerAlpha();	break;
         			case "ULLOA2SIMPLER":	simulation = new Ulloa2Simpler();	break;
@@ -150,10 +151,10 @@ public class Controller
     public void start() 
     {
     	
-    	for(Simulation w : tasks) {
+    	/*for(Simulation w : tasks) {
     		w.call();
-    	} 
-/*    	// This is a pool of threads of the size of the cores of the computer
+    	} */
+    	// This is a pool of threads of the size of the cores of the computer
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
     	int id = 0;
@@ -166,7 +167,7 @@ public class Controller
     	
     	exec.shutdown();
     	
-    	(new SimulationExecuter()).start();*/
+    	(new SimulationExecuter()).start();
         
     }
     
