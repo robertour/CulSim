@@ -272,9 +272,20 @@ public abstract class Simulation  implements Callable<String>  {
 	 */
 	public String call() {
 		
-		simulation_setup();
+		
+		try {
+			simulation_setup();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("simulation_setup() failed");
+		}
 		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
-		setup();
+		try {
+			setup();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("simulation_setup() failed");
+		}
 		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
 		
 		try {
@@ -282,19 +293,49 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("writer.write(results()); failed");
 		}
 		
 		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
 		startTime = System.currentTimeMillis();
-	    run_experiment();
+	    try {
+			run_experiment();
+		} catch (Exception e) {
+			e.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("run_experiment(); failed");
+		}
 	    endTime = System.currentTimeMillis();
 		
-	    String r = results();
+	    String r = "";
+	    try {
+			r = results();
+		} catch (Exception e) {
+			e.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("r=results; failed");
+		}
 	
 	    CulturalSimulator.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
-	    finish();
-	    reset();
-		System.gc();
+	    
+	    try {
+			finish();
+		} catch (Exception e) {
+			e.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("finish(); failed");
+		}
+	    
+	    try {
+			reset();
+		} catch (Exception e) {
+			e.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("reset(); failed");
+		}
+	    
+		try {
+			System.gc();
+		} catch (Exception e) {
+			e.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("system.gc(); failed");
+		}
 	
 		return r;			
 	}
@@ -423,6 +464,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			CulturalSimulator.TA_OUTPUT.append("Error inside finish()");
 		}
 		
 		beliefs = null;

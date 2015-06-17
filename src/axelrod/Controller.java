@@ -168,12 +168,12 @@ public class Controller
         
     }
     
-/*    public void start() 
-    {
-    	for(Simulation w : tasks) {
-    		w.call();
-    	} 
-    }*/
+//    public void start() 
+//    {
+//    	for(Simulation w : tasks) {
+//    		w.call();
+//    	} 
+//    }
     
     /** 
      * Cancel all threads
