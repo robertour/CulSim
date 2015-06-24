@@ -58,8 +58,15 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
-
-					case "U_H_IL":	simulation = new U_H_IL();	break;
+					case "U_H_CC_P_D":	simulation = new U_H_CC_P_D();	break;
+					case "U_H_CC_D":	simulation = new U_H_CC_D();	break;
+					case "U_H_CC_P":	simulation = new U_H_CC_P();	break;
+		    		case "U_H_CC_A":	simulation = new U_H_CC_A();	break;
+					case "U_H_CC":	simulation = new U_H_CC();	break;
+					case "U_H_CA":	simulation = new U_H_CA();	break;
+					case "U_H_IL_CC":	simulation = new U_H_IL_CC();	break;
+		    		case "U_H_IL_CExp":	simulation = new U_H_IL_CExp();	break;
+					case "U_H_IL_CA":	simulation = new U_H_IL_CA();	break;
 					case "U_H_P_D":	simulation = new U_H_P_D();	break;
 					case "U_H_P":	simulation = new U_H_P();	break;
 					case "U_H":	simulation = new U_H();	break;
