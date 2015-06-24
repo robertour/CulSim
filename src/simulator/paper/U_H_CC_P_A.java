@@ -13,7 +13,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class U_H_CC_A extends Ulloa1 {
+public class U_H_CC_P_A extends Ulloa1 {
 
 	@Override
 	public void run_experiment() {
@@ -113,31 +113,37 @@ public class U_H_CC_A extends Ulloa1 {
 							neighbors_cultural_overlap++;
 						}
 						
-	
+						
 						// when the agent doesn't have any similarity with the cultures then
 						// he loses his identity and accept the trait. This also avoid divisions 
 						// by 0 in the next condition.
 						if (cultural_overlap == 0 && neighbors_cultural_overlap == 0) {
 
 							// Nothing happen when the agent is not similar to any of the two cultures
-						}						
-						// if there is no cultural shock (current trait is different to its nationality's), 
-						// accept the change
-						else {
+
+						} else {
+							
+
 							// the alpha regulates how resilient the culture is
 							float cultural_factor = cultural_overlap * ALPHA;
-						
-							if (beliefs[r][c][selected_feature] != nationality_trait || 
-							// if the agent's current trait is equal to its nationality's (cultural shock),
-							// then the agent will impose resistance to change depending how identified it is 
-							// with its nationality	(cultural overlap)	
-							beliefs[r][c][selected_feature] == nationality_trait &&
+							
 							// Cultural resilience: resistance to change based on cultural 
 							// similarity or agent similarity
-							(rand.nextFloat() >= cultural_factor / 
-									(float) neighbors_cultural_overlap * BETA +  
-									cultural_factor)) {
-	
+							boolean is_cultural_resilience = nationality_trait != -1 && 
+									rand.nextFloat() <= cultural_factor / 
+									// Math.max because it might have been a selection error
+									((float) neighbors_cultural_overlap * BETA +  
+											cultural_factor);
+
+							
+							// if the culture roll against the change, it give the
+							// trace back to the agent
+							if (is_cultural_resilience){
+								beliefs[r][c][selected_feature] = nationality_trait;
+							}
+							// if there is no cultural shock (current trait is different to its nationality's), 
+							// accept the change
+							else  {	
 								
 								// change the trait	
 								beliefs[r][c][selected_feature] = selected_trait;
@@ -159,8 +165,7 @@ public class U_H_CC_A extends Ulloa1 {
 	
 	
 							} // END of cultural shock
-							
-						} // END of else
+						}
 						
 					} // END of checking for interaction
 					
