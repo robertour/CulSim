@@ -13,51 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import simulator.old.Flache1;
-import simulator.old.Flache1Ulloa;
-import simulator.old.Flache2;
-import simulator.old.Flache3;
-import simulator.old.NHUlloa10;
-import simulator.old.NHUlloa1D;
-import simulator.old.NHUlloa1E;
-import simulator.old.NHUlloa1EM;
-import simulator.old.NHUlloa2;
-import simulator.old.NHUlloaA2;
-import simulator.old.NHUlloaA2M;
-import simulator.old.NHUlloaB1;
-import simulator.old.NHUlloaB1M;
-import simulator.old.Ulloa1;
-import simulator.old.Ulloa10;
-import simulator.old.Ulloa10Alpha;
-import simulator.old.Ulloa1B;
-import simulator.old.Ulloa1C;
-import simulator.old.Ulloa1D;
-import simulator.old.Ulloa1E;
-import simulator.old.Ulloa1EAlpha;
-import simulator.old.Ulloa1EM;
-import simulator.old.Ulloa2;
-import simulator.old.Ulloa2Alpha;
-import simulator.old.Ulloa2EvenSimpler;
-import simulator.old.Ulloa2Simpler;
-import simulator.old.Ulloa2SimplerAlpha;
-import simulator.old.Ulloa3;
-import simulator.old.Ulloa4;
-import simulator.old.Ulloa5;
-import simulator.old.Ulloa6;
-import simulator.old.Ulloa7;
-import simulator.old.Ulloa8;
-import simulator.old.Ulloa9;
-import simulator.old.UlloaA1;
-import simulator.old.UlloaA2;
-import simulator.old.UlloaA2Alpha;
-import simulator.old.UlloaA2M;
-import simulator.old.UlloaB1;
-import simulator.old.UlloaB1Alpha;
-import simulator.old.UlloaB1M;
-import simulator.old.UlloaFlache1;
-import simulator.old.UlloaFlache2;
-import simulator.paper.U_H;
-import simulator.paper.U_H_D;
+import simulator.old.*;
+import simulator.paper.*;
  
 /**
  * The controller of the simulations handles the simulation. It creates the tasks
@@ -101,6 +58,10 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
+
+					case "U_H_IL":	simulation = new U_H_IL();	break;
+					case "U_H_P_D":	simulation = new U_H_P_D();	break;
+					case "U_H_P":	simulation = new U_H_P();	break;
 					case "U_H":	simulation = new U_H();	break;
 					case "U_H_D":	simulation = new U_H_D();	break;
 		    		case "FLACHE1ULLOA":	simulation = new Flache1Ulloa();	break;
