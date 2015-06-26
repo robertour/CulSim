@@ -135,7 +135,7 @@ public class UlloaFlache2 extends Ulloa1 {
 		
 
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			for (ic = 0; ic < CHECKPOINT ; ic++) {
+			for (ic = 0; ic < CHECKPOINT; ic++) {
 				for (i = 0; i < TOTAL_AGENTS; i++) {
 					
 					// select the agent
