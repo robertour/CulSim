@@ -108,7 +108,7 @@ public class Ulloa1B extends Ulloa1 {
 					int nc = neighboursY[r][c][n];
 					
 					// select the nationality
-					int nationality = nationalities[r][c];
+					int nationality = institutions[r][c];
 	
 					// get the number of mismatches between the two agents
 					int mismatchesN = 0;
@@ -119,7 +119,7 @@ public class Ulloa1B extends Ulloa1 {
 							mismatches[mismatchesN] = f;
 							mismatchesN++;
 						}
-						if (beliefs[r][c][f] == cultures[nationality][f]) {
+						if (beliefs[r][c][f] == institution_beliefs[nationality][f]) {
 							cultural_overlap++;
 						}
 					}
@@ -142,7 +142,7 @@ public class Ulloa1B extends Ulloa1 {
 							selected_feature = mismatches[rand.nextInt(mismatchesN)];
 						}
 						int selected_trait = beliefs[nr][nc][selected_feature];
-						int nationality_trait = cultures[nationality][selected_feature];
+						int nationality_trait = institution_beliefs[nationality][selected_feature];
 						
 						// if there is no cultural shock (current trait is different to its nationality's), 
 						// accept the change
@@ -165,9 +165,9 @@ public class Ulloa1B extends Ulloa1 {
 						
 							// get the number of identical traits between the agent and its neighbors's culture
 							int neighbors_culture_overlap = 0;
-							int neighbors_nationality = nationalities[nr][nc];
+							int neighbors_nationality = institutions[nr][nc];
 							for (int f = 0; f < FEATURES; f++) {
-								if (beliefs[r][c][f] == cultures[neighbors_nationality][f]) {
+								if (beliefs[r][c][f] == institution_beliefs[neighbors_nationality][f]) {
 									neighbors_culture_overlap++;
 								}
 							}
@@ -182,9 +182,9 @@ public class Ulloa1B extends Ulloa1 {
 								if (nationality != neighbors_nationality) {
 									
 									// its culture lost a citizen
-									culturesN[nationality]--;
-									nationalities[r][c] = neighbors_nationality;
-									culturesN[neighbors_nationality]++;
+									institutionsN[nationality]--;
+									institutions[r][c] = neighbors_nationality;
+									institutionsN[neighbors_nationality]++;
 									
 									// Temporal variables of the agent's right and left country men
 									int rr = countryman_right_r[r][c];
@@ -220,8 +220,8 @@ public class Ulloa1B extends Ulloa1 {
 								
 								// if there is no trait selected for the selected feature, then make the
 								// selected trait part of the culture
-								if (cultures[neighbors_nationality][selected_feature] == -1) {
-									cultures[neighbors_nationality][selected_feature] = selected_trait;
+								if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
+									institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
 								} // END of add a cultural trait to nationality
 								
 								
@@ -249,12 +249,12 @@ public class Ulloa1B extends Ulloa1 {
 						if (votes_flags[r][c] == hasnt_vote_flag) {
 													
 							// select the nationality
-							int nationality = nationalities[r][c];
+							int nationality = institutions[r][c];
 							
 							// select the features different from -1
 							int active_featuresN = 0;
 							for (int f = 0; f < FEATURES; f++) {
-								if (cultures[nationality][f] != -1) {
+								if (institution_beliefs[nationality][f] != -1) {
 									active_features[active_featuresN++] = f; 
 								}
 							}
@@ -313,7 +313,7 @@ public class Ulloa1B extends Ulloa1 {
 								for (int f = 0; f < active_featuresN; f++) {
 									
 									current_feature = active_features[f];
-									current_trait = cultures[nationality][current_feature];
+									current_trait = institution_beliefs[nationality][current_feature];
 									max_trait_votes = votes[current_feature][current_trait];
 									max_traitsN = 0;
 									
@@ -331,7 +331,7 @@ public class Ulloa1B extends Ulloa1 {
 									// if there was actually a trait that got more (and only more) votes
 									// then randomly select one out of the winners and change the trait
 									if (max_trait_votes > votes[current_feature][current_trait]){
-										cultures[nationality][current_feature] = max_traits[rand.nextInt(max_traitsN)];
+										institution_beliefs[nationality][current_feature] = max_traits[rand.nextInt(max_traitsN)];
 									}
 									
 								} // END of the iteration over the active features
@@ -389,7 +389,7 @@ public class Ulloa1B extends Ulloa1 {
 				int nr = r;
 				int nc = c;
 				int temp_r;
-				int nationality = nationalities[r][c];
+				int nationality = institutions[r][c];
 				/*System.out.print( "Nationality(" + culturesN[nationality] + "): " + nationality + 
 						" Members: (" + countryman_left_r[nr][nc] + ", " + countryman_left_c[nr][nc] + 
 						" ) <-(" + nr + "," + nc + 
@@ -402,8 +402,8 @@ public class Ulloa1B extends Ulloa1 {
 											
 					votes_flags[nr][nc] = !hasnt_vote_flag;
 					
-					if (nationalities[nr][nc] != nationality) {
-						System.out.println("kaput!!! Different nationalities: (" + nationality + "," + nationalities[nr][nc] + ")");
+					if (institutions[nr][nc] != nationality) {
+						System.out.println("kaput!!! Different nationalities: (" + nationality + "," + institutions[nr][nc] + ")");
 					}
 					
 					// avoid overwriting the nr before time

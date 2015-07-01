@@ -54,10 +54,16 @@ public abstract class Simulation  implements Callable<String>  {
 	public int TRAITS = 15;
 	
 	/**
-	 * alpha value for cultural resilience.0
+	 * alpha value for cultural resilience
 	 */
 	public float ALPHA = 0.5f;
 	protected float BETA = 0.5f;
+
+	/**
+	 * alpha value for cultural mobility
+	 */
+	public float ALPHA_PRIME = 0.5f;
+	protected float BETA_PRIME = 0.5f;
 	
 	
 	// Neighborhood
@@ -193,7 +199,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 * @return
 	 */
 	public static String header() {
-		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,mutation,selection_error,iteration," +
+		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,mutation,selection_error,iteration," +
 				"cultures,cultures_norm,biggest_cluster,biggest_norm,culturesU,cultures_normU,biggest_clusterU,biggest_normU\n";		
 	}
 
@@ -205,6 +211,7 @@ public abstract class Simulation  implements Callable<String>  {
 		NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 		TOTAL_AGENTS = ROWS * COLS;
 		BETA = 1 - ALPHA;
+		BETA_PRIME = 1 - ALPHA_PRIME;
 				
 		beliefs = new int[ROWS][COLS][FEATURES];
 		neighboursX = new int[ROWS][COLS][NEIGHBOURS];
@@ -408,6 +415,7 @@ public abstract class Simulation  implements Callable<String>  {
 			clone.TRAITS = this.TRAITS;
 			clone.RADIUS = this.RADIUS;
 			clone.ALPHA = this.ALPHA;
+			clone.ALPHA_PRIME = this.ALPHA_PRIME;
 			clone.MUTATION = this.MUTATION;
 			clone.SELECTION_ERROR = this.SELECTION_ERROR;			
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -444,6 +452,7 @@ public abstract class Simulation  implements Callable<String>  {
 				TRAITS + "," +  
 				RADIUS + "," +
 				ALPHA + "," +  
+				ALPHA_PRIME + "," +  
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +

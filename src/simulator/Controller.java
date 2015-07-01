@@ -13,8 +13,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import simulator.doublealpha.*;
 import simulator.old.*;
 import simulator.paper.*;
+import simulator.scenarios.*;
  
 /**
  * The controller of the simulations handles the simulation. It creates the tasks
@@ -58,6 +60,10 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
+					case "ScenarioA":	simulation = new ScenarioA();	break;
+					case "ScenarioC":	simulation = new ScenarioC();	break;
+					case "ScenarioB":	simulation = new ScenarioB();	break;
+					case "U_H_CC_A_A":	simulation = new U_H_CC_A_A();	break;
 					case "U_H_CC_A_F":	simulation = new U_H_CC_A_F();	break;
 		    		case "U_H_CC_P_D_A":	simulation = new U_H_CC_P_D_A();	break;
 					case "U_H_CC_D_A":	simulation = new U_H_CC_D_A();	break;
@@ -129,6 +135,7 @@ public class Controller
 	        	simulation.TRAITS = Integer.parseInt(scanner.next());
 	        	simulation.RADIUS = Integer.parseInt(scanner.next());
 	        	simulation.ALPHA = Float.parseFloat(scanner.next());
+	        	simulation.ALPHA_PRIME = Float.parseFloat(scanner.next());
 	        	simulation.MUTATION = Float.parseFloat(scanner.next());
 	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
 	        	tasks.add(rand.nextInt(tasks.size()+1), simulation);

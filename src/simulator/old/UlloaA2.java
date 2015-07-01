@@ -31,7 +31,7 @@ public class UlloaA2 extends Ulloa1 {
 					int nc = neighboursY[r][c][n];
 					
 					// select the nationality
-					int nationality = nationalities[r][c];
+					int nationality = institutions[r][c];
 	
 					// get the number of mismatches between the two agents
 					int mismatchesN = 0;
@@ -42,7 +42,7 @@ public class UlloaA2 extends Ulloa1 {
 							mismatches[mismatchesN] = f;
 							mismatchesN++;
 						}
-						if (beliefs[r][c][f] == cultures[nationality][f]) {
+						if (beliefs[r][c][f] == institution_beliefs[nationality][f]) {
 							cultural_overlap++;
 						}
 					}
@@ -66,7 +66,7 @@ public class UlloaA2 extends Ulloa1 {
 							selected_feature = mismatches[rand.nextInt(mismatchesN)];
 						}
 						int selected_trait = beliefs[nr][nc][selected_feature];
-						int nationality_trait = cultures[nationality][selected_feature];
+						int nationality_trait = institution_beliefs[nationality][selected_feature];
 						
 						// Cultural resilience: resistance to change based on cultural 
 						// similarity or agent similarity
@@ -90,9 +90,9 @@ public class UlloaA2 extends Ulloa1 {
 						
 							// get the number of identical traits between the agent and its neighbors's culture
 							int neighbors_culture_overlap = 0;
-							int neighbors_nationality = nationalities[nr][nc];
+							int neighbors_nationality = institutions[nr][nc];
 							for (int f = 0; f < FEATURES; f++) {
-								if (beliefs[r][c][f] == cultures[neighbors_nationality][f]) {
+								if (beliefs[r][c][f] == institution_beliefs[neighbors_nationality][f]) {
 									neighbors_culture_overlap++;
 								}
 							}
@@ -113,16 +113,16 @@ public class UlloaA2 extends Ulloa1 {
 								if (nationality != neighbors_nationality) {
 									
 									// its culture lost a citizen
-									culturesN[nationality]--;
-									nationalities[r][c] = neighbors_nationality;
-									culturesN[neighbors_nationality]++;
+									institutionsN[nationality]--;
+									institutions[r][c] = neighbors_nationality;
+									institutionsN[neighbors_nationality]++;
 									
 								} // END of different nationality
 								
 								// if there is no trait selected for the selected feature, then make the
 								// selected trait part of the culture
-								if (cultures[neighbors_nationality][selected_feature] == -1) {
-									cultures[neighbors_nationality][selected_feature] = selected_trait;
+								if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
+									institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
 								} // END of add a cultural trait to nationality
 								
 							} 
@@ -131,13 +131,13 @@ public class UlloaA2 extends Ulloa1 {
 							else if (cultural_overlap == 0) {
 								System.out.println("identity lost");
 								// its culture lost a citizen
-								culturesN[nationality]--;
-								nationalities[r][c] = r * ROWS + c;
-								culturesN[nationalities[r][c]]++;
+								institutionsN[nationality]--;
+								institutions[r][c] = r * ROWS + c;
+								institutionsN[institutions[r][c]]++;
 								
 								//delete the agent identity
 								for (int f = 0; f < FEATURES; f++) {
-									cultures[nationalities[r][c]][f] = -1;
+									institution_beliefs[institutions[r][c]][f] = -1;
 								}
 								
 							} // END of change of nationality

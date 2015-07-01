@@ -15,13 +15,13 @@ public class Ulloa1 extends Flache1 {
 	/**
 	 * Nationality of each culture
 	 */
-	protected int nationalities[][] = null;
+	protected int institutions[][] = null;
 	
 	/**
 	 * Possible cultures
 	 */
-	protected int [][] cultures = null;
-	protected int [] culturesN = null;
+	protected int [][] institution_beliefs = null;
+	protected int [] institutionsN = null;
 	
 	/**
 	 * Metrics for my own implementation
@@ -33,18 +33,18 @@ public class Ulloa1 extends Flache1 {
 	public void setup() {
 		super.setup();
 		
-		nationalities = new int[ROWS][COLS];
+		institutions = new int[ROWS][COLS];
 		
-		cultures = new int[ROWS*COLS][FEATURES];
-		culturesN = new int[ROWS*COLS];
+		institution_beliefs = new int[ROWS*COLS][FEATURES];
+		institutionsN = new int[ROWS*COLS];
 		
 		// Initialize cultures and nationalities
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				nationalities[r][c] = r * ROWS + c;
-				culturesN[r * ROWS + c] = 1;
+				institutions[r][c] = r * ROWS + c;
+				institutionsN[r * ROWS + c] = 1;
 				for (int f = 0; f < FEATURES; f++) {
-					cultures[r * ROWS + c][f] = -1;
+					institution_beliefs[r * ROWS + c][f] = -1;
 				}
 			}
 		}
@@ -55,9 +55,9 @@ public class Ulloa1 extends Flache1 {
 	@Override
 	protected void reset(){
 		super.reset();
-		nationalities = null;
-		cultures = null;
-		culturesN = null;
+		institutions = null;
+		institution_beliefs = null;
+		institutionsN = null;
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class Ulloa1 extends Flache1 {
 					int nc = neighboursY[r][c][n];
 					
 					// select the nationality
-					int nationality = nationalities[r][c];
+					int nationality = institutions[r][c];
 	
 					// get the number of mismatches between the two agents
 					int mismatchesN = 0;
@@ -87,7 +87,7 @@ public class Ulloa1 extends Flache1 {
 							mismatches[mismatchesN] = f;
 							mismatchesN++;
 						}
-						if (beliefs[r][c][f] == cultures[nationality][f]) {
+						if (beliefs[r][c][f] == institution_beliefs[nationality][f]) {
 							cultural_overlap++;
 						}
 					}
@@ -110,7 +110,7 @@ public class Ulloa1 extends Flache1 {
 							selected_feature = mismatches[rand.nextInt(mismatchesN)];
 						}
 						int selected_trait = beliefs[nr][nc][selected_feature];
-						int nationality_trait = cultures[nationality][selected_feature];
+						int nationality_trait = institution_beliefs[nationality][selected_feature];
 						
 						// if there is no cultural shock (current trait is different to its nationality's), 
 						// accept the change
@@ -133,9 +133,9 @@ public class Ulloa1 extends Flache1 {
 						
 							// get the number of identical traits between the agent and its neighbors's culture
 							int neighbors_culture_overlap = 0;
-							int neighbors_nationality = nationalities[nr][nc];
+							int neighbors_nationality = institutions[nr][nc];
 							for (int f = 0; f < FEATURES; f++) {
-								if (beliefs[r][c][f] == cultures[neighbors_nationality][f]) {
+								if (beliefs[r][c][f] == institution_beliefs[neighbors_nationality][f]) {
 									neighbors_culture_overlap++;
 								}
 							}
@@ -149,9 +149,9 @@ public class Ulloa1 extends Flache1 {
 								if (nationality != neighbors_nationality) {
 									
 									// its culture lost a citizen
-									culturesN[nationality]--;
-									nationalities[r][c] = neighbors_nationality;
-									culturesN[neighbors_nationality]++;
+									institutionsN[nationality]--;
+									institutions[r][c] = neighbors_nationality;
+									institutionsN[neighbors_nationality]++;
 									
 								} // END of different nationality
 								
@@ -159,7 +159,7 @@ public class Ulloa1 extends Flache1 {
 								// selected trait part of the culture
 								
 								//if (cultures[neighbors_nationality][selected_feature] == -1) {
-								cultures[neighbors_nationality][selected_feature] = selected_trait;
+								institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
 								//} // END of add a cultural trait to nationality
 								
 							}// END of change of nationality
@@ -210,11 +210,11 @@ public class Ulloa1 extends Flache1 {
 	private void count_clustersU(){
 		biggest_clusterU = 0;
 		culturesU = 0;
-		for (int i = 0; i < culturesN.length; i++) {
-			if (culturesN[i] > 0) {
+		for (int i = 0; i < institutionsN.length; i++) {
+			if (institutionsN[i] > 0) {
 				culturesU++;
-				if (culturesN[i] > biggest_clusterU){
-					biggest_clusterU = culturesN[i];					
+				if (institutionsN[i] > biggest_clusterU){
+					biggest_clusterU = institutionsN[i];					
 				}
 			}
 		}
@@ -240,6 +240,7 @@ public class Ulloa1 extends Flache1 {
 				TRAITS + "," +  
 				RADIUS + "," +  
 				ALPHA + "," +
+				ALPHA_PRIME + "," +
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +

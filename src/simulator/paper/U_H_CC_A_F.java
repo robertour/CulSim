@@ -63,12 +63,12 @@ public class U_H_CC_A_F extends Ulloa1 {
 					int c = rand.nextInt(COLS);
 
 					// select the nationality
-					int nationality = nationalities[r][c];
+					int nationality = institutions[r][c];
 					
 					// get the number of identical traits between the agent and its own culture
 					int cultural_overlap = 0; 
 					for (int f = 0; f < FEATURES; f++) {
-						if (beliefs[r][c][f] == cultures[nationality][f]) {
+						if (beliefs[r][c][f] == institution_beliefs[nationality][f]) {
 							cultural_overlap++;
 						}
 					}
@@ -97,7 +97,7 @@ public class U_H_CC_A_F extends Ulloa1 {
 						int nc = neighboursY[r][c][n];
 					
 						// get the neighbors nationality
-						int neighbors_nationality = nationalities[nr][nc];
+						int neighbors_nationality = institutions[nr][nc];
 	
 						// get the number of mismatches between the two agents
 						int mismatchesN = 0;					
@@ -110,7 +110,7 @@ public class U_H_CC_A_F extends Ulloa1 {
 								mismatches[mismatchesN] = f;
 								mismatchesN++;
 							}
-							if (beliefs[r][c][f] == cultures[neighbors_nationality][f]) {
+							if (beliefs[r][c][f] == institution_beliefs[neighbors_nationality][f]) {
 								neighbors_cultural_overlap++;
 							}
 						}
@@ -203,8 +203,8 @@ public class U_H_CC_A_F extends Ulloa1 {
 						
 						// select the trait
 						int selected_trait = trait_candidates[rand.nextInt(trait_candidatesN)];
-						int nationality_trait = cultures[nationality][selected_feature];
-						int neighbors_nationality_trait = cultures[neighbors_nationality][selected_feature];
+						int nationality_trait = institution_beliefs[nationality][selected_feature];
+						int neighbors_nationality_trait = institution_beliefs[neighbors_nationality][selected_feature];
 
 		
 						// if the new trait is the same of the nationality trait, and the current 
@@ -240,7 +240,7 @@ public class U_H_CC_A_F extends Ulloa1 {
 						
 						// if the selected feature of the neighbor's nationality hasn't been
 						// assigned yet, then it is an opportunity to be more similar
-						if (cultures[neighbors_nationality][selected_feature] == -1) {
+						if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
 							max_neighbors_cultural_overlap++;
 						}
 						
@@ -274,15 +274,15 @@ public class U_H_CC_A_F extends Ulloa1 {
 								// if the nationalities are different, then nationality change to its neighbors
 								if (nationality != neighbors_nationality) {
 									// its culture lost a citizen
-									culturesN[nationality]--;
-									nationalities[r][c] = neighbors_nationality;
-									culturesN[neighbors_nationality]++;	
+									institutionsN[nationality]--;
+									institutions[r][c] = neighbors_nationality;
+									institutionsN[neighbors_nationality]++;	
 								} // END of different nationality
 								
 								// if there is no trait selected for the selected feature, then make the
 								// selected trait part of the culture
-								if (cultures[neighbors_nationality][selected_feature] == -1) {
-									cultures[neighbors_nationality][selected_feature] = selected_trait;
+								if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
+									institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
 								} // END of add a cultural trait to nationality
 
 	

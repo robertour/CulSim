@@ -143,12 +143,12 @@ public class UlloaFlache2 extends Ulloa1 {
 					c = rand.nextInt(COLS);
 	
 					// select the nationality
-					nationality = nationalities[r][c];
+					nationality = institutions[r][c];
 					
 					// get the number of identical traits between the agent and its own culture
 					nationality_overlap = 0;
 					for (f = 0; f < FEATURES; f++) {
-						if (beliefs[r][c][f] == cultures[nationality][f]) {
+						if (beliefs[r][c][f] == institution_beliefs[nationality][f]) {
 							nationality_overlap++;
 						}
 					}
@@ -183,7 +183,7 @@ public class UlloaFlache2 extends Ulloa1 {
 						nc = neighboursY[r][c][n];
 
 						// get the neighbors nationality
-						neighbors_nationality = nationalities[nr][nc];
+						neighbors_nationality = institutions[nr][nc];
 						
 						// get the number of mismatches between the two agents
 						mismatchesN = 0;
@@ -196,7 +196,7 @@ public class UlloaFlache2 extends Ulloa1 {
 								mismatches[mismatchesN] = f;
 								mismatchesN++;
 							}
-							if (beliefs[r][c][f] == cultures[neighbors_nationality][f]) {
+							if (beliefs[r][c][f] == institution_beliefs[neighbors_nationality][f]) {
 								neighbors_nationality_overlap++;
 							}
 						}
@@ -296,7 +296,7 @@ public class UlloaFlache2 extends Ulloa1 {
 						
 						// select the trait
 						selected_trait = trait_candidates[rand.nextInt(trait_candidatesN)];
-						nationality_trait = cultures[nationality][selected_feature];
+						nationality_trait = institution_beliefs[nationality][selected_feature];
 						
 
 						
@@ -330,16 +330,16 @@ public class UlloaFlache2 extends Ulloa1 {
 								// if the nationalities are different, then nationality change to its neighbors
 								if (nationality != neighbors_nationality) {								
 									// its culture lost a citizen
-									culturesN[nationality]--;
-									nationalities[r][c] = neighbors_nationality;
-									culturesN[neighbors_nationality]++;								
+									institutionsN[nationality]--;
+									institutions[r][c] = neighbors_nationality;
+									institutionsN[neighbors_nationality]++;								
 								} // END of different nationality
 								
 								
 								// if there is no trait selected for the selected feature, then make the
 								// selected trait part of the culture
-								if (cultures[neighbors_nationality][selected_feature] == -1) {
-									cultures[neighbors_nationality][selected_feature] = selected_trait;
+								if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
+									institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
 								} // END of add a cultural trait to nationality
 							
 							}
