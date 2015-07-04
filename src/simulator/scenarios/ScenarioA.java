@@ -104,10 +104,10 @@ public class ScenarioA extends Ulloa1 {
 								( ((FEATURES - mismatchesN) / (float) FEATURES) * (1-SELECTION_ERROR) + 
 								(              mismatchesN  / (float) FEATURES) * SELECTION_ERROR  ) ) {
 	
-	
-	
-								// change the trait	
-								beliefs[r][c][selected_feature] = selected_trait;
+							//////////////////////
+							// CHANGE THE TRAIT //
+							//////////////////////
+							beliefs[r][c][selected_feature] = selected_trait;
 						}
 							
 					} else {
@@ -116,8 +116,8 @@ public class ScenarioA extends Ulloa1 {
 						float prob_int = ( ((FEATURES - mismatchesN) / (float) FEATURES) * (1-SELECTION_ERROR) + 
 										   (            mismatchesN  / (float) FEATURES) * SELECTION_ERROR  );
 						
-						// Calculate the cultural factor
-						institution_resistance = ALPHA * Math.max(0.1f, institution_overlap / (float) FEATURES);
+						// Calculate the institutional resistance
+						institution_resistance = ALPHA * institution_overlap / (float) FEATURES;
 						
 						// check if there is actual interaction 
 						if (rand.nextFloat() >= institution_resistance / (prob_int * BETA + institution_resistance) ) {
@@ -162,7 +162,10 @@ public class ScenarioA extends Ulloa1 {
 							}						
 							
 
-							// change the trait	
+							//////////////////////
+							// CHANGE THE TRAIT //
+							//////////////////////
+							// we change the trait after adjusting the overlaps //
 							beliefs[r][c][selected_feature] = selected_trait;
 						
 							// when the agent doesn't have any similarity with the institutions then

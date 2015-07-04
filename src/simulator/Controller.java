@@ -60,6 +60,7 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
+		    		case "ScenarioAFlache":	simulation = new ScenarioAFlache();	break;
 					case "ScenarioA":	simulation = new ScenarioA();	break;
 					case "ScenarioC":	simulation = new ScenarioC();	break;
 					case "ScenarioB":	simulation = new ScenarioB();	break;

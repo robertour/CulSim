@@ -180,6 +180,13 @@ public abstract class Simulation  implements Callable<String>  {
 	 * Indicates if the simulation ended completely, without any interruptions.
 	 */
 	public boolean is_finished = false;
+	
+	
+	/**
+	 * Activate this when something went wrong in the simulation
+	 */
+	public boolean failed = false;
+	
 	/**
 	 * Buffer to write the output
 	 */
@@ -285,6 +292,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("simulation_setup() failed");
+			failed = true;
 		}
 		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
 		try {
@@ -292,6 +300,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("simulation_setup() failed");
+			failed = true;
 		}
 		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
 		
@@ -301,6 +310,7 @@ public abstract class Simulation  implements Callable<String>  {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("writer.write(results()); failed");
+			failed = true;
 		}
 		
 		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
@@ -310,6 +320,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (Exception e) {
 			e.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("run_experiment(); failed");
+			failed = true;
 		}
 	    endTime = System.currentTimeMillis();
 		
@@ -319,6 +330,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (Exception e) {
 			e.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("r=results; failed");
+			failed = true;
 		}
 	
 	    CulturalSimulator.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
@@ -328,6 +340,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (Exception e) {
 			e.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("finish(); failed");
+			failed = true;
 		}
 	    
 	    try {
@@ -335,6 +348,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (Exception e) {
 			e.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("reset(); failed");
+			failed = true;
 		}
 	    
 		try {
@@ -342,6 +356,7 @@ public abstract class Simulation  implements Callable<String>  {
 		} catch (Exception e) {
 			e.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("system.gc(); failed");
+			failed = true;
 		}
 	
 		return r;			
@@ -468,12 +483,17 @@ public abstract class Simulation  implements Callable<String>  {
 	protected void finish() {
 		
 		try {
-			writer.write(results());
+			if (failed) {
+				writer.write(results());
+			} else {
+				writer.write("FAILED:" + results());
+			}
 			writer.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			CulturalSimulator.TA_OUTPUT.append("Error inside finish()");
+			failed = true;
 		}
 		
 		beliefs = null;
