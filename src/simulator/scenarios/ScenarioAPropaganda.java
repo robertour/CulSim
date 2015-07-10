@@ -15,7 +15,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class ScenarioA extends Ulloa1 {
+public class ScenarioAPropaganda extends Ulloa1 {
 
 	@Override
 	public void run_experiment() {
@@ -94,8 +94,8 @@ public class ScenarioA extends Ulloa1 {
 					
 					// When there is no institutional conflict because the institution favors the selected trait
 					// or because the trait is already different, then just use homophily
-					if (selected_trait == institution_trait || 
-							institution_trait != -1 && beliefs[r][c][selected_feature] != institution_trait){
+					if (selected_trait == institution_trait){
+							
 						
 						// check if there is actual interaction checking against the homophily and 
 						// considering the selection error. The present formula integrates homophily
@@ -109,7 +109,9 @@ public class ScenarioA extends Ulloa1 {
 							//////////////////////
 							beliefs[r][c][selected_feature] = selected_trait;
 						}
-							
+				 	} else if (institution_trait != -1 && beliefs[r][c][selected_feature] != institution_trait) {
+						
+				 		
 					} else {
 						
 						// Probability of interaction taking into account selection error

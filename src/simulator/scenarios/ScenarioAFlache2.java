@@ -16,7 +16,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class ScenarioAFlache extends Ulloa1 {
+public class ScenarioAFlache2 extends Ulloa1 {
 
 	// Internal variables declared just one (same as FLACHE_EXPERIMENT2)
 	/**
@@ -249,19 +249,11 @@ public class ScenarioAFlache extends Ulloa1 {
 						if (selected_trait == institution_trait || 
 								institution_trait != -1 && beliefs[r][c][selected_feature] != institution_trait){
 							
-							// check if there is actual interaction checking against the homophily and 
-							// considering the selection error. The present formula integrates homophily
-							// and selection error into one probability. 
-							// TODO does this make sense? is it necessary?
-							if (rand.nextFloat() <  
-									( (            agents_overlap_ave  / (float) FEATURES ) * (1-SELECTION_ERROR) + 
-									  ((FEATURES - agents_overlap_ave) / (float) FEATURES ) *    SELECTION_ERROR  ) ) {
-		
-									//////////////////////
-									// CHANGE THE TRAIT //
-									//////////////////////
-									beliefs[r][c][selected_feature] = selected_trait;
-							}
+								//////////////////////
+								// CHANGE THE TRAIT //
+								//////////////////////
+								beliefs[r][c][selected_feature] = selected_trait;
+
 								
 						} else {
 							
@@ -367,6 +359,7 @@ public class ScenarioAFlache extends Ulloa1 {
 			try {
 				writer.write(results());				
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
