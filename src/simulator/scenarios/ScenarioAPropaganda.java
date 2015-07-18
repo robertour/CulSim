@@ -2,7 +2,7 @@ package simulator.scenarios;
 
 import java.io.IOException;
 
-import simulator.old.Ulloa1;
+import simulator.old.Ulloa1D;
 
 /**
  * Based on FlacheExperiment1 this class implements:
@@ -15,8 +15,27 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class ScenarioAPropaganda extends Ulloa1 {
+public class ScenarioAPropaganda extends Ulloa1D {
 
+	private int temp_r;
+	private int [] propaganda_feature_candidates = null;
+	
+	@Override
+	public void setup() {
+		super.setup();
+
+		propaganda_feature_candidates = new int[FEATURES];
+		
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		
+		propaganda_feature_candidates = null;
+		
+	}
+	
 	@Override
 	public void run_experiment() {
 
@@ -94,8 +113,8 @@ public class ScenarioAPropaganda extends Ulloa1 {
 					
 					// When there is no institutional conflict because the institution favors the selected trait
 					// or because the trait is already different, then just use homophily
-					if (selected_trait == institution_trait){
-							
+					if (selected_trait == institution_trait || 
+							institution_trait != -1 && beliefs[r][c][selected_feature] != institution_trait){
 						
 						// check if there is actual interaction checking against the homophily and 
 						// considering the selection error. The present formula integrates homophily
@@ -109,9 +128,7 @@ public class ScenarioAPropaganda extends Ulloa1 {
 							//////////////////////
 							beliefs[r][c][selected_feature] = selected_trait;
 						}
-				 	} else if (institution_trait != -1 && beliefs[r][c][selected_feature] != institution_trait) {
-						
-				 		
+							
 					} else {
 						
 						// Probability of interaction taking into account selection error
@@ -133,7 +150,7 @@ public class ScenarioAPropaganda extends Ulloa1 {
 									beliefs[r][c][selected_feature] != institution_trait) {
 								 institution_overlap++;
 							} 
-							//otherwise, if the new trait institutiont from the institution trait, and 
+							//otherwise, if the new trait is different from the institution trait, and 
 							// the current agent's trait is the same of the institution then the cultural 
 							// overlap will decrease
 							else if (institution_trait != selected_trait && 
@@ -215,6 +232,121 @@ public class ScenarioAPropaganda extends Ulloa1 {
 					
 				} // END of total agents
 				
+				
+				if (ic % 25 == 0){
+				
+					// Propaganda Process
+					// traverse rows
+					for (r = 0; r < ROWS; r++) {
+						
+						// traverse columns
+						for (c = 0; c < COLS; c++) {
+							
+							// if it hasn't vote
+							if (votes_flags[r][c] == hasnt_vote_flag) {
+														
+								// select the institution
+								institution = institutions[r][c];
+								
+								// clean the votes fore the propaganda feature candidates
+								for (int f = 0; f < FEATURES; f++) {
+									propaganda_feature_candidates[f] = 0;
+								}
+								
+								// include my votes
+								nr = r;
+								nc = c;
+								temp_r = nr;
+								
+								// country-men votes
+								do {
+									
+									// let the agent vote on all the active features
+									for (int f = 0; f < FEATURES; f++) {
+										if (beliefs[nr][nc][f] != institution_beliefs[institution][f]){
+											propaganda_feature_candidates[f]++;
+										}
+									}
+									
+									votes_flags[nr][nc] = !hasnt_vote_flag;
+									
+									// avoid overwriting the nr before time
+									temp_r = nr;
+									
+									// look for the next country man on the right
+									nr = countryman_right_r[nr][nc];
+									nc = countryman_right_c[temp_r][nc];
+									
+									
+									if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
+										System.out.println("Circular list Kaputt!!! Somebody already voted.");
+									}
+									
+									// while the next agent hasn't vote (nr == r && nc == c)
+								} while (votes_flags[nr][nc] == hasnt_vote_flag ) ;
+								// END of country men votes
+								
+								
+								// keep the feature that is the most different
+								int propaganda_feature_difference = propaganda_feature_candidates[0];
+								int propaganda_feature = 0;
+								
+								// find the feature that is the most different from the institution
+								for (int f = 1; f < FEATURES; f++) {
+									if (propaganda_feature_candidates[f] > propaganda_feature_difference) {
+										propaganda_feature_difference = propaganda_feature_candidates[f];
+										propaganda_feature = f;
+									}
+								}
+									
+								// get the most different trait
+								int propaganda_trait = institution_beliefs[institution][propaganda_feature];
+								
+								
+								// include my votes
+								nr = r;
+								nc = c;
+								
+	                            do {
+	                            	
+	                            	if (propaganda_trait != beliefs[nr][nc][propaganda_feature]){
+		                            	// reset the mismatches counter
+		                            	mismatchesN = 0;
+		                            	
+		                            	// count mismatches between the agent and the institution 
+		                            	for (int f = 0; f < FEATURES; f++) {
+		            						if (institution_beliefs[institution][f] != beliefs[nr][nc][f]) {
+		            							mismatchesN++;
+		            						}
+		            					}
+		                            	
+		                            	// check if the propaganda has effect by measuring the similarity with the institution 
+	            						if (rand.nextFloat() > mismatchesN  / (float) FEATURES ) {
+	            							beliefs[nr][nc][propaganda_feature] = propaganda_trait;
+	            						}
+									
+	                            	}
+	                            	            	
+									// avoid overwriting the nr before time
+									temp_r = nr;
+									
+									// look for the next country man on the right
+									nr = countryman_right_r[nr][nc];
+									nc = countryman_right_c[temp_r][nc];
+						
+									// while the next agent hasn't vote (nr == r && nc == c)
+								} while (nr != r || nc != c) ;
+							} // END of it hasn't vote
+							
+						} // END of cols
+						
+					} // END Democratic Process
+						
+					// change the flag
+					hasnt_vote_flag = !hasnt_vote_flag;
+				
+				}
+					
 			} // END of checkpoint
 			
 			// write results of the current checkpoint
