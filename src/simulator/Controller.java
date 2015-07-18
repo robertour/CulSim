@@ -62,6 +62,8 @@ public class Controller
 		    		switch (type) {
 		    		case "ScenarioAPropaganda":	simulation = new ScenarioAPropaganda();	break;
 		    		case "ScenarioADemocracy":	simulation = new ScenarioADemocracy();	break;
+		    		case "ScenarioAFlache3":	simulation = new ScenarioAFlache3();	break;
+		    		case "ScenarioAFlache2":	simulation = new ScenarioAFlache2();	break;
 		    		case "ScenarioAFlache":	simulation = new ScenarioAFlache();	break;
 					case "ScenarioA":	simulation = new ScenarioA();	break;
 					case "ScenarioC":	simulation = new ScenarioC();	break;
