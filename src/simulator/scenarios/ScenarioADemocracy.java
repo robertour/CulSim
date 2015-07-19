@@ -218,7 +218,7 @@ public class ScenarioADemocracy extends Ulloa1D {
 					
 				} // END of total agents
 				
-				if (ic % FREQ_PROC == 0){
+				if ((iteration * CHECKPOINT + ic) % FREQ_PROC == 0){
 									
 					// Democratic Process
 					// traverse rows
