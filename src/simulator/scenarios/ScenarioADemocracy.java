@@ -218,105 +218,107 @@ public class ScenarioADemocracy extends Ulloa1D {
 					
 				} // END of total agents
 				
-				
-				// Democratic Process
-				// traverse rows
-				for (r = 0; r < ROWS; r++) {
-					
-					// traverse columns
-					for (c = 0; c < COLS; c++) {
+				if (ic % FREQ_PROC == 0){
+									
+					// Democratic Process
+					// traverse rows
+					for (r = 0; r < ROWS; r++) {
 						
-						// if it hasn't vote
-						if (votes_flags[r][c] == hasnt_vote_flag) {
-													
-							// select the institution
-							institution = institutions[r][c];
+						// traverse columns
+						for (c = 0; c < COLS; c++) {
 							
+							// if it hasn't vote
+							if (votes_flags[r][c] == hasnt_vote_flag) {
 														
-							// clean the votes of the features
-							for (int f = 0; f < FEATURES; f++) {
-								for (int t = 0; t < TRAITS; t++) {
-									votes[f][t] = 0;
-								}
-							}
-							
-							// include my votes
-							nr = r;
-							nc = c;
-							temp_r = nr;
-							
-							// country-men votes
-							do {
+								// select the institution
+								institution = institutions[r][c];
 								
-								// let the agent vote on all the active features
+															
+								// clean the votes of the features
 								for (int f = 0; f < FEATURES; f++) {
-									votes[f][beliefs[nr][nc][f]]++;
+									for (int t = 0; t < TRAITS; t++) {
+										votes[f][t] = 0;
+									}
 								}
 								
-								votes_flags[nr][nc] = !hasnt_vote_flag;
-								
-								// avoid overwriting the nr before time
+								// include my votes
+								nr = r;
+								nc = c;
 								temp_r = nr;
 								
-								// look for the next country man on the right
-								nr = countryman_right_r[nr][nc];
-								nc = countryman_right_c[temp_r][nc];
-								
-								
-								if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
-									System.out.println("Circular list Kaputt!!! Somebody already voted.");
-								}
-								
-								// while the next agent hasn't vote (nr == r && nc == c)
-							} while (votes_flags[nr][nc] == hasnt_vote_flag ) ;
-							// END of country men votes
-							
-							// set winner traits for the current culture
-							max_difference_trait_votes = 0;
-							max_feature_traitN = 0;
-							culture_current_trait_votes = 0;
-							
-							// iterate over the active features
-							for (int f = 0; f < FEATURES; f++) {
-								culture_current_trait_votes = 0;
-								if (institution_beliefs[institution][f] != -1){
-									culture_current_trait_votes = votes[f][institution_beliefs[institution][f]];
-								}
-								// search for the traits with most votes
-								for (int t = 0; t < TRAITS; t++){									
-									if ( max_difference_trait_votes < votes[f][t] - culture_current_trait_votes ){
-										max_difference_trait_votes = votes[f][t] - culture_current_trait_votes;
-										max_feature_traitN = 0;										
-										max_traits[max_feature_traitN] = t;
-										max_features[max_feature_traitN++] = f;
-									} else if ( max_difference_trait_votes == votes[f][t] - culture_current_trait_votes  ){
-										max_traits[max_feature_traitN] = t;
-										max_features[max_feature_traitN++] = f;
+								// country-men votes
+								do {
+									
+									// let the agent vote on all the active features
+									for (int f = 0; f < FEATURES; f++) {
+										votes[f][beliefs[nr][nc][f]]++;
 									}
-								} // END of search for the traits with most votes
-							
-							} // END of the iteration over the active features
-							
-							// if there is maximal group
-							if (max_feature_traitN > 0){
-								int feature_trait_index = rand.nextInt(max_feature_traitN);
-								selected_feature = max_features[feature_trait_index];
-	
-								// if there was actually a trait that got more (and only more) votes
-								// then randomly select one out of the winners and change the trait
-								if (institution_beliefs[institution][selected_feature] == -1 || max_difference_trait_votes > 0){
-									institution_beliefs[institution][selected_feature] = max_traits[feature_trait_index];
+									
+									votes_flags[nr][nc] = !hasnt_vote_flag;
+									
+									// avoid overwriting the nr before time
+									temp_r = nr;
+									
+									// look for the next country man on the right
+									nr = countryman_right_r[nr][nc];
+									nc = countryman_right_c[temp_r][nc];
+									
+									
+									if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
+										System.out.println("Circular list Kaputt!!! Somebody already voted.");
+									}
+									
+									// while the next agent hasn't vote (nr == r && nc == c)
+								} while (votes_flags[nr][nc] == hasnt_vote_flag ) ;
+								// END of country men votes
+								
+								// set winner traits for the current culture
+								max_difference_trait_votes = 0;
+								max_feature_traitN = 0;
+								culture_current_trait_votes = 0;
+								
+								// iterate over the active features
+								for (int f = 0; f < FEATURES; f++) {
+									culture_current_trait_votes = 0;
+									if (institution_beliefs[institution][f] != -1){
+										culture_current_trait_votes = votes[f][institution_beliefs[institution][f]];
+									}
+									// search for the traits with most votes
+									for (int t = 0; t < TRAITS; t++){									
+										if ( max_difference_trait_votes < votes[f][t] - culture_current_trait_votes ){
+											max_difference_trait_votes = votes[f][t] - culture_current_trait_votes;
+											max_feature_traitN = 0;										
+											max_traits[max_feature_traitN] = t;
+											max_features[max_feature_traitN++] = f;
+										} else if ( max_difference_trait_votes == votes[f][t] - culture_current_trait_votes  ){
+											max_traits[max_feature_traitN] = t;
+											max_features[max_feature_traitN++] = f;
+										}
+									} // END of search for the traits with most votes
+								
+								} // END of the iteration over the active features
+								
+								// if there is maximal group
+								if (max_feature_traitN > 0){
+									int feature_trait_index = rand.nextInt(max_feature_traitN);
+									selected_feature = max_features[feature_trait_index];
+		
+									// if there was actually a trait that got more (and only more) votes
+									// then randomly select one out of the winners and change the trait
+									if (institution_beliefs[institution][selected_feature] == -1 || max_difference_trait_votes > 0){
+										institution_beliefs[institution][selected_feature] = max_traits[feature_trait_index];
+									}
 								}
-							}
+								
+							} // END of it hasn't vote
 							
-						} // END of it hasn't vote
+						} // END of cols
 						
-					} // END of cols
-					
-				} // END Democratic Process
-					
-				// change the flag
-				hasnt_vote_flag = !hasnt_vote_flag;
+					} // END Democratic Process
+						
+					// change the flag
+					hasnt_vote_flag = !hasnt_vote_flag;
+				}
 				
 			} // END of checkpoint
 			

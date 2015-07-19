@@ -241,6 +241,7 @@ public class Ulloa1 extends Flache1 {
 				RADIUS + "," +  
 				ALPHA + "," +
 				ALPHA_PRIME + "," +
+				FREQ_PROC + "," +
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +

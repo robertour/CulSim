@@ -65,6 +65,10 @@ public abstract class Simulation  implements Callable<String>  {
 	public float ALPHA_PRIME = 0.5f;
 	protected float BETA_PRIME = 0.5f;
 	
+	/**
+	 * Frequency of regulatory process (democracy or propaganda)
+	 */
+	protected int FREQ_PROC = 1;
 	
 	// Neighborhood
 	/**
@@ -206,7 +210,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 * @return
 	 */
 	public static String header() {
-		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,mutation,selection_error,iteration," +
+		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,freq_proc,mutation,selection_error,iteration," +
 				"cultures,cultures_norm,biggest_cluster,biggest_norm,culturesU,cultures_normU,biggest_clusterU,biggest_normU\n";		
 	}
 
@@ -431,6 +435,7 @@ public abstract class Simulation  implements Callable<String>  {
 			clone.RADIUS = this.RADIUS;
 			clone.ALPHA = this.ALPHA;
 			clone.ALPHA_PRIME = this.ALPHA_PRIME;
+			clone.FREQ_PROC = this.FREQ_PROC;
 			clone.MUTATION = this.MUTATION;
 			clone.SELECTION_ERROR = this.SELECTION_ERROR;			
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -468,6 +473,7 @@ public abstract class Simulation  implements Callable<String>  {
 				RADIUS + "," +
 				ALPHA + "," +  
 				ALPHA_PRIME + "," +  
+				FREQ_PROC + "," +  
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +

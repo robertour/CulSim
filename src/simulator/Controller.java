@@ -62,6 +62,8 @@ public class Controller
 		    		switch (type) {
 		    		case "ScenarioAPropaganda":	simulation = new ScenarioAPropaganda();	break;
 		    		case "ScenarioADemocracy":	simulation = new ScenarioADemocracy();	break;
+		    		case "ScenarioAFlache5":	simulation = new ScenarioAFlache5();	break;
+		    		case "ScenarioAFlache4":	simulation = new ScenarioAFlache4();	break;
 		    		case "ScenarioAFlache3":	simulation = new ScenarioAFlache3();	break;
 		    		case "ScenarioAFlache2":	simulation = new ScenarioAFlache2();	break;
 		    		case "ScenarioAFlache":	simulation = new ScenarioAFlache();	break;
@@ -141,6 +143,7 @@ public class Controller
 	        	simulation.RADIUS = Integer.parseInt(scanner.next());
 	        	simulation.ALPHA = Float.parseFloat(scanner.next());
 	        	simulation.ALPHA_PRIME = Float.parseFloat(scanner.next());
+	        	simulation.FREQ_PROC =  Integer.parseInt(scanner.next());
 	        	simulation.MUTATION = Float.parseFloat(scanner.next());
 	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
 	        	tasks.add(rand.nextInt(tasks.size()+1), simulation);

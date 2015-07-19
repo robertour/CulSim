@@ -16,7 +16,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class ScenarioAFlache3 extends Ulloa1 {
+public class ScenarioAFlache5 extends Ulloa1 {
 
 	// Internal variables declared just one (same as FLACHE_EXPERIMENT2)
 	/**
@@ -84,7 +84,6 @@ public class ScenarioAFlache3 extends Ulloa1 {
 		int institution_trait;
 		int neighbors_institution_trait;
 		int temp_v;
-		float prob_int;
 		double institution_resistance;
 		
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
@@ -122,7 +121,7 @@ public class ScenarioAFlache3 extends Ulloa1 {
 					// Max institution overlap of with a neighbor's. Start with my own institution.
 					max_neighbors_institution_overlap = institution_overlap;
 
-				
+					
 					// iterate over the neighbors to calculate the votes
 					for (int n = 0; n < neighboursN[r][c]; n++){
 
@@ -153,16 +152,13 @@ public class ScenarioAFlache3 extends Ulloa1 {
 						agents_overlap = FEATURES - mismatchesN;
 					
 
-						// Probability of interaction taking into account selection error
-						prob_int = ( (agents_overlap / (float) FEATURES) * (1-SELECTION_ERROR) + 
-								     (   mismatchesN / (float) FEATURES) * SELECTION_ERROR  );
-								  
-						// Calculate the cultural factor
-						institution_resistance = ALPHA * institution_overlap / (float) FEATURES;
-						
-						// check if there is actual interaction 
-						if (rand.nextFloat() >= institution_resistance / (prob_int * BETA + institution_resistance) ) {	
-							
+						// check if there is actual interaction checking against the homophily and 
+						// considering the selection error. The present formula integrates homophily
+						// and selection error into one probability. 
+						if (rand.nextFloat() <  
+								( (agents_overlap / (float) FEATURES) * (1-SELECTION_ERROR) + 
+								(     mismatchesN / (float) FEATURES) * SELECTION_ERROR  ) ) {
+
 							
 							// include the neighbor's beliefs into the votes
 							for (int f = 0; f < FEATURES; f++) {
@@ -193,7 +189,6 @@ public class ScenarioAFlache3 extends Ulloa1 {
 						}  // End of interaction
 						
 					} // End of voting
-
 					
 					// Get the candidates features
 					feature_candidatesN = 0;
@@ -234,7 +229,8 @@ public class ScenarioAFlache3 extends Ulloa1 {
 						selected_trait = trait_candidates[rand.nextInt(trait_candidatesN)];
 						institution_trait = institution_beliefs[institution][selected_feature];
 						neighbors_institution_trait = institution_beliefs[neighbors_institution][selected_feature];
-						
+
+												
 						// if the new trait is the same of the institution trait, and the current 
 						// agent's trait is different from the institution then the cultural overlap 
 						// will increase
@@ -306,7 +302,7 @@ public class ScenarioAFlache3 extends Ulloa1 {
 								} // END of add a institutional trait to institution
 
 							} // END of institutional shock
-														
+							
 						} // END of else
 						
 					} // END of else (institutional conflict)

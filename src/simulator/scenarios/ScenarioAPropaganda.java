@@ -233,7 +233,7 @@ public class ScenarioAPropaganda extends Ulloa1D {
 				} // END of total agents
 				
 				
-				if (ic % 25 == 0){
+				if (ic % FREQ_PROC == 0){
 				
 					// Propaganda Process
 					// traverse rows
