@@ -70,6 +70,11 @@ public abstract class Simulation  implements Callable<String>  {
 	 */
 	protected int FREQ_PROC = 1;
 	
+	/**
+	 * Frequency of regulatory process 2 (propaganda)
+	 */
+	protected int FREQ_PROC2 = 1;
+	
 	// Neighborhood
 	/**
 	 * Define the RADIOUS of the cultural space
@@ -210,7 +215,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 * @return
 	 */
 	public static String header() {
-		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,freq_proc,mutation,selection_error,iteration," +
+		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,freq_proc,freq_proc,mutation,selection_error,iteration," +
 				"cultures,cultures_norm,biggest_cluster,biggest_norm,culturesU,cultures_normU,biggest_clusterU,biggest_normU\n";		
 	}
 
@@ -436,6 +441,7 @@ public abstract class Simulation  implements Callable<String>  {
 			clone.ALPHA = this.ALPHA;
 			clone.ALPHA_PRIME = this.ALPHA_PRIME;
 			clone.FREQ_PROC = this.FREQ_PROC;
+			clone.FREQ_PROC2 = this.FREQ_PROC2;
 			clone.MUTATION = this.MUTATION;
 			clone.SELECTION_ERROR = this.SELECTION_ERROR;			
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -474,6 +480,7 @@ public abstract class Simulation  implements Callable<String>  {
 				ALPHA + "," +  
 				ALPHA_PRIME + "," +  
 				FREQ_PROC + "," +  
+				FREQ_PROC2 + "," +  
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +

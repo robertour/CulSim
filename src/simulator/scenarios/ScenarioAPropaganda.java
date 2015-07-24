@@ -17,8 +17,8 @@ import simulator.old.Ulloa1D;
  */
 public class ScenarioAPropaganda extends Ulloa1D {
 
-	private int temp_r;
-	private int [] propaganda_feature_candidates = null;
+	protected int temp_r;
+	protected int [] propaganda_feature_candidates = null;
 	
 	@Override
 	public void setup() {
@@ -340,7 +340,7 @@ public class ScenarioAPropaganda extends Ulloa1D {
 							
 						} // END of cols
 						
-					} // END Democratic Process
+					} // END Propaganda Process
 						
 					// change the flag
 					hasnt_vote_flag = !hasnt_vote_flag;

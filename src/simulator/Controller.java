@@ -60,6 +60,7 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
+		    		case "ScenarioADemocracyPropaganda":	simulation = new ScenarioADemocracyPropaganda();	break;
 		    		case "ScenarioAPropaganda":	simulation = new ScenarioAPropaganda();	break;
 		    		case "ScenarioADemocracy":	simulation = new ScenarioADemocracy();	break;
 		    		case "ScenarioAFlache5":	simulation = new ScenarioAFlache5();	break;
@@ -144,6 +145,7 @@ public class Controller
 	        	simulation.ALPHA = Float.parseFloat(scanner.next());
 	        	simulation.ALPHA_PRIME = Float.parseFloat(scanner.next());
 	        	simulation.FREQ_PROC =  Integer.parseInt(scanner.next());
+	        	simulation.FREQ_PROC2 =  Integer.parseInt(scanner.next());
 	        	simulation.MUTATION = Float.parseFloat(scanner.next());
 	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
 	        	tasks.add(rand.nextInt(tasks.size()+1), simulation);
