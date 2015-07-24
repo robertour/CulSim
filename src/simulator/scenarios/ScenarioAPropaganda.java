@@ -18,23 +18,6 @@ import simulator.old.Ulloa1D;
 public class ScenarioAPropaganda extends Ulloa1D {
 
 	protected int temp_r;
-	protected int [] propaganda_feature_candidates = null;
-	
-	@Override
-	public void setup() {
-		super.setup();
-
-		propaganda_feature_candidates = new int[FEATURES];
-		
-	}
-	
-	@Override
-	public void reset() {
-		super.reset();
-		
-		propaganda_feature_candidates = null;
-		
-	}
 	
 	@Override
 	public void run_experiment() {
@@ -248,27 +231,31 @@ public class ScenarioAPropaganda extends Ulloa1D {
 								// select the institution
 								institution = institutions[r][c];
 								
-								// clean the votes fore the propaganda feature candidates
-								for (int f = 0; f < FEATURES; f++) {
-									propaganda_feature_candidates[f] = 0;
-								}
-								
 								// include my votes
 								nr = r;
 								nc = c;
 								temp_r = nr;
 								
-								// country-men votes
-								do {
-									
-									// let the agent vote on all the active features
-									for (int f = 0; f < FEATURES; f++) {
-										if (beliefs[nr][nc][f] != institution_beliefs[institution][f]){
-											propaganda_feature_candidates[f]++;
-										}
-									}
-									
-									votes_flags[nr][nc] = !hasnt_vote_flag;
+	                            do {
+	                            	
+	                            	// reset the mismatches counter
+	                            	mismatchesN = 0;
+	                            	
+	                            	// count mismatches between the agent and the institution 
+	                            	for (int f = 0; f < FEATURES; f++) {
+	            						if (institution_beliefs[institution][f] != beliefs[nr][nc][f]) {
+	            							mismatchesN++;
+	            						}
+	            					}
+	                            	
+	                            	for (int f = 0; f < FEATURES; f++) {
+		                            	// check if the propaganda has effect by measuring the similarity with the institution 
+	            						if (institution_beliefs[institution][f] != -1 && beliefs[nr][nc][f] != institution_beliefs[institution][f] && rand.nextFloat() > mismatchesN  / (float) FEATURES ) {
+	            							beliefs[nr][nc][f] = institution_beliefs[institution][f];
+	            						}
+	                            	}
+	                            	            	
+	                            	votes_flags[nr][nc] = !hasnt_vote_flag;
 									
 									// avoid overwriting the nr before time
 									temp_r = nr;
@@ -284,58 +271,8 @@ public class ScenarioAPropaganda extends Ulloa1D {
 									
 									// while the next agent hasn't vote (nr == r && nc == c)
 								} while (votes_flags[nr][nc] == hasnt_vote_flag ) ;
-								// END of country men votes
+
 								
-								
-								// keep the feature that is the most different
-								int propaganda_feature_difference = propaganda_feature_candidates[0];
-								int propaganda_feature = 0;
-								
-								// find the feature that is the most different from the institution
-								for (int f = 1; f < FEATURES; f++) {
-									if (propaganda_feature_candidates[f] > propaganda_feature_difference) {
-										propaganda_feature_difference = propaganda_feature_candidates[f];
-										propaganda_feature = f;
-									}
-								}
-									
-								// get the most different trait
-								int propaganda_trait = institution_beliefs[institution][propaganda_feature];
-								
-								
-								// include my votes
-								nr = r;
-								nc = c;
-								
-	                            do {
-	                            	
-	                            	if (propaganda_trait != beliefs[nr][nc][propaganda_feature]){
-		                            	// reset the mismatches counter
-		                            	mismatchesN = 0;
-		                            	
-		                            	// count mismatches between the agent and the institution 
-		                            	for (int f = 0; f < FEATURES; f++) {
-		            						if (institution_beliefs[institution][f] != beliefs[nr][nc][f]) {
-		            							mismatchesN++;
-		            						}
-		            					}
-		                            	
-		                            	// check if the propaganda has effect by measuring the similarity with the institution 
-	            						if (rand.nextFloat() > mismatchesN  / (float) FEATURES ) {
-	            							beliefs[nr][nc][propaganda_feature] = propaganda_trait;
-	            						}
-									
-	                            	}
-	                            	            	
-									// avoid overwriting the nr before time
-									temp_r = nr;
-									
-									// look for the next country man on the right
-									nr = countryman_right_r[nr][nc];
-									nc = countryman_right_c[temp_r][nc];
-						
-									// while the next agent hasn't vote (nr == r && nc == c)
-								} while (nr != r || nc != c) ;
 							} // END of it hasn't vote
 							
 						} // END of cols

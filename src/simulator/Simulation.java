@@ -215,7 +215,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 * @return
 	 */
 	public static String header() {
-		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,freq_proc,freq_proc,mutation,selection_error,iteration," +
+		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,freq_proc,freq_proc2,mutation,selection_error,iteration," +
 				"cultures,cultures_norm,biggest_cluster,biggest_norm,culturesU,cultures_normU,biggest_clusterU,biggest_normU\n";		
 	}
 
