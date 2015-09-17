@@ -13,6 +13,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import simulator.PlusOne.ExperimentA_C;
+import simulator.PlusOne.ExperimentBAxelrod;
+import simulator.PlusOne.ExperimentBFlache;
+import simulator.PlusOne.ExperimentD;
+import simulator.PlusOne.ExperimentE;
+import simulator.PlusOne.ExperimentF;
 import simulator.doublealpha.*;
 import simulator.old.*;
 import simulator.pretests.*;
@@ -60,6 +66,12 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
+		    		case "ExperimentA_C": simulation = new ExperimentA_C();
+		    		case "ExperimentBAxelrod": simulation = new ExperimentBAxelrod();
+		    		case "ExperimentBFlache": simulation = new ExperimentBFlache();
+		    		case "ExperimentD": simulation = new ExperimentD();
+		    		case "ExperimentE": simulation = new ExperimentE();
+		    		case "ExperimentF": simulation = new ExperimentF();
 		    		case "ScenarioADemocracyPropaganda":	simulation = new ScenarioADemocracyPropaganda();	break;
 		    		case "ScenarioAPropaganda":	simulation = new ScenarioAPropaganda();	break;
 		    		case "ScenarioADemocracy":	simulation = new ScenarioADemocracy();	break;
