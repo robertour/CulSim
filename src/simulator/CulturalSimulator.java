@@ -120,7 +120,7 @@ public class CulturalSimulator extends JFrame {
 			}
 		});
 		btn_stop.setBounds(446, 169, 117, 25);
-		contentPane.add(btn_stop);
+		//contentPane.add(btn_stop);
 		
 		btn_pause = new JButton("Pause");
 		btn_pause.setEnabled(false);
@@ -134,7 +134,7 @@ public class CulturalSimulator extends JFrame {
 			}
 		});
 		btn_pause.setBounds(155, 169, 117, 25);
-		contentPane.add(btn_pause);
+		//contentPane.add(btn_pause);
 		
 		btn_resume = new JButton("Resume");
 		btn_resume.setEnabled(false);
@@ -148,7 +148,7 @@ public class CulturalSimulator extends JFrame {
 			}
 		});
 		btn_resume.setBounds(303, 169, 117, 25);
-		contentPane.add(btn_resume);
+		//contentPane.add(btn_resume);
 		
 		btn_open_experiment = new JButton("Open...");
 		btn_open_experiment.addActionListener(new ActionListener() {

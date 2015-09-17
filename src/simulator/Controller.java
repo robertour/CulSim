@@ -66,12 +66,12 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
-		    		case "ExperimentA_C": simulation = new ExperimentA_C();
-		    		case "ExperimentBAxelrod": simulation = new ExperimentBAxelrod();
-		    		case "ExperimentBFlache": simulation = new ExperimentBFlache();
-		    		case "ExperimentD": simulation = new ExperimentD();
-		    		case "ExperimentE": simulation = new ExperimentE();
-		    		case "ExperimentF": simulation = new ExperimentF();
+		    		case "ExperimentA_C": simulation = new ExperimentA_C();	break;
+		    		case "ExperimentBAxelrod": simulation = new ExperimentBAxelrod();	break;
+		    		case "ExperimentBFlache": simulation = new ExperimentBFlache();	break;
+		    		case "ExperimentD": simulation = new ExperimentD();	break;
+		    		case "ExperimentE": simulation = new ExperimentE();	break;
+		    		case "ExperimentF": simulation = new ExperimentF();	break;
 		    		case "ScenarioADemocracyPropaganda":	simulation = new ScenarioADemocracyPropaganda();	break;
 		    		case "ScenarioAPropaganda":	simulation = new ScenarioAPropaganda();	break;
 		    		case "ScenarioADemocracy":	simulation = new ScenarioADemocracy();	break;
