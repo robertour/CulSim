@@ -1,5 +1,5 @@
 cultural-simulations
-====================
+=================
 
 This repository contains a set of java simulations for artificial societies. The simulations are related to the 
 emergence of differenct cultures (groups of agents with the same features), and how to estabilize them in the
@@ -35,6 +35,8 @@ obtain stability (resilience to noise) of the culture with centralized repositor
 I will be updating this documentation, for now the headers of each `.java` file has a brief explanation of the main
 ideas.
 
+----------
+
 How to use it?
 --------------
 
@@ -45,8 +47,7 @@ understanding of the Axelrod model, I suggest you to start with any of the follo
 	http://ccl.northwestern.edu/netlogo/models/community/cultura
 	http://ccl.northwestern.edu/netlogo/models/community/Dissemination%20of%20Culture
 
-Right now, the interface allows you to select the Experimental Design File (`sample.csv` is an example provided)
-and the results folder. The Experimental Design File contains the following columns that you can play with:
+Right now, the interface allows you to select the Experimental Design File (`sample.csv` is an example provided) and the results folder. The Experimental Design File contains the following columns that you can play with:
 
 - REPETIONS: # of times the configuration is repeated, for statistical analysis
 - TYPE: The implementation. Possible values: [AXELROD|FLACHE_EXPERIMENT[1-3]|ULLOA[1-10|1B|1C]
@@ -57,20 +58,25 @@ and the results folder. The Experimental Design File contains the following colu
 - COLS:  # of columns of the world
 - FEATURES: # of characteristics of the culture. Each feature represents a possible dimension of the culture, e.g. music
 - TRAITS: # of possible values of the culture. Each trait represent a possible value for a feature, e.g. rock
-- RADIUS: # the neighborhood of agents
+- **ALPHA:**  institutional influence, if applies
+- **ALPHA_PRIME:** agent loyalty, if applies
+- **FREQ_PROC:** inverse frequency of an institutional process (either propaganda or democracy)
+- **FREQ_PROC2:** inverse frequency of a propaganda process that applies just when democracy is presence (EXPERIMENT F).
 - MUTATION: probability of a random change in the agent's vector after an interaction
 - SELECTION_ERROR: probability of making a mistake in the selection of the agent with which the interaction will be performed
 
-Then you have 4 buttons to control the simulation: `Start`, `Pause`, `Resume` and `Stop`. They should be self explanatory.
+Then you have 1 button to start the simulation: `Start`.
 
-A folder `results` (or `results#` if `results` exist) is created, and it contains a file `results.csv` with 
-the final results of each simulation. Also a folder called iterations that contains details of the iteration for
+A folder `results` (or `results#` if `results` exist) is created, and it contains a file `results.csv` with the final results of each simulation. Also a folder called iterations that contains details of the iteration for
 each simulation.
 
-About this implementation
-------------
+----------
 
-This code was created with the goal of run fast. Sacrifices were made to achieve this:
+About this implementation
+---------------------------------------
+
+This code was created with the goal of running fast. Sacrifices were made to achieve this:
+
 1. There is no GUI that shows the evolution of the agents. All is kept in memory and I/O 
 access is kept at the minimum.
 
@@ -92,9 +98,10 @@ from simulation) re-implement the wheel. You will find that most of the code in
 
 6. Buffered writers are used, so I/O is reduced and the output to files is not immediate.
 
+----------
 
 Installation
-------------
+---------------
 
 Just run the cultural-simulator.jar with `java -jar cultural-simulator.jar`. 
 
