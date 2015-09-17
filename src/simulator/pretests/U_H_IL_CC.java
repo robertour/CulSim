@@ -1,4 +1,4 @@
-package simulator.paper;
+package simulator.pretests;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class U_H_CC_P extends Ulloa1 {
+public class U_H_IL_CC extends Ulloa1 {
 
 	@Override
 	public void run_experiment() {
@@ -113,54 +113,58 @@ public class U_H_CC_P extends Ulloa1 {
 							neighbors_cultural_overlap++;
 						}
 						
-						
 						// when the agent doesn't have any similarity with the cultures then
 						// he loses his identity and accept the trait. This also avoid divisions 
 						// by 0 in the next condition.
 						if (cultural_overlap == 0 && neighbors_cultural_overlap == 0) {
 
-							// Nothing happen when the agent is not similar to any of the two cultures
-
-						} else {
+							// It also accepts the trait since there is no cultural resistance
+							beliefs[r][c][selected_feature] = selected_trait;
 							
+							// its culture lost a citizen
+							institutionsN[nationality]--;
+							institutions[r][c] = r * ROWS + c;
+							institutionsN[institutions[r][c]]++;
+							
+							//delete the agent identity
+							for (int f = 0; f < FEATURES; f++) {
+								institution_beliefs[institutions[r][c]][f] = -1;
+							}
+						}
+						// if there is no cultural shock (current trait is different to its nationality's), 
+						// accept the change
+						else if (beliefs[r][c][selected_feature] != nationality_trait || 
+							// if the agent's current trait is equal to its nationality's (cultural shock),
+							// then the agent will impose resistance to change depending how identified it is 
+							// with its nationality	(cultural overlap)	
+							beliefs[r][c][selected_feature] == nationality_trait &&
 							// Cultural resilience: resistance to change based on cultural 
 							// similarity or agent similarity
-							boolean is_cultural_resilience = nationality_trait != -1 && 
-									rand.nextFloat() <= cultural_overlap / 
+							(rand.nextFloat() > cultural_overlap / 
 									// Math.max because it might have been a selection error
-									((float) neighbors_cultural_overlap +  
-											cultural_overlap);
+									(float) neighbors_cultural_overlap +  
+											cultural_overlap)) {
 							
-							// if the culture roll against the change, it give the
-							// trace back to the agent
-							if (is_cultural_resilience){
-								beliefs[r][c][selected_feature] = nationality_trait;
-							}
-							// if there is no cultural shock (current trait is different to its nationality's), 
-							// accept the change
-							else  {	
-								
-								// change the trait	
-								beliefs[r][c][selected_feature] = selected_trait;
-								
-								
-								// if the nationalities are different, then nationality change to its neighbors
-								if (nationality != neighbors_nationality) {
-									// its culture lost a citizen
-									institutionsN[nationality]--;
-									institutions[r][c] = neighbors_nationality;
-									institutionsN[neighbors_nationality]++;	
-								} // END of different nationality
-								
-								// if there is no trait selected for the selected feature, then make the
-								// selected trait part of the culture
-								if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
-									institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
-								} // END of add a cultural trait to nationality
-	
-	
-							} // END of cultural shock
-						}
+							// change the trait	
+							beliefs[r][c][selected_feature] = selected_trait;
+							
+							
+							// if the nationalities are different, then nationality change to its neighbors
+							if (nationality != neighbors_nationality) {
+								// its culture lost a citizen
+								institutionsN[nationality]--;
+								institutions[r][c] = neighbors_nationality;
+								institutionsN[neighbors_nationality]++;	
+							} // END of different nationality
+							
+							// if there is no trait selected for the selected feature, then make the
+							// selected trait part of the culture
+							if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
+								institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
+							} // END of add a cultural trait to nationality
+
+
+						} // END of cultural shock
 						
 					} // END of checking for interaction
 					

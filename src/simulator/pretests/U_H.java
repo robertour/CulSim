@@ -1,4 +1,4 @@
-package simulator.paper;
+package simulator.pretests;
 
 import java.io.IOException;
 
@@ -11,9 +11,12 @@ import simulator.old.Ulloa1;
  * 3. Probabilistic cultural change according to homophily between neighbor's 
  * culture and the agent's
  * @author tico
+ * 
+ * NOTE (22/06/2015): the restriction of the agent's cultural trait being equal
+ * to the institution's one has been removed. (Original copy of Ulloa2)
  *
  */
-public class U_H_IL_CA extends Ulloa1 {
+public class U_H extends Ulloa1 {
 
 	@Override
 	public void run_experiment() {
@@ -67,77 +70,41 @@ public class U_H_IL_CA extends Ulloa1 {
 						int selected_trait = beliefs[nr][nc][selected_feature];
 						int nationality_trait = institution_beliefs[nationality][selected_feature];
 						
+						// Cultural resilience: resistance to change based on cultural 
+						// similarity or agent similarity
+						boolean is_cultural_resilience = nationality_trait != -1 && 
+								rand.nextFloat() <= cultural_overlap / 
+								// Math.max because it might have been a selection error
+								(float) (Math.max(1, agents_overlap) +  
+										cultural_overlap);
+						
 						// if there is no cultural shock (current trait is different to its nationality's), 
 						// accept the change
-						if (beliefs[r][c][selected_feature] != nationality_trait || 
-							// if the agent's current trait is equal to its nationality's (cultural shock),
-							// then the agent will impose resistance to change depending how identified it is 
-							// with its nationality	(cultural overlap)	
-							beliefs[r][c][selected_feature] == nationality_trait &&
-							// Cultural resilience: resistance to change based on cultural 
-							// similarity or agent similarity
-							(rand.nextFloat() > cultural_overlap / 
-									// Math.max because it might have been a selection error
-									(float) (Math.max(1, agents_overlap) +  
-											cultural_overlap))) {
-
-							// if the new trait is the same of the nationality trait, and the current 
-							// agent's trait is different from the nationality then the cultural overlap 
-							// will increase
-							if (nationality_trait == selected_trait && 
-									beliefs[r][c][selected_feature] != nationality_trait) {
-								 cultural_overlap++;
-							} 
-							//otherwise, if the new trait is different from the nationality trait, and 
-							// the current agent's trait is the same of the nationality then the cultural 
-							// overlap will decrease
-							else if (nationality_trait != selected_trait && 
-									beliefs[r][c][selected_feature] == nationality_trait) {
-								 cultural_overlap--;
-							}
+						if (!is_cultural_resilience) {
 							
 							// If there is no cultural shock or the the agent wins the roll against the culture, 
 							// then change the trait	
 							beliefs[r][c][selected_feature] = selected_trait;
 						
-						
 							// get the number of identical traits between the agent and its neighbors's culture
-							int neighbors_cultural_overlap = 0;
+							int neighbors_culture_overlap = 0;
 							int neighbors_nationality = institutions[nr][nc];
 							for (int f = 0; f < FEATURES; f++) {
 								if (beliefs[r][c][f] == institution_beliefs[neighbors_nationality][f]) {
-									neighbors_cultural_overlap++;
+									neighbors_culture_overlap++;
 								}
-							}							
-							
-							// if the selected feature of the neighbor's nationality hasn't been
-							// assigned yet, then it is an opportunity to be more similar
-							if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
-								neighbors_cultural_overlap++;
 							}
 							
-							
-							// when the agent doesn't have any similarity with the cultures then
-							// he loses his identity . This also avoid divisions by 0 in the
-							// next step.
-							if (cultural_overlap == 0 && neighbors_cultural_overlap == 0) {
-
-								// its culture lost a citizen
-								institutionsN[nationality]--;
-								institutions[r][c] = r * ROWS + c;
-								institutionsN[institutions[r][c]]++;
-								
-								//delete the agent identity
-								for (int f = 0; f < FEATURES; f++) {
-									institution_beliefs[institutions[r][c]][f] = -1;
-								}
-							}													
+							// avoid divisions by 0
+							if (cultural_overlap == 0 && neighbors_culture_overlap == 0) {
+								cultural_overlap = neighbors_culture_overlap = 1;
+							}
 							// If, after the interaction, the similarity with the neighbor's culture is bigger 
 							// (or equal to consider the new assimilated trait) than the similarity with its 
 							// own culture then the agent will change its culture to its neighbor's
 							// according to a related probability
-							else if (rand.nextFloat() >= (cultural_overlap) / 
-									(float) (neighbors_cultural_overlap + cultural_overlap)){
+							if (rand.nextFloat() > (cultural_overlap) / 
+									(float) (neighbors_culture_overlap + cultural_overlap)){
 								
 								// if the nationalities are different, then nationality change to its neighbors
 								if (nationality != neighbors_nationality) {
@@ -154,8 +121,9 @@ public class U_H_IL_CA extends Ulloa1 {
 								if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
 									institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
 								} // END of add a cultural trait to nationality
-							}
-
+								
+							}// END of change of nationality
+							
 						} // END of cultural shock
 						
 					} // END of checking for interaction

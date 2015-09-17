@@ -1,8 +1,8 @@
-package simulator.paper;
+package simulator.pretests;
 
 import java.io.IOException;
 
-import simulator.old.Ulloa1;
+import simulator.old.Ulloa1D;
 
 /**
  * Based on FlacheExperiment1 this class implements:
@@ -13,7 +13,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class U_H_CC extends Ulloa1 {
+public class U_H_CC_P_D_A extends Ulloa1D {
 
 	@Override
 	public void run_experiment() {
@@ -113,47 +113,57 @@ public class U_H_CC extends Ulloa1 {
 							neighbors_cultural_overlap++;
 						}
 						
+						
 						// when the agent doesn't have any similarity with the cultures then
 						// he loses his identity and accept the trait. This also avoid divisions 
 						// by 0 in the next condition.
 						if (cultural_overlap == 0 && neighbors_cultural_overlap == 0) {
 
 							// Nothing happen when the agent is not similar to any of the two cultures
-						}
-						// if there is no cultural shock (current trait is different to its nationality's), 
-						// accept the change
-						else if (beliefs[r][c][selected_feature] != nationality_trait || 
-							// if the agent's current trait is equal to its nationality's (cultural shock),
-							// then the agent will impose resistance to change depending how identified it is 
-							// with its nationality	(cultural overlap)	
-							beliefs[r][c][selected_feature] == nationality_trait &&
+
+						} else {
+							
+							// the alpha regulates how resilient the culture is
+							float cultural_factor = cultural_overlap * ALPHA;
+							
 							// Cultural resilience: resistance to change based on cultural 
 							// similarity or agent similarity
-							(rand.nextFloat() >= cultural_overlap / 
+							boolean is_cultural_resilience = nationality_trait != -1 && 
+									rand.nextFloat() <= cultural_factor / 
 									// Math.max because it might have been a selection error
-									(float) neighbors_cultural_overlap +  
-											cultural_overlap)) {
+									((float) neighbors_cultural_overlap * BETA +  
+											cultural_factor);
 							
-							// change the trait	
-							beliefs[r][c][selected_feature] = selected_trait;
-							
-							
-							// if the nationalities are different, then nationality change to its neighbors
-							if (nationality != neighbors_nationality) {
-								// its culture lost a citizen
-								institutionsN[nationality]--;
-								institutions[r][c] = neighbors_nationality;
-								institutionsN[neighbors_nationality]++;	
-							} // END of different nationality
-							
-							// if there is no trait selected for the selected feature, then make the
-							// selected trait part of the culture
-							if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
-								institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
-							} // END of add a cultural trait to nationality
-
-
-						} // END of cultural shock
+							// if the culture roll against the change, it give the
+							// trace back to the agent
+							if (is_cultural_resilience){
+								beliefs[r][c][selected_feature] = nationality_trait;
+							}
+							// if there is no cultural shock (current trait is different to its nationality's), 
+							// accept the change
+							else  {	
+								
+								// change the trait	
+								beliefs[r][c][selected_feature] = selected_trait;
+								
+								
+								// if the nationalities are different, then nationality change to its neighbors
+								if (nationality != neighbors_nationality) {
+									// its culture lost a citizen
+									institutionsN[nationality]--;
+									institutions[r][c] = neighbors_nationality;
+									institutionsN[neighbors_nationality]++;	
+								} // END of different nationality
+								
+								// if there is no trait selected for the selected feature, then make the
+								// selected trait part of the culture
+								if (institution_beliefs[neighbors_nationality][selected_feature] == -1) {
+									institution_beliefs[neighbors_nationality][selected_feature] = selected_trait;
+								} // END of add a cultural trait to nationality
+	
+	
+							} // END of cultural shock
+						}
 						
 					} // END of checking for interaction
 					
@@ -163,6 +173,107 @@ public class U_H_CC extends Ulloa1 {
 					}
 					
 				} // END of total agents
+
+				// Democratic Process
+				if (ic % 1 == 0){
+					// traverse rows
+					for (int r = 0; r < ROWS; r++) {
+						
+						// traverse columns
+						for (int c = 0; c < COLS; c++) {
+							
+							// if it hasn't vote
+							if (votes_flags[r][c] == hasnt_vote_flag) {
+														
+								// select the nationality
+								int nationality = institutions[r][c];
+								
+															
+								// clean the votes of the features
+								for (int f = 0; f < FEATURES; f++) {
+									for (int t = 0; t < TRAITS; t++) {
+										votes[f][t] = 0;
+									}
+								}
+								
+								// include my votes
+								int nr = r;
+								int nc = c;
+								int temp_r;
+								
+								// country-men votes
+								do {
+									
+									// let the agent vote on all the active features
+									for (int f = 0; f < FEATURES; f++) {
+										votes[f][beliefs[nr][nc][f]]++;
+									}
+									
+									votes_flags[nr][nc] = !hasnt_vote_flag;
+									
+									// avoid overwriting the nr before time
+									temp_r = nr;
+									
+									// look for the next country man on the right
+									nr = countryman_right_r[nr][nc];
+									nc = countryman_right_c[temp_r][nc];
+									
+									
+									if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
+										System.out.println("Circular list Kaputt!!! Somebody already voted.");
+									}
+									
+									// while the next agent hasn't vote (nr == r && nc == c)
+								} while (votes_flags[nr][nc] == hasnt_vote_flag ) ;
+								// END of country men votes
+								
+								// set winner traits for the current culture		
+								int max_difference_trait_votes = 0;
+								int max_feature_traitN = 0;
+								int culture_current_trait_votes = 0;
+								
+								// iterate over the active features
+								for (int f = 0; f < FEATURES; f++) {
+									culture_current_trait_votes = 0;
+									if (institution_beliefs[nationality][f] != -1){
+										culture_current_trait_votes = votes[f][institution_beliefs[nationality][f]];
+									}
+									// search for the traits with most votes
+									for (int t = 0; t < TRAITS; t++){									
+										if ( max_difference_trait_votes < votes[f][t] - culture_current_trait_votes ){
+											max_difference_trait_votes = votes[f][t] - culture_current_trait_votes;
+											max_feature_traitN = 0;										
+											max_traits[max_feature_traitN] = t;
+											max_features[max_feature_traitN++] = f;
+										} else if ( max_difference_trait_votes == votes[f][t] - culture_current_trait_votes  ){
+											max_traits[max_feature_traitN] = t;
+											max_features[max_feature_traitN++] = f;
+										}
+									} // END of search for the traits with most votes
+								
+								} // END of the iteration over the active features
+								
+								// if there is maximal group
+								if (max_feature_traitN > 0){
+									int feature_trait_index = rand.nextInt(max_feature_traitN);
+									int selected_feature = max_features[feature_trait_index];
+		
+									int current_trait =  institution_beliefs[nationality][selected_feature];
+									// if there was actually a trait that got more (and only more) votes
+									// then randomly select one out of the winners and change the trait
+									if (current_trait == -1 || max_difference_trait_votes > 0){
+										institution_beliefs[nationality][selected_feature] = max_traits[feature_trait_index];
+									}
+								}
+								
+							} // END of it hasn't vote
+							
+						} // END of cols
+						
+					}// END of rows
+					
+				} // END Democratic Process
+				
 				
 			} // END of checkpoint
 			

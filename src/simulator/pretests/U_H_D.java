@@ -1,4 +1,4 @@
-package simulator.paper;
+package simulator.pretests;
 
 import java.io.IOException;
 

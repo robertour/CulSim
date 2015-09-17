@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import simulator.doublealpha.*;
 import simulator.old.*;
-import simulator.paper.*;
+import simulator.pretests.*;
 import simulator.scenarios.*;
  
 /**

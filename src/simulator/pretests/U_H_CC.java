@@ -1,4 +1,4 @@
-package simulator.paper;
+package simulator.pretests;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class U_H_IL_CC extends Ulloa1 {
+public class U_H_CC extends Ulloa1 {
 
 	@Override
 	public void run_experiment() {
@@ -118,18 +118,7 @@ public class U_H_IL_CC extends Ulloa1 {
 						// by 0 in the next condition.
 						if (cultural_overlap == 0 && neighbors_cultural_overlap == 0) {
 
-							// It also accepts the trait since there is no cultural resistance
-							beliefs[r][c][selected_feature] = selected_trait;
-							
-							// its culture lost a citizen
-							institutionsN[nationality]--;
-							institutions[r][c] = r * ROWS + c;
-							institutionsN[institutions[r][c]]++;
-							
-							//delete the agent identity
-							for (int f = 0; f < FEATURES; f++) {
-								institution_beliefs[institutions[r][c]][f] = -1;
-							}
+							// Nothing happen when the agent is not similar to any of the two cultures
 						}
 						// if there is no cultural shock (current trait is different to its nationality's), 
 						// accept the change
@@ -140,7 +129,7 @@ public class U_H_IL_CC extends Ulloa1 {
 							beliefs[r][c][selected_feature] == nationality_trait &&
 							// Cultural resilience: resistance to change based on cultural 
 							// similarity or agent similarity
-							(rand.nextFloat() > cultural_overlap / 
+							(rand.nextFloat() >= cultural_overlap / 
 									// Math.max because it might have been a selection error
 									(float) neighbors_cultural_overlap +  
 											cultural_overlap)) {

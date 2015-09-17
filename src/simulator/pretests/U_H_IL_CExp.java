@@ -1,4 +1,4 @@
-package simulator.paper;
+package simulator.pretests;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ import simulator.old.Ulloa1;
  * @author tico
  *
  */
-public class U_H_CA extends Ulloa1 {
+public class U_H_IL_CExp extends Ulloa1 {
 
 	@Override
 	public void run_experiment() {
@@ -74,12 +74,8 @@ public class U_H_CA extends Ulloa1 {
 							// then the agent will impose resistance to change depending how identified it is 
 							// with its nationality	(cultural overlap)	
 							beliefs[r][c][selected_feature] == nationality_trait &&
-							// Cultural resilience: resistance to change based on cultural 
-							// similarity or agent similarity
-							(rand.nextFloat() > cultural_overlap / 
-									// Math.max because it might have been a selection error
-									(float) (Math.max(1, agents_overlap) +  
-											cultural_overlap))) {
+							// Cultural resilience: resistance to change based on cultural similarity
+							rand.nextFloat() >= 1 - Math.exp((FEATURES - cultural_overlap) / FEATURES)) {
 
 							// if the new trait is the same of the nationality trait, and the current 
 							// agent's trait is different from the nationality then the cultural overlap 
@@ -118,11 +114,19 @@ public class U_H_CA extends Ulloa1 {
 							
 							
 							// when the agent doesn't have any similarity with the cultures then
-							// nothing else happen. This also avoid divisions by 0 in the next step.
+							// he loses his identity . This also avoid divisions by 0 in the
+							// next step.
 							if (cultural_overlap == 0 && neighbors_cultural_overlap == 0) {
 
-								// Nothing happen when the agent is not similar to any of the two cultures
+								// its culture lost a citizen
+								institutionsN[nationality]--;
+								institutions[r][c] = r * ROWS + c;
+								institutionsN[institutions[r][c]]++;
 								
+								//delete the agent identity
+								for (int f = 0; f < FEATURES; f++) {
+									institution_beliefs[institutions[r][c]][f] = -1;
+								}
 							}													
 							// If, after the interaction, the similarity with the neighbor's culture is bigger 
 							// (or equal to consider the new assimilated trait) than the similarity with its 
