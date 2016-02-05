@@ -1,5 +1,7 @@
 package simulator;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -68,12 +70,12 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Frequency of regulatory process (democracy or propaganda)
 	 */
-	protected int FREQ_PROC = 1;
+	protected int FREQ_DEM = 1;
 	
 	/**
 	 * Frequency of regulatory process 2 (propaganda)
 	 */
-	protected int FREQ_PROC2 = 1;
+	protected int FREQ_PROP = 1;
 	
 	// Neighborhood
 	/**
@@ -440,8 +442,8 @@ public abstract class Simulation  implements Callable<String>  {
 			clone.RADIUS = this.RADIUS;
 			clone.ALPHA = this.ALPHA;
 			clone.ALPHA_PRIME = this.ALPHA_PRIME;
-			clone.FREQ_PROC = this.FREQ_PROC;
-			clone.FREQ_PROC2 = this.FREQ_PROC2;
+			clone.FREQ_DEM = this.FREQ_DEM;
+			clone.FREQ_PROP = this.FREQ_PROP;
 			clone.MUTATION = this.MUTATION;
 			clone.SELECTION_ERROR = this.SELECTION_ERROR;			
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -479,8 +481,8 @@ public abstract class Simulation  implements Callable<String>  {
 				RADIUS + "," +
 				ALPHA + "," +  
 				ALPHA_PRIME + "," +  
-				FREQ_PROC + "," +  
-				FREQ_PROC2 + "," +  
+				FREQ_DEM + "," +  
+				FREQ_PROP + "," +  
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +
@@ -586,5 +588,46 @@ public abstract class Simulation  implements Callable<String>  {
 		CulturalSimulator.TA_OUTPUT.append(s);
 	
 	}
+	
+	public void print_beliefs_space(){
+		
+		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				String ohex = "";
+				for (int f = 0; f < FEATURES; f++) {
+					 ohex += Integer.toHexString(beliefs[r][c][f]);
+				}
+				ohex = "#" + ohex;
+				
+				image.setRGB(r, c, Color.decode(ohex).getRGB());
+			}
+		}
+		
+		CulturalSimulator.set_snapshot(image);
+		
+	}
+	
+	public void print_institutional_beliefs_space(){
+		
+		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				String ohex = "";
+				for (int f = 0; f < FEATURES; f++) {
+					 ohex += Integer.toHexString(beliefs[r][c][f]);
+				}
+				ohex = "#" + ohex;
+				
+				image.setRGB(r, c, Color.decode(ohex).getRGB());
+			}
+		}
+		
+		CulturalSimulator.set_snapshot(image);
+		
+	}
+
 
 }

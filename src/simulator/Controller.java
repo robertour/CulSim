@@ -13,16 +13,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import simulator.PlusOne.ExperimentA_C;
-import simulator.PlusOne.ExperimentBAxelrod;
-import simulator.PlusOne.ExperimentBFlache;
-import simulator.PlusOne.ExperimentD;
-import simulator.PlusOne.ExperimentE;
-import simulator.PlusOne.ExperimentF;
-import simulator.doublealpha.*;
-import simulator.old.*;
-import simulator.pretests.*;
-import simulator.scenarios.*;
+import deprecated.simulator.doublealpha.*;
+import deprecated.simulator.old.*;
+import deprecated.simulator.pretests.*;
+import deprecated.simulator.scenarios.*;
+import simulator.destruction.Ulloa;
+import simulator.PlosOne.ExperimentA_C;
+import simulator.PlosOne.ExperimentBAxelrod;
+import simulator.PlosOne.ExperimentBFlache;
+import simulator.PlosOne.ExperimentD;
+import simulator.PlosOne.ExperimentE;
+import simulator.PlosOne.ExperimentF;
+import simulator.destruction.Democracy;
+import simulator.destruction.DemocracyPropaganda;
+import simulator.destruction.Flache;
+import simulator.destruction.Propaganda;
+import simulator.previous.Axelrod;
+import simulator.previous.Flache1;
+import simulator.previous.Flache2;
  
 /**
  * The controller of the simulations handles the simulation. It creates the tasks
@@ -66,6 +74,11 @@ public class Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
+		    		case "DemocracyPropaganda": simulation = new DemocracyPropaganda(); break;
+		    		case "Propaganda": simulation = new Propaganda(); break;
+		    		case "Democracy": simulation = new Democracy(); break;
+		    		case "Flache": simulation = new Flache(); break;
+		    		case "Ulloa": simulation = new Ulloa(); break;
 		    		case "ExperimentA_C": simulation = new ExperimentA_C();	break;
 		    		case "ExperimentBAxelrod": simulation = new ExperimentBAxelrod();	break;
 		    		case "ExperimentBFlache": simulation = new ExperimentBFlache();	break;
@@ -156,8 +169,8 @@ public class Controller
 	        	simulation.RADIUS = Integer.parseInt(scanner.next());
 	        	simulation.ALPHA = Float.parseFloat(scanner.next());
 	        	simulation.ALPHA_PRIME = Float.parseFloat(scanner.next());
-	        	simulation.FREQ_PROC =  Integer.parseInt(scanner.next());
-	        	simulation.FREQ_PROC2 =  Integer.parseInt(scanner.next());
+	        	simulation.FREQ_DEM =  Integer.parseInt(scanner.next());
+	        	simulation.FREQ_PROP =  Integer.parseInt(scanner.next());
 	        	simulation.MUTATION = Float.parseFloat(scanner.next());
 	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
 	        	tasks.add(rand.nextInt(tasks.size()+1), simulation);

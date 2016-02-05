@@ -1,15 +1,18 @@
 package simulator;
 
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
+import java.awt.RenderingHints;
 
 public class CulturalSimulator extends JFrame {
 
@@ -41,6 +45,7 @@ public class CulturalSimulator extends JFrame {
 	private JButton btn_open_file;
 	private JButton btn_open_experiment;
 	public static JTextArea TA_OUTPUT;
+	private static JLabel label;
 	
 	/**
 	 * Launch the application.
@@ -103,7 +108,7 @@ public class CulturalSimulator extends JFrame {
 
 			}
 		});
-		btn_start.setBounds(12, 169, 117, 25);
+		btn_start.setBounds(10, 148, 202, 25);
 		contentPane.add(btn_start);
 		
 		btn_stop = new JButton("Stop");
@@ -167,12 +172,12 @@ public class CulturalSimulator extends JFrame {
 				}
 			}
 		});
-		btn_open_experiment.setBounds(446, 45, 117, 25);
+		btn_open_experiment.setBounds(137, 12, 75, 25);
 		contentPane.add(btn_open_experiment);
 		
 		tf_results_dir = new JTextField();
 		tf_results_dir.setEditable(false);
-		tf_results_dir.setBounds(12, 110, 408, 27);
+		tf_results_dir.setBounds(12, 110, 200, 27);
 		contentPane.add(tf_results_dir);
 		tf_results_dir.setColumns(10);
 		
@@ -187,7 +192,7 @@ public class CulturalSimulator extends JFrame {
 		tf_experimental_file = new JTextField();
 		tf_experimental_file.setEditable(false);
 		tf_experimental_file.setColumns(10);
-		tf_experimental_file.setBounds(12, 44, 408, 27);
+		tf_experimental_file.setBounds(12, 44, 200, 27);
 		
 		
 		
@@ -209,17 +214,37 @@ public class CulturalSimulator extends JFrame {
 				
 			}
 		});
-		btn_open_file.setBounds(446, 111, 117, 25);
+		btn_open_file.setBounds(137, 78, 75, 25);
 		contentPane.add(btn_open_file);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(12, 217, 551, 324);
+		scrollPane.setBounds(12, 360, 551, 181);
 		contentPane.add(scrollPane);
 		
 		TA_OUTPUT = new JTextArea();
 		TA_OUTPUT.setEditable(false);
 		scrollPane.setViewportView(TA_OUTPUT);
+		
+		label = new JLabel("");
+		label.setBounds(222, 10, 338, 338);
+		contentPane.add(label);
 		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
+	
+	public static BufferedImage resize(BufferedImage image, int width, int height) {
+	    BufferedImage bi = new BufferedImage(width, height, BufferedImage.TRANSLUCENT);
+	    Graphics2D g2d = (Graphics2D) bi.createGraphics();
+	    g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+	    g2d.drawImage(image, 0, 0, width, height, null);
+	    g2d.dispose();
+	    return bi;
+	}
+	
+	public static void set_snapshot(BufferedImage image){
+		label.setIcon(new ImageIcon(resize(image,338,338)));
+		
+	}
+	
 }
+
