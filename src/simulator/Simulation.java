@@ -7,12 +7,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-public abstract class Simulation  implements Callable<String>  {
-
+public abstract class Simulation  implements Callable<String>, Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8793729684553266527L;
+	
 	/**
 	 * String text to identify the type of simulation
 	 */
@@ -49,16 +55,16 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Number of FEATURES of the cultural space
 	 */
-	public int FEATURES = 5;
+	public int FEATURES = 6;
 	/**
 	 * Number of FEATURES of the cultural space
 	 */
-	public int TRAITS = 15;
+	public int TRAITS = 14;
 	
 	/**
 	 * alpha value for cultural resilience
 	 */
-	public float ALPHA = 0.5f;
+	public float ALPHA = 0.85f;
 	protected float BETA = 0.5f;
 
 	/**
@@ -70,12 +76,12 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Frequency of regulatory process (democracy or propaganda)
 	 */
-	protected int FREQ_DEM = 1;
+	protected int FREQ_DEM = 10;
 	
 	/**
 	 * Frequency of regulatory process 2 (propaganda)
 	 */
-	protected int FREQ_PROP = 1;
+	protected int FREQ_PROP = 3;
 	
 	// Neighborhood
 	/**
@@ -122,11 +128,11 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Number of ITERATIONS of the checkpoints
 	 */
-	public int ITERATIONS = 10;
+	public int ITERATIONS = 1000;
 	/**
 	 * Save results and check thread status each 1000 iterations
 	 */
-	public int CHECKPOINT = 1000;
+	public int CHECKPOINT = 100;
 	
 	// Internal control
 	/**
@@ -138,7 +144,8 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * Internal iteration of the simulation counter
 	 */
-	protected int iteration = 0;
+	public int iteration = 0;
+	
 	/**
 	 * Flag for recursion
 	 */
@@ -185,7 +192,7 @@ public abstract class Simulation  implements Callable<String>  {
 	/**
 	 * This object is necessary in order to suspend the thread
 	 */
-	protected Object o = new Object();
+	protected transient Object o = null;
 	
 	/**
 	 * Indicates if the simulation ended completely, without any interruptions.
@@ -198,10 +205,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 */
 	public boolean failed = false;
 	
-	/**
-	 * Buffer to write the output
-	 */
-	protected BufferedWriter writer = null;
+
 	
 	/**
 	 * Register the time when the experiment started
@@ -225,6 +229,7 @@ public abstract class Simulation  implements Callable<String>  {
 	 * Setups the object in order to run the experiment. Initialize all the variables
 	 */
 	private void simulation_setup() {
+		
 		TYPE = this.getClass().getSimpleName().toUpperCase();
 		NEIGHBOURS = RADIUS * RADIUS + ( RADIUS + 1 ) * ( RADIUS + 1 ) - 1;
 		TOTAL_AGENTS = ROWS * COLS;
@@ -278,17 +283,19 @@ public abstract class Simulation  implements Callable<String>  {
 			}			
 		}
 		
+		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-			        new FileOutputStream(CulturalSimulator.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+			        new FileOutputStream(Controller.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
 			writer.write(header());
+			writer.flush();
+			writer.close();
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
 	/**
@@ -296,86 +303,189 @@ public abstract class Simulation  implements Callable<String>  {
 	 * @returns the last line of results
 	 */
 	public String call() {
-		
-		
-		try {
-			simulation_setup();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("simulation_setup() failed");
-			failed = true;
-		}
-		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
-		try {
-			setup();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("simulation_setup() failed");
-			failed = true;
-		}
-		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
+		o = new Object();
+		playing = true;
+		suspended = false;
+		cancelled = false;
+		is_finished = false;
+		failed = false;
+		BufferedWriter writer = null;
 		
 		try {
-			writer.write(results());				
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			writer = new BufferedWriter(new OutputStreamWriter(
+			        new FileOutputStream(Controller.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			e.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("writer.write(results()); failed");
-			failed = true;
 		}
 		
-		CulturalSimulator.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
+		if (iteration == 0){
+			try {
+				simulation_setup();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				Controller.TA_OUTPUT.append("simulation_setup() failed");
+				failed = true;
+			}
+			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
+			try {
+				setup();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				Controller.TA_OUTPUT.append("simulation_setup() failed");
+				failed = true;
+			}
+			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
+			
+			try {
+				writer.write(results());				
+			} catch (IOException e) {
+				e.printStackTrace();
+				Controller.TA_OUTPUT.append("writer.write(results()); failed");
+				failed = true;
+			}
+		}
+		
+		String r = "";
+		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
 		startTime = System.currentTimeMillis();
 	    try {
-			run_experiment();
+	    	if (Controller.IS_BATCH){
+	    		run_experiment_batch(writer);
+	    	}else {
+	    		r = run_experiment_single(writer);
+	    	}
 		} catch (Exception e) {
 			e.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("run_experiment(); failed");
+			Controller.TA_OUTPUT.append("run_experiment(); failed");
 			failed = true;
 		}
 	    endTime = System.currentTimeMillis();
+	    
+		try {
+			writer.flush();
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Controller.TA_OUTPUT.append("system.gc(); failed");
+			failed = true;
+		}
 		
-	    String r = "";
-	    try {
-			r = results();
-		} catch (Exception e) {
-			e.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("r=results; failed");
-			failed = true;
-		}
+	    if (is_finished){
+		    Controller.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+	    } else if (failed){
+	    	Controller.TA_OUTPUT.append("Failed: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+		} else {
+	    	Controller.TA_OUTPUT.append("Stopped: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+	    }
+	    
+	    /** 
+	     * Always make sure to save and clear memory in batch mode
+	     */
+	    if (Controller.IS_BATCH) {
+	    	/**
+	    	 * TODO Safe the final state of each simulation
+	    	 */
+	    	clean();
+	    }
+	      
+
+		return r;			
+	}
 	
-	    CulturalSimulator.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
-	    
-	    try {
-			finish();
-		} catch (Exception e) {
-			e.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("finish(); failed");
-			failed = true;
-		}
-	    
+	/** 
+	 * clean memory structures
+	 */
+	public void clean(){
 	    try {
 			reset();
 		} catch (Exception e) {
 			e.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("reset(); failed");
+			Controller.TA_OUTPUT.append("reset(); failed");
 			failed = true;
 		}
-	    
 		try {
 			System.gc();
 		} catch (Exception e) {
 			e.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("system.gc(); failed");
+			Controller.TA_OUTPUT.append("system.gc(); failed");
 			failed = true;
 		}
-	
-		return r;			
 	}
 	
+	
+	private void run_experiment_batch(BufferedWriter writer){
+		for (iteration = 0; iteration < ITERATIONS; iteration++) {
+			run_iteration();
+			
+			// write results of the current checkpoint
+			try {
+				writer.write(results());				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			// check if the user hasn't cancelled or suspended the thread
+			if (!playing){
+				if (suspended){
+					set_suspended();
+				} 
+				if (cancelled) { 
+					break; 
+				} 
+			} // END of !playing
+			
+		} // END of iterations
+		if (iteration == ITERATIONS){
+			is_finished = true;
+		}
+	}
+	
+	private String run_experiment_single(BufferedWriter writer){
+		String r = "";
+		for (iteration = 0; iteration < ITERATIONS; iteration++) {
+			print_beliefs_spaces();
+			run_iteration();
+			
+			r = results();
+			// write results of the current checkpoint
+			try {
+				writer.write(r);				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			// check if the user hasn't cancelled or suspended the thread
+			if (!playing){
+				if (suspended){
+					set_suspended();
+				} 
+				if (cancelled) { 
+					break; 
+				} 
+			} // END of !playing
+			
+		} // END of iterations
+		if (iteration == ITERATIONS){
+			is_finished = true;
+		}
+		
+		return r;
+	}
+	
+	
 	protected abstract void setup();
-	protected abstract void run_experiment();
-	protected abstract void reset();
+	protected abstract void run_iteration();
+
+	/**
+	 * It is a sort of destructor to help the garbage collector
+	 */
+	protected void reset(){
+		beliefs = null;
+		neighboursX = null;
+		neighboursY = null;
+		neighboursN = null;
+		flags = null;
+		cultures = null;		
+	}
 
 	/**
 	 * Suspend this thread
@@ -399,7 +509,7 @@ public abstract class Simulation  implements Callable<String>  {
                      }                       
                  }  
                  catch (InterruptedException e) {                    
-                	 CulturalSimulator.TA_OUTPUT.append("Error while trying to wait" + "\n");
+                	 Controller.TA_OUTPUT.append("Error while trying to wait" + "\n");
                  }    
              }                           
          } 
@@ -447,7 +557,6 @@ public abstract class Simulation  implements Callable<String>  {
 			clone.MUTATION = this.MUTATION;
 			clone.SELECTION_ERROR = this.SELECTION_ERROR;			
 		} catch (InstantiationException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return clone;	
@@ -492,34 +601,7 @@ public abstract class Simulation  implements Callable<String>  {
 				(float) biggest_cluster / TOTAL_AGENTS + ",-1,-1,-1,-1\n";				
 	}
 
-	/**
-	 * It is a sort of destructor to help the garbage collector
-	 */
-	protected void finish() {
-		
-		try {
-			if (failed) {
-				writer.write(results());
-			} else {
-				writer.write("FAILED:" + results());
-			}
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			CulturalSimulator.TA_OUTPUT.append("Error inside finish()");
-			failed = true;
-		}
-		
-		beliefs = null;
-		
-		// Auxiliary variables that keeps the neighbors of each agent
-		neighboursX = null;
-		neighboursY = null;
-		neighboursN = null;
-		flags = null;
-		cultures = null;
-	}
+
 
 	public void count_clusters() {
 		biggest_cluster = 0;
@@ -585,11 +667,11 @@ public abstract class Simulation  implements Callable<String>  {
 			}
 			s += "\n";
 		}
-		CulturalSimulator.TA_OUTPUT.append(s);
+		Controller.TA_OUTPUT.append(s);
 	
 	}
 	
-	public void print_beliefs_space(){
+	protected void print_beliefs_spaces(){
 		
 		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
 
@@ -597,7 +679,13 @@ public abstract class Simulation  implements Callable<String>  {
 			for (int c = 0; c < COLS; c++) {
 				String ohex = "";
 				for (int f = 0; f < FEATURES; f++) {
-					 ohex += Integer.toHexString(beliefs[r][c][f]);
+					if (beliefs[r][c][f] == -1){
+						ohex += Integer.toHexString(15);
+					} else if (beliefs[r][c][f] == -2){
+						ohex += Integer.toHexString(0);
+					} else {
+						ohex += Integer.toHexString(beliefs[r][c][f]+1);
+					}
 				}
 				ohex = "#" + ohex;
 				
@@ -605,29 +693,11 @@ public abstract class Simulation  implements Callable<String>  {
 			}
 		}
 		
-		CulturalSimulator.set_snapshot(image);
+		CulturalSimulator.set_belief_space(image);
 		
 	}
 	
-	public void print_institutional_beliefs_space(){
-		
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
 
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				String ohex = "";
-				for (int f = 0; f < FEATURES; f++) {
-					 ohex += Integer.toHexString(beliefs[r][c][f]);
-				}
-				ohex = "#" + ohex;
-				
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
-			}
-		}
-		
-		CulturalSimulator.set_snapshot(image);
-		
-	}
 
 
 }
