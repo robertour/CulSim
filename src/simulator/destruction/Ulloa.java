@@ -43,8 +43,8 @@ public class Ulloa extends AxelrodOld {
 	/**
 	 * Metrics for my own implementation
 	 */
-	private int culturesU;
-	private int biggest_clusterU;
+	private int alife_institutions;
+	private int biggest_institution;
 	
 	/**
 	 * Implements a circular doubled linked list with the members of the 
@@ -660,13 +660,13 @@ public class Ulloa extends AxelrodOld {
 	 * Search for the biggest culture and counts the number of cultures so far
 	 */
 	private void count_clustersU(){
-		biggest_clusterU = 0;
-		culturesU = 0;
+		biggest_institution = 0;
+		alife_institutions = 0;
 		for (int i = 0; i < institutionsN.length; i++) {
 			if (institutionsN[i] > 0) {
-				culturesU++;
-				if (institutionsN[i] > biggest_clusterU){
-					biggest_clusterU = institutionsN[i];					
+				alife_institutions++;
+				if (institutionsN[i] > biggest_institution){
+					biggest_institution = institutionsN[i];					
 				}
 			}
 		}
@@ -699,149 +699,16 @@ public class Ulloa extends AxelrodOld {
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +
 				cultureN  + "," +
-				(float) cultureN / TOTAL_AGENTS + "," +
 				biggest_cluster + "," +
-				(float) biggest_cluster / TOTAL_AGENTS + "," + 
-				culturesU  + "," +
-				(float) culturesU / TOTAL_AGENTS + "," +
-				biggest_clusterU + "," +
-				(float) biggest_clusterU / TOTAL_AGENTS +  "\n";				
-	}
-	
-	protected void update_gui(){
-		super.update_gui();
-		update_institutions_graph();
-		print_alife_institutional_beliefs_space();
-		print_alife_institutions();
-		print_institutional_beliefs_association();
-	}
-	
-	protected void update_institutions_graph(){
-		CulturalSimulator.graph_institutions.scores.add((double) culturesU / TOTAL_AGENTS);
-		CulturalSimulator.graph_institutions.scores2.add((double) biggest_clusterU / TOTAL_AGENTS);
-		CulturalSimulator.graph_institutions.update();	
-	}
-	
-
-	protected void print_institutional_beliefs_association(){
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
-		int institution = 0;
-		String ohex = "";
-		
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
+				alife_institutions  + "," +
+				biggest_institution + "," +
+				culture_borderlessN + "," +
+				biggest_borderless_cluster + "," +
+				energy + "," +
+				foreiners_traits + ",";
 				
-				institution = institutions[r][c];
-				ohex = "";
-				for (int f = 0; f < FEATURES; f++) {
-					if (institution_beliefs[institution][f] == -1){
-						ohex += Integer.toHexString(15);
-					} else if (institution_beliefs[institution][f] == -2){
-						ohex += Integer.toHexString(0);
-					} else {
-						ohex += Integer.toHexString(institution_beliefs[institution][f]+1);
-					}
-				}
-				ohex = "#" + ohex;
-
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
-			}
-		}
-		
-		
-		
-		CulturalSimulator.set_institutional_beliefs_association(image);
 	}
 	
-	
-	protected void print_alife_institutional_beliefs_space(){
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
-		int institution = 0;
-		String ohex = "";
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				ohex = "";
-				institution = r * COLS + c;
-				if (institutionsN[institution] == 0){
-					ohex = "#000000";
-				} else {
-					for (int f = 0; f < FEATURES; f++) {
-						if (institution_beliefs[institution][f] == -1){
-							ohex += Integer.toHexString(15);
-						} else {
-							ohex += Integer.toHexString(institution_beliefs[r*COLS+c][f]+1);	
-						}
-					}
-					ohex = "#" + ohex;
-				}
-				
-								
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
-			}
-		}
-		
-		CulturalSimulator.set_alife_institutional_beliefs_space(image);
-	}
-	
-	
-	protected void print_alife_institutions(){
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
-		int institution = 0;
-		String ohex;
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				ohex = "";
-				institution = r*COLS+c;
-				
-				if (institutionsN[institution] == 0){
-					ohex = "#000000";
-				} else {
-					ohex = "#ffffff";
-				}
-				
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
-			}
-		}
-		
-		CulturalSimulator.set_alife_institutions(image);
-		
-	}
-	
-	
-	private int search_free_institution(int r, int c) {
-	    int x=0, y=0, dx = 0, dy = -1;
-	    int t = Math.max(ROWS,COLS);
-	    int maxI = t*t;
-
-	    for (int i=0; i < maxI; i++){
-	        if ((-1 < r+x) && (r+x < ROWS) && (-1 < c+y) && (c+y < COLS)) {
-	            if (institutionsN[(r+x) * COLS+(c+y)] == 0 || 
-	            		institutionsN[(r+x) * COLS+(c+y)] == 1 
-	            		&& institutions[r+x][c+y] == (r+x) * COLS +(c+y)){
-	            	return (r+x) * COLS + (c+y);
-	            }
-	        }
-
-	        if( (x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1-y))) {
-	            t=dx; dx=-dy; dy=t;
-	        }   
-	        x+=dx; y+=dy;
-	    }
-	    
-	    for (int r1 = 0; r1 < ROWS; r1++){
-	    	for (int c1 = 0; c1 < COLS; c1++){
-	    		if (institutionsN[r1 * COLS + c1] == 0 || 
-	    				institutionsN[r1 * COLS + c1] == 1 &&
-	    				r1*COLS+c1 == institutions[r1][c1]){
-	    			return r1*COLS+c1;
-	    		}
-	    	}
-	    	
-	    }
-
-	    return -99999;
-	}
-
 	/**
 	 * Invasion inserts a group of foreigners with its own 
 	 * institution associated. All of them, including the
@@ -944,7 +811,7 @@ public class Ulloa extends AxelrodOld {
 			if (institutionsN[i] > 0){
 				if (Math.random() < prob) {
 					for (int f = 0; f < FEATURES; f++) {
-						institution_beliefs[i][f] = -1;
+						institution_beliefs[i][f] = TRAITS;
 					}
 				}
 			}			
@@ -960,7 +827,7 @@ public class Ulloa extends AxelrodOld {
 			if (institutionsN[i] > 0){
 				for (int f = 0; f < FEATURES; f++) {
 					if (Math.random() < prob) {
-						institution_beliefs[i][f] = -1;
+						institution_beliefs[i][f] = TRAITS;
 					}
 				}
 
@@ -1091,6 +958,137 @@ public class Ulloa extends AxelrodOld {
 		countryman_left_r[nrr][nrc] = r;
 		countryman_left_c[nrr][nrc] = c;
 		
+	}
+
+	protected void update_gui(){
+		super.update_gui();
+		update_institutions_graph();
+		print_alife_institutional_beliefs_space();
+		print_alife_institutions();
+		print_institutional_beliefs_association();
+	}
+
+	protected void update_institutions_graph(){
+		CulturalSimulator.graph_institutions.scores.add((double) alife_institutions / TOTAL_AGENTS);
+		CulturalSimulator.graph_institutions.scores2.add((double) biggest_institution / TOTAL_AGENTS);
+		CulturalSimulator.l_institutions.setText(alife_institutions + "/" + biggest_institution);
+		CulturalSimulator.graph_institutions.update();	
+	}
+
+	protected void print_institutional_beliefs_association(){
+		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+		int institution = 0;
+		String ohex = "";
+		
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				
+				institution = institutions[r][c];
+				ohex = "";
+				for (int f = 0; f < FEATURES; f++) {
+					if (institution_beliefs[institution][f] == -1){
+						ohex += Integer.toHexString(15);
+					} else if (institution_beliefs[institution][f] == -2){
+						ohex += Integer.toHexString(0);
+					} else {
+						ohex += Integer.toHexString(institution_beliefs[institution][f]+1);
+					}
+				}
+				ohex = "#" + ohex;
+	
+				image.setRGB(r, c, Color.decode(ohex).getRGB());
+			}
+		}
+		
+		
+		
+		CulturalSimulator.set_institutional_beliefs_association(image);
+	}
+
+	protected void print_alife_institutional_beliefs_space(){
+		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+		int institution = 0;
+		String ohex = "";
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				ohex = "";
+				institution = r * COLS + c;
+				if (institutionsN[institution] == 0){
+					ohex = "#000000";
+				} else {
+					for (int f = 0; f < FEATURES; f++) {
+						if (institution_beliefs[institution][f] == -1){
+							ohex += Integer.toHexString(15);
+						} else {
+							ohex += Integer.toHexString(institution_beliefs[r*COLS+c][f]+1);	
+						}
+					}
+					ohex = "#" + ohex;
+				}
+				
+								
+				image.setRGB(r, c, Color.decode(ohex).getRGB());
+			}
+		}
+		
+		CulturalSimulator.set_alife_institutional_beliefs_space(image);
+	}
+
+	protected void print_alife_institutions(){
+		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+		int institution = 0;
+		String ohex;
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				ohex = "";
+				institution = r*COLS+c;
+				
+				if (institutionsN[institution] == 0){
+					ohex = "#000000";
+				} else {
+					ohex = "#ffffff";
+				}
+				
+				image.setRGB(r, c, Color.decode(ohex).getRGB());
+			}
+		}
+		
+		CulturalSimulator.set_alife_institutions(image);
+		
+	}
+
+	private int search_free_institution(int r, int c) {
+	    int x=0, y=0, dx = 0, dy = -1;
+	    int t = Math.max(ROWS,COLS);
+	    int maxI = t*t;
+	
+	    for (int i=0; i < maxI; i++){
+	        if ((-1 < r+x) && (r+x < ROWS) && (-1 < c+y) && (c+y < COLS)) {
+	            if (institutionsN[(r+x) * COLS+(c+y)] == 0 || 
+	            		institutionsN[(r+x) * COLS+(c+y)] == 1 
+	            		&& institutions[r+x][c+y] == (r+x) * COLS +(c+y)){
+	            	return (r+x) * COLS + (c+y);
+	            }
+	        }
+	
+	        if( (x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1-y))) {
+	            t=dx; dx=-dy; dy=t;
+	        }   
+	        x+=dx; y+=dy;
+	    }
+	    
+	    for (int r1 = 0; r1 < ROWS; r1++){
+	    	for (int c1 = 0; c1 < COLS; c1++){
+	    		if (institutionsN[r1 * COLS + c1] == 0 || 
+	    				institutionsN[r1 * COLS + c1] == 1 &&
+	    				r1*COLS+c1 == institutions[r1][c1]){
+	    			return r1*COLS+c1;
+	    		}
+	    	}
+	    	
+	    }
+	
+	    return -99999;
 	}
 	
 }

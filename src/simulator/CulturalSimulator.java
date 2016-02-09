@@ -105,18 +105,22 @@ public class CulturalSimulator extends JFrame {
 	private JSplitPane splitPane_2;
 	private JPanel panel_11;
 	private JPanel panel_12;
-	private JLabel lblCultures;
 	public static GraphPanel graph_cultures;
 	private JToolBar toolBar_1;
 	private JLabel lblJjlkjasdKlasfjdlkjAsdkfjasdfkj;
 	private JPanel panel_13;
-	private JLabel lblBiggestCulture;
 	private JPanel panel_14;
 	private JPanel panel_15;
 	private JLabel lblInstitutions;
 	private JLabel lblEnergy;
 	public static GraphPanel graph_institutions;
 	public static GraphPanel graph_borderless_cultures;
+	public static GraphPanel graph_energy_foreign_trait;
+	private JPanel panel_19;
+	public static JLabel l_energy_foreigners;
+	public static  JLabel l_cultures;
+	public static JLabel l_borderless;
+	public static JLabel l_institutions;
 	
 	/**
 	 * Launch the application.
@@ -259,42 +263,79 @@ public class CulturalSimulator extends JFrame {
 		panel_11.add(panel_12);
 		panel_12.setLayout(new BorderLayout(0, 0));
 		
-		lblCultures = new JLabel("Cultures");
-		lblCultures.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_12.add(lblCultures, BorderLayout.NORTH);
-		
 		graph_cultures = new GraphPanel();
 		panel_12.add(graph_cultures, BorderLayout.CENTER);
 		
-		panel_13 = new JPanel();
-		panel_11.add(panel_13);
-		panel_13.setLayout(new BorderLayout(0, 0));
+		JPanel panel_16 = new JPanel();
+		panel_12.add(panel_16, BorderLayout.NORTH);
+		panel_16.setLayout(new BorderLayout(0, 0));
 		
-		lblBiggestCulture = new JLabel("Institutions");
-		lblBiggestCulture.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_13.add(lblBiggestCulture, BorderLayout.NORTH);
+		JLabel lblCultures_1 = new JLabel("Cultures:");
+		lblCultures_1.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of immediate neighbors.");
+		panel_16.add(lblCultures_1, BorderLayout.WEST);
 		
-		graph_institutions = new GraphPanel();
-		panel_13.add(graph_institutions, BorderLayout.CENTER);
+		l_cultures = new JLabel("");
+		l_cultures.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of immediate neighbors.");
+		panel_16.add(l_cultures, BorderLayout.EAST);
 		
 		panel_14 = new JPanel();
 		panel_11.add(panel_14);
 		panel_14.setLayout(new BorderLayout(0, 0));
 		
-		lblInstitutions = new JLabel("Borderless Cultures");
-		lblInstitutions.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_14.add(lblInstitutions, BorderLayout.NORTH);
+		JPanel panel_18 = new JPanel();
+		panel_14.add(panel_18, BorderLayout.NORTH);
+		panel_18.setLayout(new BorderLayout(0, 0));
+		
+		lblInstitutions = new JLabel("Borderless Cultures:");
+		lblInstitutions.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
+		panel_18.add(lblInstitutions, BorderLayout.WEST);
+		lblInstitutions.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		l_borderless = new JLabel("");
+		l_borderless.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
+		panel_18.add(l_borderless, BorderLayout.EAST);
 		
 		graph_borderless_cultures = new GraphPanel();
 		panel_14.add(graph_borderless_cultures, BorderLayout.CENTER);
+		
+		panel_13 = new JPanel();
+		panel_11.add(panel_13);
+		panel_13.setLayout(new BorderLayout(0, 0));
+		
+		graph_institutions = new GraphPanel();
+		panel_13.add(graph_institutions, BorderLayout.CENTER);
+		
+		JPanel panel_17 = new JPanel();
+		panel_13.add(panel_17, BorderLayout.NORTH);
+		panel_17.setLayout(new BorderLayout(0, 0));
+		
+		JLabel lblNewLabel_1 = new JLabel("Institutions:");
+		lblNewLabel_1.setToolTipText("Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
+		panel_17.add(lblNewLabel_1, BorderLayout.WEST);
+		
+		l_institutions = new JLabel("");
+		l_institutions.setToolTipText("Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
+		panel_17.add(l_institutions, BorderLayout.EAST);
 		
 		panel_15 = new JPanel();
 		panel_11.add(panel_15);
 		panel_15.setLayout(new BorderLayout(0, 0));
 		
+		panel_19 = new JPanel();
+		panel_15.add(panel_19, BorderLayout.NORTH);
+		panel_19.setLayout(new BorderLayout(0, 0));
+		
 		lblEnergy = new JLabel("Energy");
-		lblEnergy.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_15.add(lblEnergy, BorderLayout.NORTH);
+		lblEnergy.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		panel_19.add(lblEnergy, BorderLayout.NORTH);
+		lblEnergy.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		l_energy_foreigners = new JLabel("");
+		l_energy_foreigners.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		panel_19.add(l_energy_foreigners, BorderLayout.EAST);
+		
+		graph_energy_foreign_trait = new GraphPanel();
+		panel_15.add(graph_energy_foreign_trait, BorderLayout.CENTER);
 		
 		splitPane_1 = new JSplitPane();
 		splitPane_2.setLeftComponent(splitPane_1);
@@ -537,15 +578,10 @@ public class CulturalSimulator extends JFrame {
 		institutional_beliefs_association.setIcon(null);
 		alife_institutional_beliefs_space.setIcon(null);
 		alife_institutions.setIcon(null);
-		graph_cultures.scores = new ArrayList<Double>();
-		graph_cultures.scores2 = new ArrayList<Double>();
-		graph_cultures.update();
-		graph_institutions.scores = new ArrayList<Double>();
-		graph_institutions.scores2 = new ArrayList<Double>();
-		graph_institutions.update();
-		graph_borderless_cultures.scores = new ArrayList<Double>();
-		graph_borderless_cultures.scores2 = new ArrayList<Double>();
-		graph_borderless_cultures.update();
+		graph_cultures.clean();
+		graph_institutions.clean();
+		graph_borderless_cultures.clean();
+		graph_energy_foreign_trait.clean();
 	}
 	
 	public static void set_belief_space(BufferedImage image){

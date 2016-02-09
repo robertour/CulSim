@@ -180,6 +180,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Number of borderless clusters
 	 */
 	protected int culture_borderlessN;
+	/**
+	 * Energy of the System
+	 */
+	protected int energy = 0;
+	/**
+	 * Spread of the foreigners traits
+	 */
+	protected int foreiners_traits = 0;
 
 	
 	/**
@@ -243,15 +251,101 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected static int DEAD_TRAIT = -2;
 
-	/**
-	 * Return a csv header for the output
-	 * @return
-	 */
-	public static String header() {
-		return "id,timestamp,duration,iterations,checkpoint,type,rows,cols,features,traits,radius,alpha,alpha_prime,freq_proc,freq_proc2,mutation,selection_error,iteration," +
-				"cultures,cultures_norm,biggest_cluster,biggest_norm,culturesU,cultures_normU,biggest_clusterU,biggest_normU\n";		
-	}
 
+	/**
+	 * Starting point of execution
+	 * @returns the last line of results
+	 */
+	public String call() {
+		o = new Object();
+		playing = true;
+		suspended = false;
+		cancelled = false;
+		is_finished = false;
+		failed = false;
+		BufferedWriter writer = null;
+		
+		try {
+			writer = new BufferedWriter(new OutputStreamWriter(
+			        new FileOutputStream(Controller.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+		} catch (UnsupportedEncodingException | FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		if (iteration == 0){
+			try {
+				simulation_setup();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				Controller.TA_OUTPUT.append("simulation_setup() failed");
+				failed = true;
+			}
+			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
+			try {
+				setup();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				Controller.TA_OUTPUT.append("simulation_setup() failed");
+				failed = true;
+			}
+			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
+			try {
+				writer.write(results());				
+			} catch (IOException e) {
+				e.printStackTrace();
+				Controller.TA_OUTPUT.append("writer.write(results()); failed");
+				failed = true;
+			}
+			
+		}
+		
+		String r = "";
+		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
+		startTime = System.currentTimeMillis();
+	    try {
+	    	if (Controller.IS_BATCH){
+	    		run_experiment_batch(writer);
+	    	}else {
+	    		r = run_experiment_single(writer);
+	    	}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Controller.TA_OUTPUT.append("run_experiment(); failed");
+			failed = true;
+		}
+	    endTime = System.currentTimeMillis();
+	    
+		try {
+			writer.flush();
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Controller.TA_OUTPUT.append("system.gc(); failed");
+			failed = true;
+		}
+		
+	    if (is_finished){
+		    Controller.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+	    } else if (failed){
+	    	Controller.TA_OUTPUT.append("Failed: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+		} else {
+	    	Controller.TA_OUTPUT.append("Stopped: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+	    }
+	    
+	    /** 
+	     * Always make sure to save and clear memory in batch mode
+	     */
+	    if (Controller.IS_BATCH) {
+	    	/**
+	    	 * TODO Safe the final state of each simulation
+	    	 */
+	    	clean();
+	    }
+	      
+
+		return r;			
+	}
+	
 	/**
 	 * Setups the object in order to run the experiment. Initialize all the variables
 	 */
@@ -325,121 +419,20 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 	}
 
-	/**
-	 * Starting point of execution
-	 * @returns the last line of results
-	 */
-	public String call() {
-		o = new Object();
-		playing = true;
-		suspended = false;
-		cancelled = false;
-		is_finished = false;
-		failed = false;
-		BufferedWriter writer = null;
-		
-		try {
-			writer = new BufferedWriter(new OutputStreamWriter(
-			        new FileOutputStream(Controller.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
-		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		if (iteration == 0){
-			try {
-				simulation_setup();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				Controller.TA_OUTPUT.append("simulation_setup() failed");
-				failed = true;
-			}
-			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
-			try {
-				setup();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				Controller.TA_OUTPUT.append("simulation_setup() failed");
-				failed = true;
-			}
-			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
-			
-			try {
-				writer.write(results());				
-			} catch (IOException e) {
-				e.printStackTrace();
-				Controller.TA_OUTPUT.append("writer.write(results()); failed");
-				failed = true;
-			}
-		}
-		
-		String r = "";
-		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
-		startTime = System.currentTimeMillis();
-	    try {
-	    	if (Controller.IS_BATCH){
-	    		run_experiment_batch(writer);
-	    	}else {
-	    		r = run_experiment_single(writer);
-	    	}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Controller.TA_OUTPUT.append("run_experiment(); failed");
-			failed = true;
-		}
-	    endTime = System.currentTimeMillis();
-	    
-		try {
-			writer.flush();
-			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Controller.TA_OUTPUT.append("system.gc(); failed");
-			failed = true;
-		}
-		
-	    if (is_finished){
-		    Controller.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
-	    } else if (failed){
-	    	Controller.TA_OUTPUT.append("Failed: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
-		} else {
-	    	Controller.TA_OUTPUT.append("Stopped: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
-	    }
-	    
-	    /** 
-	     * Always make sure to save and clear memory in batch mode
-	     */
-	    if (Controller.IS_BATCH) {
-	    	/**
-	    	 * TODO Safe the final state of each simulation
-	    	 */
-	    	clean();
-	    }
-	      
+	protected abstract void setup();
 
-		return r;			
-	}
-	
-	/** 
-	 * clean memory structures
+	/**
+	 * It is a sort of destructor to help the garbage collector
 	 */
-	public void clean(){
-	    try {
-			reset();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Controller.TA_OUTPUT.append("reset(); failed");
-			failed = true;
-		}
-		try {
-			System.gc();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Controller.TA_OUTPUT.append("system.gc(); failed");
-			failed = true;
-		}
+	protected void reset(){
+		beliefs = null;
+		neighboursX = null;
+		neighboursY = null;
+		neighboursN = null;
+		flags = null;
+		cultures = null;		
 	}
-	
-	
+
 	private void run_experiment_batch(BufferedWriter writer){
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			run_iteration();
@@ -500,141 +493,36 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 		
 	
-	protected abstract void setup();
 	protected abstract void run_iteration();
-	protected void destroy_institutions_structure(){}
-	protected void destroy_institutions_content(){System.out.println("this is weird");}
-	protected void institutional_conversion(double prob){}
-	protected void institutional_trait_conversion(double prob){}
-	
 	/**
-	 * An invasion will introduce a foreign group with neighborhood 
-	 * of radius
-	 * @param radius
+	 * Continue the execution of the thread
 	 */
-	protected void invasion (int radius){
-		int r = ROWS/2;
-		int c = COLS/2;
-		
-		for (int f=0; f < FEATURES; f++){
-			beliefs[r][c][f] = TRAITS;
-		}
-		
-		for (int i = 0; i <= radius; i++) {
-			for (int j = 0; j <= radius; j++) {
-				if ( j + i + 2 <= radius ) {
-					if ( r + i + 1 < ROWS && c + j + 1 < COLS ) {
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r + i + 1][c + j + 1][f]=TRAITS;
-						}
-					}
-					if ( r - i - 1 >= 0 && c - j - 1 >= 0 ) {			
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r - i - 1][c - j - 1][f]=TRAITS;
-						}
-					}
-				}
-				if ( j + i <= radius && ( j != 0 || i != 0 ) ) {
-					if ( r - i >= 0 && c + j < COLS ) {
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r - i][c + j][f]=TRAITS;
-						}
-					}
-					if ( r + i < ROWS && c - j >= 0 ) {
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r + i][c - j][f]=TRAITS;
-						}
-					}								
-				}
-			}
-		}
-	}
-	
-	/**
-	 * A genocide would indicate traits as dead.
-	 * 
-	 * @param probability
-	 */
-	protected void genocide(double probability){
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				for (int f = 0; f < FEATURES; f++) {
-					if (probability > Math.random()){
-						beliefs[r][c][f] = DEAD_TRAIT;
-					}
-				}
-			}
-		}
-	}
-	
-	public void setInvasion(int radius) {
-		this.invasion = true;
-		inv_radius = radius;
-	}
-
-	public void setDestroy_institutions_structure() {
-		this.destroy_institutions_structure = true;
-	}
-
-	public void setDestroy_institutions_content() {
-		this.destroy_institutions_content = true;
-	}
-
-	public void setGenocide(double prob) {
-		this.genocide = true;
-		this.gen_prob = prob;
-	}
-
-	public void setInstitutional_conversion(double prob) {
-		this.institutional_conversion = true;
-		this.ic_prob = prob;
-	}
-
-	public void setInstitutional_trait_conversion(double prob) {
-		this.institutional_trait_conversion = true;
-		this.itc_prob = prob;
-	}
-
-
-	
-	
-	public void check_for_events(){
-		if (invasion){
-			invasion(inv_radius);
-			invasion = false;
-		}
-		if (genocide){
-			genocide(gen_prob);
-			genocide = false;
-		}
-		if (destroy_institutions_content){
-			destroy_institutions_content();
-			destroy_institutions_content = false;
-		}
-		if (destroy_institutions_structure){
-			destroy_institutions_structure();
-			destroy_institutions_structure = false;
-		}
-		if (institutional_conversion) {
-			institutional_conversion(ic_prob);
-			institutional_conversion = false;
-		}
-		if (institutional_trait_conversion) {
-			institutional_trait_conversion(itc_prob);
-			institutional_trait_conversion = false;
-		}
+	public void resume() {       
+	    playing = true;
+	    suspended = false;
+	    synchronized (o) {  
+	        o.notifyAll();  
+	    }  
 	}
 
 	/**
-	 * It is a sort of destructor to help the garbage collector
+	 * Set a suspended state. Just wait until the thread is resumed.
 	 */
-	protected void reset(){
-		beliefs = null;
-		neighboursX = null;
-		neighboursY = null;
-		neighboursN = null;
-		flags = null;
-		cultures = null;		
+	protected void set_suspended(){
+		 while(suspended){  
+	         synchronized(o){  
+	        	 try {                   
+	                 while(suspended){  
+	                     synchronized(o){  
+	                         o.wait();  
+	                     }                           
+	                 }                       
+	             }  
+	             catch (InterruptedException e) {                    
+	            	 Controller.TA_OUTPUT.append("Error while trying to wait" + "\n");
+	             }    
+	         }                           
+	     } 
 	}
 
 	/**
@@ -643,26 +531,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	public void suspend() {          
 	    playing = false;  
 	    suspended = true;
-	}
-	
-	/**
-	 * Set a suspended state. Just wait until the thread is resumed.
-	 */
-	protected void set_suspended(){
-		 while(suspended){  
-             synchronized(o){  
-            	 try {                   
-                     while(suspended){  
-                         synchronized(o){  
-                             o.wait();  
-                         }                           
-                     }                       
-                 }  
-                 catch (InterruptedException e) {                    
-                	 Controller.TA_OUTPUT.append("Error while trying to wait" + "\n");
-                 }    
-             }                           
-         } 
 	}
 
 	/**
@@ -673,15 +541,24 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	    cancelled = true;
 	}
 
-	/**
-	 * Continue the execution of the thread
+	/** 
+	 * clean memory structures
 	 */
-	public void resume() {       
-	    playing = true;
-	    suspended = false;
-	    synchronized (o) {  
-	        o.notifyAll();  
-	    }  
+	public void clean(){
+	    try {
+			reset();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Controller.TA_OUTPUT.append("reset(); failed");
+			failed = true;
+		}
+		try {
+			System.gc();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Controller.TA_OUTPUT.append("system.gc(); failed");
+			failed = true;
+		}
 	}
 
 	/**
@@ -712,15 +589,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		return clone;	
 	}
 
-
 	/**
-	 * Count the cluster and returns a CSV line with the results
-	 * @return a CSV line with the results
+	 * Return a csv header for the output
+	 * @return
 	 */
-	protected String results() {
-		count_clusters();
-		count_borderless_clusters();
-		return this.get_results();				
+	public static String header() {
+		return "id,timestamp,duration,iterations,checkpoint,"
+				+ "type,rows,cols,features,traits,radius,"
+				+ "alpha,alpha_prime,freq_proc,freq_proc2,mutation,selection_error,"
+				+ "iteration,cultures,biggest_cluster,institutions,biggest_institution,"
+				+ "borderless_cultures, biggest_borderless_culture, energy, foreign_dispersion\n";		
 	}
 
 	/**
@@ -747,11 +625,25 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				SELECTION_ERROR + "," +
 				iteration * CHECKPOINT+ "," +
 				cultureN  + "," +
-				(float) cultureN / TOTAL_AGENTS + "," +
 				biggest_cluster + "," +
-				(float) biggest_cluster / TOTAL_AGENTS + ",-1,-1,-1,-1\n";				
+				"-1," +
+				"-1," +
+				culture_borderlessN + "," +
+				biggest_borderless_cluster + "," +
+				energy + "," +
+				foreiners_traits + ",";			
 	}
 
+	/**
+	 * Count the cluster and returns a CSV line with the results
+	 * @return a CSV line with the results
+	 */
+	protected String results() {
+		count_clusters();
+		count_borderless_clusters();
+		energy_and_foreigners_traits();
+		return this.get_results();				
+	}
 
 	private void count_clusters() {
 		biggest_cluster = 0;
@@ -795,8 +687,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			expand(nr, nc);					
 		}		
 	}
-	
-	
+
 	private void count_borderless_clusters() {
 		biggest_borderless_cluster = 0;
 		culture_borderlessN = 0;
@@ -828,13 +719,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			nc = neighboursY[r][c][n];
 			if ( flags[nr][nc] != flag_mark 
 					&& this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
-				expand(nr, nc);
+				expand_borderless(nr, nc);
 			}
 		}
 		
 	}
 
-	public boolean is_same_culture(int [] c1, int [] c2) {
+	private boolean is_same_culture(int [] c1, int [] c2) {
 		boolean fellow = true;				
 		for (int f = 0; f < FEATURES; f++) {
 			if ( c1[f] != c2[f] ) {
@@ -845,17 +736,146 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		return fellow;
 	}
 
-	public void print_cultures() {
-		String s = "";
+	private void energy_and_foreigners_traits() {
+		energy = 0;
+		foreiners_traits = 0;
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				s += cultures[r][c] * 1000 + " ";
+				for (int f = 0; f < FEATURES; f++) {
+					if (beliefs[r][c][f] == TRAITS){
+						foreiners_traits++;
+					} 
+					if (c+1 < COLS && (beliefs[r][c][f] != beliefs[r][c+1][f])){
+						energy++;
+					}
+					if (r+1 < COLS && (beliefs[r+1][c][f] != beliefs[r+1][c][f])){
+						energy++;
+					}
+				}
 			}
-			s += "\n";
 		}
-		Controller.TA_OUTPUT.append(s);
-	
 	}
+
+	public void check_for_events(){
+		if (invasion){
+			invasion(inv_radius);
+			invasion = false;
+		}
+		if (genocide){
+			genocide(gen_prob);
+			genocide = false;
+		}
+		if (destroy_institutions_content){
+			destroy_institutions_content();
+			destroy_institutions_content = false;
+		}
+		if (destroy_institutions_structure){
+			destroy_institutions_structure();
+			destroy_institutions_structure = false;
+		}
+		if (institutional_conversion) {
+			institutional_conversion(ic_prob);
+			institutional_conversion = false;
+		}
+		if (institutional_trait_conversion) {
+			institutional_trait_conversion(itc_prob);
+			institutional_trait_conversion = false;
+		}
+	}
+
+	public void setDestroy_institutions_structure() {
+		this.destroy_institutions_structure = true;
+	}
+
+	public void setDestroy_institutions_content() {
+		this.destroy_institutions_content = true;
+	}
+
+	public void setInvasion(int radius) {
+		this.invasion = true;
+		inv_radius = radius;
+	}
+
+	public void setInstitutional_conversion(double prob) {
+		this.institutional_conversion = true;
+		this.ic_prob = prob;
+	}
+
+	public void setInstitutional_trait_conversion(double prob) {
+		this.institutional_trait_conversion = true;
+		this.itc_prob = prob;
+	}
+
+	public void setGenocide(double prob) {
+		this.genocide = true;
+		this.gen_prob = prob;
+	}
+
+	protected void destroy_institutions_structure(){}
+	protected void destroy_institutions_content(){System.out.println("this is weird");}
+	/**
+	 * An invasion will introduce a foreign group with neighborhood 
+	 * of radius
+	 * @param radius
+	 */
+	protected void invasion (int radius){
+		int r = ROWS/2;
+		int c = COLS/2;
+		
+		for (int f=0; f < FEATURES; f++){
+			beliefs[r][c][f] = TRAITS;
+		}
+		
+		for (int i = 0; i <= radius; i++) {
+			for (int j = 0; j <= radius; j++) {
+				if ( j + i + 2 <= radius ) {
+					if ( r + i + 1 < ROWS && c + j + 1 < COLS ) {
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r + i + 1][c + j + 1][f]=TRAITS;
+						}
+					}
+					if ( r - i - 1 >= 0 && c - j - 1 >= 0 ) {			
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r - i - 1][c - j - 1][f]=TRAITS;
+						}
+					}
+				}
+				if ( j + i <= radius && ( j != 0 || i != 0 ) ) {
+					if ( r - i >= 0 && c + j < COLS ) {
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r - i][c + j][f]=TRAITS;
+						}
+					}
+					if ( r + i < ROWS && c - j >= 0 ) {
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r + i][c - j][f]=TRAITS;
+						}
+					}								
+				}
+			}
+		}
+	}
+
+	protected void institutional_conversion(double prob){}
+	protected void institutional_trait_conversion(double prob){}
+	
+	/**
+	 * A genocide would indicate traits as dead.
+	 * 
+	 * @param probability
+	 */
+	protected void genocide(double probability){
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				for (int f = 0; f < FEATURES; f++) {
+					if (probability > Math.random()){
+						beliefs[r][c][f] = DEAD_TRAIT;
+					}
+				}
+			}
+		}
+	}
+
 	
 	protected void update_gui(){
 		print_belief_spaces();
@@ -865,10 +885,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	private void update_culture_graphs(){
 		CulturalSimulator.graph_cultures.scores.add((double) cultureN / TOTAL_AGENTS);
 		CulturalSimulator.graph_cultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
+		CulturalSimulator.l_cultures.setText(cultureN + "/" + biggest_cluster);
 		CulturalSimulator.graph_cultures.update();
 		CulturalSimulator.graph_borderless_cultures.scores.add((double) culture_borderlessN / TOTAL_AGENTS);
 		CulturalSimulator.graph_borderless_cultures.scores2.add((double) biggest_borderless_cluster / TOTAL_AGENTS);
+		CulturalSimulator.l_borderless.setText(culture_borderlessN + "/" + biggest_borderless_cluster);
 		CulturalSimulator.graph_borderless_cultures.update();
+		CulturalSimulator.graph_energy_foreign_trait.scores.add((double) energy / (TOTAL_AGENTS*FEATURES));
+		CulturalSimulator.graph_energy_foreign_trait.scores2.add((double) foreiners_traits / (TOTAL_AGENTS*FEATURES));
+		CulturalSimulator.l_energy_foreigners.setText(energy + "/" + foreiners_traits);
+		CulturalSimulator.graph_energy_foreign_trait.update();
 		
 	}
 		

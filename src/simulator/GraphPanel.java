@@ -206,6 +206,12 @@ public class GraphPanel extends JPanel {
         return scores;
     }
     
+    public void clean(){
+    	scores = new ArrayList<Double>();
+		scores2 = new ArrayList<Double>();
+		update();
+    }
+    
     private static void createAndShowGui() {
         ArrayList<Double> scores = new ArrayList<>();
         ArrayList<Double> scores2 = new ArrayList<>();
