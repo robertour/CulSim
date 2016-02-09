@@ -41,12 +41,6 @@ public class Ulloa extends AxelrodOld {
 	protected int non_death_traits[];
 	
 	/**
-	 * Metrics for my own implementation
-	 */
-	private int alife_institutions;
-	private int biggest_institution;
-	
-	/**
 	 * Implements a circular doubled linked list with the members of the 
 	 * same culture (country men)
 	 */
@@ -678,36 +672,6 @@ public class Ulloa extends AxelrodOld {
 		return super.results();
 	}
 
-	@Override
-	public String get_results() {
-		return  IDENTIFIER + "," +
-				new java.sql.Timestamp(startTime) + "," +
-				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
-				ITERATIONS + "," +  
-				CHECKPOINT + "," +  
-				TYPE + "," +  
-				ROWS + "," +
-				COLS + "," +  
-				FEATURES + "," +  
-				TRAITS + "," +  
-				RADIUS + "," +  
-				ALPHA + "," +
-				ALPHA_PRIME + "," +
-				FREQ_DEM + "," +
-				FREQ_PROP + "," +
-				MUTATION + "," +  
-				SELECTION_ERROR + "," +
-				iteration * CHECKPOINT+ "," +
-				cultureN  + "," +
-				biggest_cluster + "," +
-				alife_institutions  + "," +
-				biggest_institution + "," +
-				culture_borderlessN + "," +
-				biggest_borderless_cluster + "," +
-				energy + "," +
-				foreiners_traits + ",";
-				
-	}
 	
 	/**
 	 * Invasion inserts a group of foreigners with its own 

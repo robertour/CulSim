@@ -16,7 +16,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -42,6 +41,7 @@ import javax.swing.JSplitPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import java.awt.Font;
 
 public class CulturalSimulator extends JFrame {
 
@@ -106,8 +106,7 @@ public class CulturalSimulator extends JFrame {
 	private JPanel panel_11;
 	private JPanel panel_12;
 	public static GraphPanel graph_cultures;
-	private JToolBar toolBar_1;
-	private JLabel lblJjlkjasdKlasfjdlkjAsdkfjasdfkj;
+	public static JLabel l_start_identification;
 	private JPanel panel_13;
 	private JPanel panel_14;
 	private JPanel panel_15;
@@ -121,6 +120,28 @@ public class CulturalSimulator extends JFrame {
 	public static  JLabel l_cultures;
 	public static JLabel l_borderless;
 	public static JLabel l_institutions;
+	private JPanel panel_20;
+	public static JLabel l_current_identification;
+	private JPanel panel_21;
+	private JPanel panel_22;
+	private JLabel label;
+	private JLabel label_1;
+	private JSpinner spinner;
+	private JSpinner spinner_1;
+	private JPanel panel_23;
+	private JLabel label_2;
+	private JLabel label_3;
+	public static JSpinner sp_mutation;
+	public static JSpinner sp_selection_error;
+	private JPanel panel_24;
+	private JLabel label_4;
+	private JLabel label_5;
+	private JLabel label_6;
+	public static JSpinner sp_influence;
+	public static JSpinner sp_loyalty;
+	public static JSpinner sp_democracy;
+	private JLabel label_7;
+	public static JSpinner sp_propaganda;
 	
 	/**
 	 * Launch the application.
@@ -143,13 +164,12 @@ public class CulturalSimulator extends JFrame {
 	 * Create the frame.
 	 */
 	public CulturalSimulator() {
+		setTitle("Cultural Simulator");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 899, 722);
+		setBounds(100, 100, 895, 722);
 		
 		parameters_dialog =  new CulturalParameters(this);
 		batch_mode_dialog = new BatchMode(this);
-		
-		controller.load_simulation("./simulation.parameters");
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -257,7 +277,7 @@ public class CulturalSimulator extends JFrame {
 		
 		panel_11 = new JPanel();
 		splitPane_2.setRightComponent(panel_11);
-		panel_11.setLayout(new GridLayout(4, 1, 0, 0));
+		panel_11.setLayout(new GridLayout(4, 2, 0, 0));
 		
 		panel_12 = new JPanel();
 		panel_11.add(panel_12);
@@ -488,6 +508,132 @@ public class CulturalSimulator extends JFrame {
 		sp_genocide.setBounds(121, 49, 39, 20);
 		panel_10.add(sp_genocide);
 		
+		panel_21 = new JPanel();
+		panel_21.setBorder(new TitledBorder(null, "Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.add(panel_21, BorderLayout.CENTER);
+		panel_21.setLayout(null);
+		
+		panel_22 = new JPanel();
+		panel_22.setBounds(94, 21, 1, 1);
+		panel_22.setLayout(null);
+		panel_22.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_21.add(panel_22);
+		
+		label = new JLabel("Mutation:");
+		label.setToolTipText("How often a random change in a feature occurs?");
+		label.setBounds(10, 23, 74, 14);
+		panel_22.add(label);
+		
+		label_1 = new JLabel("Selection Error:");
+		label_1.setToolTipText("How often do you want to save results, update graphs, check for Pause/Stop/Resume states?");
+		label_1.setBounds(10, 48, 85, 14);
+		panel_22.add(label_1);
+		
+		spinner = new JSpinner();
+		spinner.setToolTipText("How often a random change in a feature occurs?");
+		spinner.setBounds(94, 20, 70, 20);
+		panel_22.add(spinner);
+		
+		spinner_1 = new JSpinner();
+		spinner_1.setToolTipText("How often an agent confuses the selection of an agent that can be influnce by or not?");
+		spinner_1.setBounds(94, 45, 70, 20);
+		panel_22.add(spinner_1);
+		
+		panel_23 = new JPanel();
+		panel_23.setLayout(null);
+		panel_23.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_23.setBounds(10, 21, 170, 78);
+		panel_21.add(panel_23);
+		
+		label_2 = new JLabel("Mutation:");
+		label_2.setToolTipText("How often a random change in a feature occurs?");
+		label_2.setBounds(10, 23, 74, 14);
+		panel_23.add(label_2);
+		
+		label_3 = new JLabel("Selection Error:");
+		label_3.setToolTipText("How often do you want to save results, update graphs, check for Pause/Stop/Resume states?");
+		label_3.setBounds(10, 48, 85, 14);
+		panel_23.add(label_3);
+		
+		sp_mutation = new JSpinner();
+		sp_mutation.setModel(new SpinnerNumberModel(new Float(0.00001), new Float(0), new Float(1), new Float(0.000001)));
+		((JSpinner.NumberEditor) sp_mutation.getEditor()).getFormat().setMinimumFractionDigits(6);
+		sp_mutation.setValue(0.000001f);
+		sp_mutation.setToolTipText("How often a random change in a feature occurs?");
+		sp_mutation.setBounds(90, 20, 70, 20);
+		panel_23.add(sp_mutation);
+		
+		sp_selection_error = new JSpinner();
+		sp_selection_error.setModel(new SpinnerNumberModel(new Float(0.00001), new Float(0), new Float(1), new Float(0.000001)));
+		((JSpinner.NumberEditor) sp_selection_error.getEditor()).getFormat().setMinimumFractionDigits(6);
+		sp_selection_error.setValue(0.000001f);
+		sp_selection_error.setToolTipText("How often an agent confuses the selection of an agent that can be influnce by or not?");
+		sp_selection_error.setBounds(90, 45, 70, 20);
+		panel_23.add(sp_selection_error);
+		
+		panel_24 = new JPanel();
+		panel_24.setLayout(null);
+		panel_24.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Controls4", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Institutions", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_24.setBounds(10, 105, 170, 124);
+		panel_21.add(panel_24);
+		
+		label_4 = new JLabel("Influence:");
+		label_4.setToolTipText("Institutional influence over the agent");
+		label_4.setBounds(10, 23, 64, 14);
+		panel_24.add(label_4);
+		
+		label_5 = new JLabel("Loyalty:");
+		label_5.setToolTipText("Agent's loyalty towards the institution");
+		label_5.setBounds(10, 48, 64, 14);
+		panel_24.add(label_5);
+		
+		label_6 = new JLabel("Democracy:");
+		label_6.setToolTipText("How often a democratic process occurs?");
+		label_6.setBounds(10, 73, 64, 14);
+		panel_24.add(label_6);
+		
+		sp_influence = new JSpinner();
+		sp_influence.setModel(new SpinnerNumberModel(new Float(0.5), new Float(0), new Float(1), new Float(0.05)));
+		((JSpinner.NumberEditor) sp_influence.getEditor()).getFormat().setMinimumFractionDigits(3);
+		sp_influence.setValue(0.85f);
+		sp_influence.setToolTipText("Institutional influence over the agent");
+		sp_influence.setBounds(90, 20, 70, 20);
+		panel_24.add(sp_influence);
+		
+		sp_loyalty = new JSpinner();
+		sp_loyalty.setModel(new SpinnerNumberModel(new Float(0.5), new Float(0), new Float(1), new Float(0.05)));		
+		((JSpinner.NumberEditor) sp_loyalty.getEditor()).getFormat().setMinimumFractionDigits(3);
+		sp_loyalty.setValue(0.5f);
+		sp_loyalty.setToolTipText("Agent's loyalty towards the institution");
+		sp_loyalty.setBounds(90, 45, 70, 20);
+		panel_24.add(sp_loyalty);
+		
+		sp_democracy = new JSpinner();
+		sp_democracy.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+		sp_democracy.setToolTipText("How often a democratic process occurs?");
+		sp_democracy.setBounds(90, 70, 70, 20);
+		panel_24.add(sp_democracy);
+		
+		label_7 = new JLabel("Propaganda:");
+		label_7.setToolTipText("How often a propaganda process occurs?");
+		label_7.setBounds(10, 98, 64, 14);
+		panel_24.add(label_7);
+		
+		sp_propaganda = new JSpinner();
+		sp_propaganda.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+		sp_propaganda.setToolTipText("How often a propaganda process occurs?");
+		sp_propaganda.setBounds(90, 95, 70, 20);
+		panel_24.add(sp_propaganda);
+		
+		JButton btnSetParameters = new JButton("Set Parameters");
+		btnSetParameters.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				controller.setParameters();
+			}
+		});
+		btnSetParameters.setBounds(10, 231, 173, 23);
+		panel_21.add(btnSetParameters);
+		
 		JToolBar toolBar = new JToolBar();
 		panel_7.add(toolBar, BorderLayout.NORTH);
 		toolBar.setFloatable(false);
@@ -541,15 +687,26 @@ public class CulturalSimulator extends JFrame {
 			}
 		});
 		splitPane_1.setDividerLocation(190);
-		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
+		
 		splitPane_2.setDividerLocation(700);
 		
-		toolBar_1 = new JToolBar();
-		toolBar_1.setFloatable(false);
-		contentPane.add(toolBar_1, BorderLayout.SOUTH);
+		panel_20 = new JPanel();
+		contentPane.add(panel_20, BorderLayout.SOUTH);
+		panel_20.setLayout(new GridLayout(2, 1, 0, 0));
 		
-		lblJjlkjasdKlasfjdlkjAsdkfjasdfkj = new JLabel("jj;lkjasd klasfjdlkj asd;kfjasdfkj ;klasjd");
-		toolBar_1.add(lblJjlkjasdKlasfjdlkjAsdkfjasdfkj);
+		
+		
+		l_start_identification = new JLabel("S:");
+		l_start_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		panel_20.add(l_start_identification);
+		
+		l_current_identification = new JLabel("C:");
+		l_current_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		panel_20.add(l_current_identification);
+		
+		controller.load_simulation("./simulation.parameters");
+		
+		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 	
@@ -608,6 +765,7 @@ public class CulturalSimulator extends JFrame {
 			putValue(SHORT_DESCRIPTION, "Show parameters configuration  of the simulation");
 		}
 		public void actionPerformed(ActionEvent e) {
+			controller.restore_parameters_to_interface();
 			parameters_dialog.setVisible(true);
 		}
 	}

@@ -43,7 +43,6 @@ public class ControllerSingle extends Controller
 		return simulation.iteration;
 	}
 	
-	
 	/** 
 	 * Save the simulation object
 	 */
@@ -129,7 +128,16 @@ public class ControllerSingle extends Controller
     	CulturalParameters.sp_propaganda.setValue(simulation.FREQ_PROP);
     	CulturalParameters.sp_mutation.setValue(simulation.MUTATION);
     	CulturalParameters.sp_sel_error.setValue(simulation.SELECTION_ERROR);
-
+    	
+    	CulturalSimulator.sp_selection_error.setValue(simulation.SELECTION_ERROR);
+    	CulturalSimulator.sp_mutation.setValue(simulation.MUTATION);
+    	CulturalSimulator.sp_influence.setValue(simulation.ALPHA);
+    	CulturalSimulator.sp_loyalty.setValue(simulation.ALPHA_PRIME);
+    	CulturalSimulator.sp_democracy.setValue(simulation.FREQ_DEM);
+    	CulturalSimulator.sp_propaganda.setValue(simulation.FREQ_PROP);
+    	
+    	CulturalSimulator.l_start_identification.setText("S: " + simulation.get_identification());
+    	CulturalSimulator.l_current_identification.setText("C: " + simulation.get_identification());
 	}
 	
 	/**
@@ -169,6 +177,7 @@ public class ControllerSingle extends Controller
 	    	simulation.MUTATION = (float) CulturalParameters.sp_mutation.getValue();
 	    	simulation.SELECTION_ERROR = (float) CulturalParameters.sp_sel_error.getValue();
 	    	CulturalSimulator.clean_belief_spaces();
+	    	restore_parameters_to_interface();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -274,6 +283,11 @@ public class ControllerSingle extends Controller
     public void institutional_trait_conversion(double prob){
     	simulation.setInstitutional_trait_conversion(prob);
     	simulation.update_gui();    	
+    }
+    
+    public void setParameters(){
+    	simulation.setParameters();
+    	simulation.update_gui();
     }
 
     

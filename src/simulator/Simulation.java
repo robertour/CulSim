@@ -3,14 +3,19 @@ package simulator;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.concurrent.Callable;
+
 
 public abstract class Simulation  implements Callable<String>, Serializable {
 	
@@ -140,11 +145,20 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected Random rand = new Random();
 	
-	// Recursion control
+	
+	/**
+	 * This indicates how many times the generation have been restart
+	 */
+	protected int epoch = 0;
 	/**
 	 * Internal iteration of the simulation counter
 	 */
-	public int iteration = 0;
+	protected int iteration = 0;
+	
+	/**
+	 * Internal iteration of the simulation counter
+	 */
+	protected int generations = 0;
 	
 	/**
 	 * Flag for recursion
@@ -173,6 +187,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected int cultureN;
 	/**
+	 * Number of alife institutions
+	 */
+	protected int alife_institutions = -1;
+	/**
+	 * Members of the biggest institution
+	 */
+	protected int biggest_institution = -1;
+	/**
 	 * Number of members of the biggest borderless cluster
 	 */
 	protected int biggest_borderless_cluster = 0;
@@ -188,6 +210,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Spread of the foreigners traits
 	 */
 	protected int foreiners_traits = 0;
+	/**
+	 * Similarity with the initial state
+	 */
+	protected int similarity;
+	
 
 	
 	/**
@@ -218,6 +245,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	protected volatile double ic_prob = -1;
 	protected volatile boolean institutional_trait_conversion = false;
 	protected volatile double itc_prob = -1;
+	protected volatile boolean set_parameters = false;
 	
 	/**
 	 * This object is necessary in order to suspend the thread
@@ -250,7 +278,43 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * # that represent a TRAIT of a death agent
 	 */
 	protected static int DEAD_TRAIT = -2;
+	
+	/**
+	 * This is the starting state of the simulation to
+	 * calculate similarity/change of worlds.
+	 */
+	protected Simulation starter = null;
 
+
+	/**
+	 * The constructor just loads the class TYPE. The rest of the
+	 * things are decided in the setup() which is safer.
+	 */
+	public Simulation(){
+		TYPE = this.getClass().getSimpleName().toUpperCase();
+		save_state();
+	}
+	
+	/**
+	 * Performs a deep cloning of the simulation taking advantage of 
+	 * Java serialization
+	 * @return
+	 */
+	protected void save_state() {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(this);
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			starter = (Simulation) ois.readObject();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Starting point of execution
@@ -272,7 +336,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			e.printStackTrace();
 		}
 		
-		if (iteration == 0){
+		if (generations == 0){
 			try {
 				simulation_setup();
 			} catch (Exception e1) {
@@ -289,6 +353,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				failed = true;
 			}
 			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
+			save_state();
 			try {
 				writer.write(results());				
 			} catch (IOException e) {
@@ -296,8 +361,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				Controller.TA_OUTPUT.append("writer.write(results()); failed");
 				failed = true;
 			}
-			
+		} else {
+			epoch++;
+			save_state();
 		}
+		
 		
 		String r = "";
 		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
@@ -325,11 +393,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}
 		
 	    if (is_finished){
-		    Controller.TA_OUTPUT.append("Finished: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+		    Controller.TA_OUTPUT.append("Finished: " + get_identification() + "\n");
 	    } else if (failed){
-	    	Controller.TA_OUTPUT.append("Failed: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+	    	Controller.TA_OUTPUT.append("Failed: " + get_identification() + "\n");
 		} else {
-	    	Controller.TA_OUTPUT.append("Stopped: " + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ": " + r + "\n");
+	    	Controller.TA_OUTPUT.append("Stopped: " + get_identification() + "\n");
 	    }
 	    
 	    /** 
@@ -341,10 +409,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	    	 */
 	    	clean();
 	    }
-	      
 
 		return r;			
 	}
+	
+	
 	
 	/**
 	 * Setups the object in order to run the experiment. Initialize all the variables
@@ -462,10 +531,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	private String run_experiment_single(BufferedWriter writer){
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
+			
 			check_for_events();
 			update_gui();
 			run_iteration();
-			
+			generations += iteration * CHECKPOINT;
+					
 			r = results();
 			// write results of the current checkpoint
 			try {
@@ -597,8 +668,24 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		return "id,timestamp,duration,iterations,checkpoint,"
 				+ "type,rows,cols,features,traits,radius,"
 				+ "alpha,alpha_prime,freq_proc,freq_proc2,mutation,selection_error,"
-				+ "iteration,cultures,biggest_cluster,institutions,biggest_institution,"
+				+ "iteration,generations,"
+				+ "cultures,biggest_cluster,institutions,biggest_institution,"
 				+ "borderless_cultures, biggest_borderless_culture, energy, foreign_dispersion\n";		
+	}
+	
+	public String get_identification(){
+		return TYPE + " " + 
+				ROWS + "x" + COLS + "(" + RADIUS + "): " +
+				"F/T:" + FEATURES + "/" + TRAITS + " | " +
+				"M/S:" + MUTATION + "/" + SELECTION_ERROR + " | " +
+				"a/a\':" + ALPHA + "/" + ALPHA_PRIME + " | " +
+				"D/P:" + FREQ_DEM + "/" + FREQ_PROP + 
+				" @ " + generations * CHECKPOINT + " (" +
+				"Cultures: " + cultureN + "/" + biggest_cluster + " | " +
+				"Borderless: " + culture_borderlessN + "/" + biggest_borderless_cluster + " | " +
+				"Institution: " + alife_institutions + "/" + biggest_institution + " | " +
+				"E/Dispersion: " + energy + "/" + foreiners_traits  + " | " + 
+				"Similarity: " + similarity + "/-" + ")";	
 	}
 
 	/**
@@ -623,7 +710,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				FREQ_PROP + "," +  
 				MUTATION + "," +  
 				SELECTION_ERROR + "," +
-				iteration * CHECKPOINT+ "," +
+				iteration * CHECKPOINT + "," +
+				generations + "," +
 				cultureN  + "," +
 				biggest_cluster + "," +
 				"-1," +
@@ -642,7 +730,22 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		count_clusters();
 		count_borderless_clusters();
 		energy_and_foreigners_traits();
+		calculate_similarity();
 		return this.get_results();				
+	}
+	
+	
+	private void calculate_similarity(){
+		similarity = 0;
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				for (int f = 0; f < FEATURES; f++) {
+					if (beliefs[r][c][f] == starter.beliefs[r][c][f]){
+						similarity++;						
+					}
+				}
+			}
+		}
 	}
 
 	private void count_clusters() {
@@ -781,38 +884,93 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			institutional_trait_conversion(itc_prob);
 			institutional_trait_conversion = false;
 		}
+		if (set_parameters){
+			set_parameters();
+			set_parameters = false;
+		}
 	}
 
 	public void setDestroy_institutions_structure() {
-		this.destroy_institutions_structure = true;
+		if (playing){
+			this.destroy_institutions_structure = true;
+		} else {
+			destroy_institutions_structure();
+			update_gui();
+		}
 	}
 
 	public void setDestroy_institutions_content() {
-		this.destroy_institutions_content = true;
+		if (playing){
+			this.destroy_institutions_content = true;
+		} else {
+			destroy_institutions_content();
+			update_gui();
+		}
 	}
 
 	public void setInvasion(int radius) {
-		this.invasion = true;
-		inv_radius = radius;
+		if (playing){
+			this.invasion = true;
+			inv_radius = radius;
+		} else {
+			invasion(radius);
+			update_gui();
+		}
 	}
 
 	public void setInstitutional_conversion(double prob) {
-		this.institutional_conversion = true;
-		this.ic_prob = prob;
+		if (playing){
+			this.institutional_conversion = true;
+			this.ic_prob = prob;
+		} else {
+			institutional_conversion(prob);
+			update_gui();
+		}
 	}
 
 	public void setInstitutional_trait_conversion(double prob) {
-		this.institutional_trait_conversion = true;
-		this.itc_prob = prob;
+		if (playing){
+			this.institutional_trait_conversion = true;
+			this.itc_prob = prob;
+		} else {
+			institutional_trait_conversion(prob);
+			update_gui();
+		}
 	}
 
 	public void setGenocide(double prob) {
-		this.genocide = true;
-		this.gen_prob = prob;
+		if (playing){
+			this.genocide = true;
+			this.gen_prob = prob;
+		} else {
+			genocide(prob);
+			update_gui();
+		}
+	}
+	
+	public void setParameters() {
+		if (playing){
+			this.set_parameters = true;
+		} else {
+			set_parameters();
+		}
 	}
 
 	protected void destroy_institutions_structure(){}
-	protected void destroy_institutions_content(){System.out.println("this is weird");}
+	protected void destroy_institutions_content(){}
+	
+	/**
+	 * This method modifies the parameters of the simulation during execution.
+	 */
+	protected void set_parameters(){
+		ALPHA = (float) CulturalSimulator.sp_influence.getValue();
+		ALPHA_PRIME = (float) CulturalSimulator.sp_loyalty.getValue();
+		MUTATION = (float) CulturalSimulator.sp_mutation.getValue();
+		SELECTION_ERROR = (float) CulturalSimulator.sp_selection_error.getValue();
+		FREQ_DEM = (int) CulturalSimulator.sp_democracy.getValue();
+		FREQ_PROP = (int) CulturalSimulator.sp_propaganda.getValue();
+	}
+	
 	/**
 	 * An invasion will introduce a foreign group with neighborhood 
 	 * of radius
@@ -880,6 +1038,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	protected void update_gui(){
 		print_belief_spaces();
 		update_culture_graphs();
+		CulturalSimulator.l_start_identification.setText("S: " + starter.get_identification());
+		CulturalSimulator.l_current_identification.setText("C: " + get_identification());
 	}
 	
 	private void update_culture_graphs(){
