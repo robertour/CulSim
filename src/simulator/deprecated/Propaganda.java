@@ -1,4 +1,4 @@
-package simulator.destruction;
+package simulator.deprecated;
 
 
 /**
@@ -232,7 +232,9 @@ public class Propaganda extends Democracy {
                             	
                             	for (int f = 0; f < FEATURES; f++) {
 	                            	// check if the propaganda has effect by measuring the similarity with the institution 
-            						if (institution_beliefs[institution][f] != -1 && beliefs[nr][nc][f] != institution_beliefs[institution][f] && rand.nextFloat() > mismatchesN  / (float) FEATURES ) {
+            						if (institution_beliefs[institution][f] != -1 
+            								&& beliefs[nr][nc][f] != institution_beliefs[institution][f] 
+            								&& rand.nextFloat() > mismatchesN  / (float) FEATURES ) {
             							beliefs[nr][nc][f] = institution_beliefs[institution][f];
             						}
                             	}

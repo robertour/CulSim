@@ -172,6 +172,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Number of clusters
 	 */
 	protected int cultureN;
+	/**
+	 * Number of members of the biggest borderless cluster
+	 */
+	protected int biggest_borderless_cluster = 0;
+	/**
+	 * Number of borderless clusters
+	 */
+	protected int culture_borderlessN;
 
 	
 	/**
@@ -189,6 +197,20 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * This is when a checkpoint is finalized.
 	 */
 	protected volatile boolean cancelled = false;
+	/**
+	 * Indicates if there are any catastrophic events scheduled
+	 */
+	protected volatile boolean invasion = false;
+	protected volatile int inv_radius = -1;
+	protected volatile boolean destroy_institutions_structure = false;
+	protected volatile boolean destroy_institutions_content = false;
+	protected volatile boolean genocide = false;
+	protected volatile double gen_prob = -1;
+	protected volatile boolean institutional_conversion = false;
+	protected volatile double ic_prob = -1;
+	protected volatile boolean institutional_trait_conversion = false;
+	protected volatile double itc_prob = -1;
+	
 	/**
 	 * This object is necessary in order to suspend the thread
 	 */
@@ -215,6 +237,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Register the time when the experiment finished
 	 */
 	protected long endTime = 0l;
+	
+	/**
+	 * # that represent a TRAIT of a death agent
+	 */
+	protected static int DEAD_TRAIT = -2;
 
 	/**
 	 * Return a csv header for the output
@@ -442,7 +469,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	private String run_experiment_single(BufferedWriter writer){
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			print_beliefs_spaces();
+			check_for_events();
+			update_gui();
 			run_iteration();
 			
 			r = results();
@@ -470,10 +498,132 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 		return r;
 	}
-	
+		
 	
 	protected abstract void setup();
 	protected abstract void run_iteration();
+	protected void destroy_institutions_structure(){}
+	protected void destroy_institutions_content(){System.out.println("this is weird");}
+	protected void institutional_conversion(double prob){}
+	protected void institutional_trait_conversion(double prob){}
+	
+	/**
+	 * An invasion will introduce a foreign group with neighborhood 
+	 * of radius
+	 * @param radius
+	 */
+	protected void invasion (int radius){
+		int r = ROWS/2;
+		int c = COLS/2;
+		
+		for (int f=0; f < FEATURES; f++){
+			beliefs[r][c][f] = TRAITS;
+		}
+		
+		for (int i = 0; i <= radius; i++) {
+			for (int j = 0; j <= radius; j++) {
+				if ( j + i + 2 <= radius ) {
+					if ( r + i + 1 < ROWS && c + j + 1 < COLS ) {
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r + i + 1][c + j + 1][f]=TRAITS;
+						}
+					}
+					if ( r - i - 1 >= 0 && c - j - 1 >= 0 ) {			
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r - i - 1][c - j - 1][f]=TRAITS;
+						}
+					}
+				}
+				if ( j + i <= radius && ( j != 0 || i != 0 ) ) {
+					if ( r - i >= 0 && c + j < COLS ) {
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r - i][c + j][f]=TRAITS;
+						}
+					}
+					if ( r + i < ROWS && c - j >= 0 ) {
+						for (int f=0; f < FEATURES; f++){
+							beliefs[r + i][c - j][f]=TRAITS;
+						}
+					}								
+				}
+			}
+		}
+	}
+	
+	/**
+	 * A genocide would indicate traits as dead.
+	 * 
+	 * @param probability
+	 */
+	protected void genocide(double probability){
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				for (int f = 0; f < FEATURES; f++) {
+					if (probability > Math.random()){
+						beliefs[r][c][f] = DEAD_TRAIT;
+					}
+				}
+			}
+		}
+	}
+	
+	public void setInvasion(int radius) {
+		this.invasion = true;
+		inv_radius = radius;
+	}
+
+	public void setDestroy_institutions_structure() {
+		this.destroy_institutions_structure = true;
+	}
+
+	public void setDestroy_institutions_content() {
+		this.destroy_institutions_content = true;
+	}
+
+	public void setGenocide(double prob) {
+		this.genocide = true;
+		this.gen_prob = prob;
+	}
+
+	public void setInstitutional_conversion(double prob) {
+		this.institutional_conversion = true;
+		this.ic_prob = prob;
+	}
+
+	public void setInstitutional_trait_conversion(double prob) {
+		this.institutional_trait_conversion = true;
+		this.itc_prob = prob;
+	}
+
+
+	
+	
+	public void check_for_events(){
+		if (invasion){
+			invasion(inv_radius);
+			invasion = false;
+		}
+		if (genocide){
+			genocide(gen_prob);
+			genocide = false;
+		}
+		if (destroy_institutions_content){
+			destroy_institutions_content();
+			destroy_institutions_content = false;
+		}
+		if (destroy_institutions_structure){
+			destroy_institutions_structure();
+			destroy_institutions_structure = false;
+		}
+		if (institutional_conversion) {
+			institutional_conversion(ic_prob);
+			institutional_conversion = false;
+		}
+		if (institutional_trait_conversion) {
+			institutional_trait_conversion(itc_prob);
+			institutional_trait_conversion = false;
+		}
+	}
 
 	/**
 	 * It is a sort of destructor to help the garbage collector
@@ -569,6 +719,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected String results() {
 		count_clusters();
+		count_borderless_clusters();
 		return this.get_results();				
 	}
 
@@ -602,8 +753,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 
 
-
-	public void count_clusters() {
+	private void count_clusters() {
 		biggest_cluster = 0;
 		cultureN = 0;
 		for (int r = 0; r < ROWS; r++) {
@@ -621,7 +771,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		flag_mark = !flag_mark;
 	}
 
-	public void expand(int r, int c) {
+	private void expand(int r, int c) {
 		flags[r][c] = flag_mark;
 		cultures[r][c] = cultureN;
 		cluster_size++;
@@ -643,8 +793,44 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		nc = c + 1;
 		if ( nc < COLS && flags[nr][nc] != flag_mark && this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
 			expand(nr, nc);					
+		}		
+	}
+	
+	
+	private void count_borderless_clusters() {
+		biggest_borderless_cluster = 0;
+		culture_borderlessN = 0;
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				if (flags[r][c] != flag_mark){
+					cluster_size = 0;
+					expand_borderless(r, c);					
+					if (cluster_size > biggest_borderless_cluster) {
+						biggest_borderless_cluster = cluster_size;						
+					}
+					culture_borderlessN++;
+				}
+			}
 		}
+		flag_mark = !flag_mark;
+	}
+
+	private void expand_borderless(int r, int c) {
+		flags[r][c] = flag_mark;
+		cultures[r][c] = culture_borderlessN;
+		cluster_size++;
 		
+		int nr = 0;
+		int nc = 0;
+		
+		for (int n = 0; n < neighboursN[r][c]; n++) {
+			nr = neighboursX[r][c][n];
+			nc = neighboursY[r][c][n];
+			if ( flags[nr][nc] != flag_mark 
+					&& this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
+				expand(nr, nc);
+			}
+		}
 		
 	}
 
@@ -671,7 +857,22 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	
 	}
 	
-	protected void print_beliefs_spaces(){
+	protected void update_gui(){
+		print_belief_spaces();
+		update_culture_graphs();
+	}
+	
+	private void update_culture_graphs(){
+		CulturalSimulator.graph_cultures.scores.add((double) cultureN / TOTAL_AGENTS);
+		CulturalSimulator.graph_cultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
+		CulturalSimulator.graph_cultures.update();
+		CulturalSimulator.graph_borderless_cultures.scores.add((double) culture_borderlessN / TOTAL_AGENTS);
+		CulturalSimulator.graph_borderless_cultures.scores2.add((double) biggest_borderless_cluster / TOTAL_AGENTS);
+		CulturalSimulator.graph_borderless_cultures.update();
+		
+	}
+		
+	private void print_belief_spaces(){
 		
 		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
 
@@ -681,7 +882,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				for (int f = 0; f < FEATURES; f++) {
 					if (beliefs[r][c][f] == -1){
 						ohex += Integer.toHexString(15);
-					} else if (beliefs[r][c][f] == -2){
+					} else if (beliefs[r][c][f] == DEAD_TRAIT){
 						ohex += Integer.toHexString(0);
 					} else {
 						ohex += Integer.toHexString(beliefs[r][c][f]+1);

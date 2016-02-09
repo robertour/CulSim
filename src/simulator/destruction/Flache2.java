@@ -1,8 +1,6 @@
-package simulator.previous;
-
+package simulator.destruction;
 
 import simulator.Simulation;
-
 
 public class Flache2 extends Simulation {
 
@@ -62,7 +60,9 @@ public class Flache2 extends Simulation {
 						int nr = neighboursX[r][c][n];
 						int nc = neighboursY[r][c][n];
 						for (int f = 0; f < FEATURES; f++) {
-							votes[f][beliefs[nr][nc][f]]++;	
+							if (beliefs[nr][nc][f] != DEAD_TRAIT){
+								votes[f][beliefs[nr][nc][f]]++;
+							}
 						}						
 					}
 				} 
@@ -71,20 +71,26 @@ public class Flache2 extends Simulation {
 				int feature_candidatesN = 0;
 				for (int f = 0; f < FEATURES; f++) {
 					int current_trait = beliefs[r][c][f];
-					int current_trait_votes = votes[f][current_trait];
+					int current_trait_votes = 0;
+					if (current_trait != DEAD_TRAIT){
+						current_trait_votes = votes[f][current_trait];
+					}					
 					for (int t = 0; t < TRAITS; t++) {
 						if (t != current_trait && votes[f][t] >= current_trait_votes){
 							feature_candidates[feature_candidatesN++] = f;
 							t = TRAITS;
 						}
-					}					
+					}
 				}
 				
 				// select the candidate
 				if (feature_candidatesN > 0){
 					int selected_feature = feature_candidates[rand.nextInt(feature_candidatesN)];
 					int max_trait = beliefs[r][c][selected_feature];
-					int current_votes = votes[selected_feature][max_trait];
+					int current_votes = 0;
+					if (max_trait != DEAD_TRAIT){
+						current_votes = votes[selected_feature][max_trait];
+					}
 					int max_votes = current_votes;
 					int trait_candidatesN = 0;
 					
@@ -115,6 +121,4 @@ public class Flache2 extends Simulation {
 	
 	} // END of run_experiment
 
-
-	
 }

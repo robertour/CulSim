@@ -1,23 +1,15 @@
-package simulator.previous;
+package simulator.deprecated;
 
 import simulator.Simulation;
 
-public class Axelrod extends Simulation {
-	
-	/**
-	 * 
-	 */
+public class AxelrodOld extends Simulation {
 	private static final long serialVersionUID = -7545052442932217544L;
-	
+
 	/**
 	 * Register all the mismatches between two neighbors.
 	 */
 	protected int [] mismatches;
 	
-	public Axelrod (){
-		super();
-		TYPE = "AXELROD";	
-	}
 
 	@Override
 	public void setup() {
@@ -32,7 +24,6 @@ public class Axelrod extends Simulation {
 	
 	@Override
 	public void run_iteration() {
-
 		for (int ic = 0; ic < CHECKPOINT; ic++) {
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
 				
@@ -47,13 +38,24 @@ public class Axelrod extends Simulation {
 
 				// get the number of mismatches between the two agents
 				int mismatchesN = 0;
+				
+				// differences consider death (or just born) agents after genocide				
+				int differences = 0;
 				for (int f = 0; f < FEATURES; f++) {
-					if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
-						mismatches[mismatchesN] = f;
-						mismatchesN++;
+					// if the neighbor has a DEAD_TRAIT don't take him into account
+					if (beliefs[nr][nc][f] != DEAD_TRAIT){
+						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
+							mismatches[mismatchesN] = f;
+							mismatchesN++;
+							if (beliefs[r][c][f] != DEAD_TRAIT){
+								differences++;
+							}
+						}
+					} else {
+						differences++;
 					}
 				}
-				int agents_overlap = FEATURES - mismatchesN;
+				int agents_overlap = FEATURES - differences;
 
 				// check if there is actual interaction 
 				if (agents_overlap != FEATURES
@@ -61,9 +63,10 @@ public class Axelrod extends Simulation {
 					int selected_feature = mismatches[rand.nextInt(mismatchesN)];
 					beliefs[r][c][selected_feature] = beliefs[nr][nc][selected_feature];
 				}
-			}
+				
+			} // END of total agents
+			
 		} // END of checkpoint
 		
-	} // END of run_experiment
-	
+	} // END of run_experiment	
 }

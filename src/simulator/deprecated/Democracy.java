@@ -1,5 +1,6 @@
-package simulator.destruction;
+package simulator.deprecated;
 
+import simulator.destruction.Ulloa;
 
 /**
  * Based on FlacheExperiment1 this class implements:
@@ -16,10 +17,8 @@ package simulator.destruction;
  */
 public class Democracy extends Ulloa {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 675750593717255652L;
+	
 	/**
 	 * Implements a circular doubled linked list with the members of the 
 	 * same culture (country men)
@@ -129,17 +128,29 @@ public class Democracy extends Ulloa {
 
 				// get the number of mismatches between the two agents					
 				mismatchesN = 0;
+				differences = 0;
+				non_death_traitsN = 0;
 				
 				// get the number of identical traits between the agent and its institution					
 				institution_overlap = 0;		
 				
-				// get the number of identical traits between the agent and its neighbors's institution					
+				// get the number of identical traits between the agent 
+				// and its neighbors's institution						
 				neighbors_institution_overlap = 0;
 				
 				for (int f = 0; f < FEATURES; f++) {
-					if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
-						mismatches[mismatchesN] = f;
-						mismatchesN++;
+					if (beliefs[nr][nc][f] != DEAD_TRAIT){
+						non_death_traits[non_death_traitsN] = f;
+						non_death_traitsN++;
+						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
+							mismatches[mismatchesN] = f;
+							mismatchesN++;
+							if (beliefs[r][c][f] != DEAD_TRAIT){
+								differences++;
+							}
+						}
+					} else {
+						differences++;
 					}
 					if (beliefs[r][c][f] == institution_beliefs[neighbors_institution][f]) {
 						neighbors_institution_overlap++;
@@ -148,134 +159,138 @@ public class Democracy extends Ulloa {
 						institution_overlap++;
 					}
 				}
-
-				// if arrive here by selection error, there is still a chance of influence the institution
-				if (mismatchesN == 0 ) {  
-					selected_feature = rand.nextInt(FEATURES);
-				} else {
-					selected_feature = mismatches[rand.nextInt(mismatchesN)];
-				}
 				
-				// select the traits in play (agent's, neighbor's and institution's)
-				selected_trait = beliefs[nr][nc][selected_feature];
-				institution_trait = institution_beliefs[institution][selected_feature];
-				institution_trait = institution_beliefs[institution][selected_feature];
-				neighbors_institution_trait = institution_beliefs[neighbors_institution][selected_feature];
-				
+				// the agent cannot interact with a dead individual
+				if (non_death_traitsN == 0){
 
-				
-				// When there is no institutional conflict because the institution favors the selected trait
-				// or because the trait is already different, then just use homophily
-				if (selected_trait == institution_trait || 
-						institution_trait != -1 && beliefs[r][c][selected_feature] != institution_trait){
-					
-					// check if there is actual interaction checking against the homophily and 
-					// considering the selection error. The present formula integrates homophily
-					// and selection error into one probability. 
-					if (rand.nextFloat() <  
-							( ((FEATURES - mismatchesN) / (float) FEATURES) * (1-SELECTION_ERROR) + 
-							(              mismatchesN  / (float) FEATURES) * SELECTION_ERROR  ) ) {
-
-						//////////////////////
-						// CHANGE THE TRAIT //
-						//////////////////////
-						beliefs[r][c][selected_feature] = selected_trait;
+					// if arrive by selection error, there is still 
+					// a chance of influencing the institution
+					if (mismatchesN == 0 ) {  
+						selected_feature = non_death_traits[rand.nextInt(non_death_traitsN)];
+					} else {
+						selected_feature = mismatches[rand.nextInt(mismatchesN)];
 					}
+					
+					// select the traits in play (agent's, neighbor's and institution's)
+					selected_trait = beliefs[nr][nc][selected_feature];
+					institution_trait = institution_beliefs[institution][selected_feature];
+					neighbors_institution_trait = institution_beliefs[neighbors_institution][selected_feature];
+					
+					// When there is no institutional conflict because the institution favors the selected trait
+					// or because the trait is already different, then just use homophily
+					if (selected_trait == institution_trait || 
+							institution_trait != -1 && 
+							beliefs[r][c][selected_feature] != institution_trait){
 						
-				} else {
-					
-					// Probability of interaction taking into account selection error
-					float prob_int = ( ((FEATURES - mismatchesN) / (float) FEATURES) * (1-SELECTION_ERROR) + 
-									   (            mismatchesN  / (float) FEATURES) * SELECTION_ERROR  );
-					
-					// Calculate the institutional resistance
-					institution_resistance = ALPHA * institution_overlap / (float) FEATURES;
-					
-					// check if there is actual interaction 
-					if (rand.nextFloat() >= institution_resistance / (prob_int * BETA + institution_resistance) ) {
-					
-						
-						// at this point, we are sure that the agent is losing similarity with the institution
-						// if the new trait is the same of the institution trait, and the current 
-						// agent's trait is different from the institution then the cultural overlap 
-						// will increase
-						if (institution_trait == selected_trait && 
-								beliefs[r][c][selected_feature] != institution_trait) {
-							 institution_overlap++;
-						} 
-						//otherwise, if the new trait is different from the institution trait, and 
-						// the current agent's trait is the same of the institution then the cultural 
-						// overlap will decrease
-						else if (institution_trait != selected_trait && 
-								beliefs[r][c][selected_feature] == institution_trait) {
-							institution_overlap--;
+						// check if there is actual interaction checking against the homophily and 
+						// considering the selection error. The present formula integrates homophily
+						// and selection error into one probability. 
+						if (rand.nextFloat() <  
+								( ((FEATURES - differences) / (float) FEATURES) * (1-SELECTION_ERROR) + 
+								(              differences  / (float) FEATURES) * SELECTION_ERROR  ) ) {
+	
+							//////////////////////
+							// CHANGE THE TRAIT //
+							//////////////////////
+							beliefs[r][c][selected_feature] = selected_trait;
 						}
-													
-						
-						// if the new trait is the same of the institution trait, and the current 
-						// agent's trait is different from the institution then the institutional overlap 
-						// will increase
-						if (neighbors_institution_trait == selected_trait && 
-								beliefs[r][c][selected_feature] != neighbors_institution_trait) {
-							 neighbors_institution_overlap++;
-						} 
-						//otherwise, if the new trait is different from the institution trait, and 
-						// the current agent's trait is the same of the institution then the institutional 
-						// overlap will decrease
-						else if (neighbors_institution_trait != selected_trait && 
-								beliefs[r][c][selected_feature] == neighbors_institution_trait) {
-							neighbors_institution_overlap--;
-						}
-						
-						// if the selected feature of the neighbor's institution hasn't been
-						// assigned yet, then it is an opportunity to be more similar
-						if (institution_beliefs[neighbors_institution][selected_feature] == -1) {
-							neighbors_institution_overlap++;
-						}						
-						
-
-						//////////////////////
-						// CHANGE THE TRAIT //
-						//////////////////////
-						// we change the trait after adjusting the overlaps //
-						beliefs[r][c][selected_feature] = selected_trait;
-					
-						// when the agent doesn't have any similarity with the institutions then
-						// he loses his identity and accept the trait. This also avoid divisions 
-						// by 0 in the next condition.
-						if (institution_overlap == 0 && neighbors_institution_overlap == 0) {
-							// Nothing happen when the agent is not similar to any of the two institutions
-						}						
-						// if there is no institutional shock (current trait is different to its institution's), 
-						// accept the change
-						else {
-							institutional_factor = institution_overlap * ALPHA_PRIME;
-						
-							if (rand.nextFloat() >= institutional_factor / 
-									(float) neighbors_institution_overlap * BETA_PRIME +  
-									institutional_factor) {
-									
-								// if the institutions are different, then institution change to its neighbors
-								if (institution != neighbors_institution) {
-									// its institution lost a citizen
-									institutionsN[institution]--;
-									institutions[r][c] = neighbors_institution;
-									institutionsN[neighbors_institution]++;	
-								} // END of different institution
-								
-								// if there is no trait selected for the selected feature, then make the
-								// selected trait part of the institution
-								if (institution_beliefs[neighbors_institution][selected_feature] == -1) {
-									institution_beliefs[neighbors_institution][selected_feature] = selected_trait;
-								} // END of add a institutional trait to institution
-		
-							} // END of institution change
 							
-						} // END of else
+					} else {
 						
-					} // END of institutional shock
-					
-				} // END of else
+						// Probability of interaction taking into account selection error
+						float prob_int = ( ((FEATURES - differences) / (float) FEATURES) * (1-SELECTION_ERROR) + 
+										   (            differences  / (float) FEATURES) * SELECTION_ERROR  );
+						
+						// Calculate the institutional resistance
+						institution_resistance = ALPHA * institution_overlap / (float) FEATURES;
+						
+						// check if there is actual interaction 
+						if (rand.nextFloat() >= institution_resistance / (prob_int * BETA + institution_resistance) ) {
+						
+							
+							// at this point, we are sure that the agent is losing similarity with the institution
+							// if the new trait is the same of the institution trait, and the current 
+							// agent's trait is different from the institution then the cultural overlap 
+							// will increase
+							if (institution_trait == selected_trait && 
+									beliefs[r][c][selected_feature] != institution_trait) {
+								 institution_overlap++;
+							} 
+							//otherwise, if the new trait is different from the institution trait, and 
+							// the current agent's trait is the same of the institution then the cultural 
+							// overlap will decrease
+							else if (institution_trait != selected_trait && 
+									beliefs[r][c][selected_feature] == institution_trait) {
+								institution_overlap--;
+							}
+														
+							
+							// if the new trait is the same of the institution trait, and the current 
+							// agent's trait is different from the institution then the institutional overlap 
+							// will increase
+							if (neighbors_institution_trait == selected_trait && 
+									beliefs[r][c][selected_feature] != neighbors_institution_trait) {
+								 neighbors_institution_overlap++;
+							} 
+							//otherwise, if the new trait is different from the institution trait, and 
+							// the current agent's trait is the same of the institution then the institutional 
+							// overlap will decrease
+							else if (neighbors_institution_trait != selected_trait && 
+									beliefs[r][c][selected_feature] == neighbors_institution_trait) {
+								neighbors_institution_overlap--;
+							}
+							
+							// if the selected feature of the neighbor's institution hasn't been
+							// assigned yet, then it is an opportunity to be more similar
+							if (institution_beliefs[neighbors_institution][selected_feature] == -1) {
+								neighbors_institution_overlap++;
+							}						
+							
+	
+							//////////////////////
+							// CHANGE THE TRAIT //
+							//////////////////////
+							// we change the trait after adjusting the overlaps //
+							beliefs[r][c][selected_feature] = selected_trait;
+						
+							// when the agent doesn't have any similarity with the institutions then
+							// he loses his identity and accept the trait. This also avoid divisions 
+							// by 0 in the next condition.
+							if (institution_overlap == 0 && neighbors_institution_overlap == 0) {
+								// Nothing happen when the agent is not similar to any of the two institutions
+							}						
+							// if there is no institutional shock (current trait is different to its institution's), 
+							// accept the change
+							else {
+								institutional_factor = institution_overlap * ALPHA_PRIME;
+							
+								if (rand.nextFloat() >= institutional_factor / 
+										(float) neighbors_institution_overlap * BETA_PRIME +  
+										institutional_factor) {
+										
+									// if the institutions are different, then institution change to its neighbors
+									if (institution != neighbors_institution) {
+										// its institution lost a citizen
+										institutionsN[institution]--;
+										institutions[r][c] = neighbors_institution;
+										institutionsN[neighbors_institution]++;	
+									} // END of different institution
+									
+									// if there is no trait selected for the selected feature, then make the
+									// selected trait part of the institution
+									if (institution_beliefs[neighbors_institution][selected_feature] == -1) {
+										institution_beliefs[neighbors_institution][selected_feature] = selected_trait;
+									} // END of add a institutional trait to institution
+			
+								} // END of institution change
+								
+							} // END of else
+							
+						} // END of institutional shock
+						
+					} // END of else
+
+				} // END of not grieving 
 				
 				
 				// mutation

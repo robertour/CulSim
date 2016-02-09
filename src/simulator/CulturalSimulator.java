@@ -16,6 +16,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -38,6 +39,9 @@ import java.awt.GridLayout;
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import javax.swing.JSplitPane;
+import javax.swing.border.TitledBorder;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 public class CulturalSimulator extends JFrame {
 
@@ -87,7 +91,32 @@ public class CulturalSimulator extends JFrame {
 	private JMenuItem mntmClear;
 	private JSplitPane splitPane_1;
 	private JPanel panel_7;
-	private JLabel lblNewLabel_1;
+	private JButton btnDestroyInstitutionsStructure;
+	private JButton btnConversion;
+	private JButton btnTraitConversion;
+	private JPanel panel_1;
+	private JPanel panel_8;
+	private JPanel panel_9;
+	private JSpinner sp_convert;
+	private JSpinner sp_convert_traits;
+	private JPanel panel_10;
+	private JSpinner sp_invasion;
+	private JSpinner sp_genocide;
+	private JSplitPane splitPane_2;
+	private JPanel panel_11;
+	private JPanel panel_12;
+	private JLabel lblCultures;
+	public static GraphPanel graph_cultures;
+	private JToolBar toolBar_1;
+	private JLabel lblJjlkjasdKlasfjdlkjAsdkfjasdfkj;
+	private JPanel panel_13;
+	private JLabel lblBiggestCulture;
+	private JPanel panel_14;
+	private JPanel panel_15;
+	private JLabel lblInstitutions;
+	private JLabel lblEnergy;
+	public static GraphPanel graph_institutions;
+	public static GraphPanel graph_borderless_cultures;
 	
 	/**
 	 * Launch the application.
@@ -111,7 +140,7 @@ public class CulturalSimulator extends JFrame {
 	 */
 	public CulturalSimulator() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 825, 722);
+		setBounds(100, 100, 899, 722);
 		
 		parameters_dialog =  new CulturalParameters(this);
 		batch_mode_dialog = new BatchMode(this);
@@ -122,6 +151,7 @@ public class CulturalSimulator extends JFrame {
 		addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
             	if (want_to_continue(CulturalSimulator.this)){
+            		controller.cancel();
             		dispose();
             	}                
             }
@@ -166,6 +196,7 @@ public class CulturalSimulator extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				
 				if (want_to_continue(CulturalSimulator.this)){
+					controller.cancel();
 					CulturalSimulator.this.dispose();
             	}  
 			}
@@ -215,45 +246,58 @@ public class CulturalSimulator extends JFrame {
 		setContentPane(contentPane);
 		
 		
-		contentPane.setLayout(new BorderLayout(10, 10));
+		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		JToolBar toolBar = new JToolBar();
-		contentPane.add(toolBar, BorderLayout.NORTH);
-		toolBar.setFloatable(false);
+		splitPane_2 = new JSplitPane();
+		contentPane.add(splitPane_2, BorderLayout.CENTER);
 		
-		tglbtnPlay = new JToggleButton("Play");
-		tglbtnPlay.addActionListener(new PlayAL());
-		toolBar.add(tglbtnPlay);
+		panel_11 = new JPanel();
+		splitPane_2.setRightComponent(panel_11);
+		panel_11.setLayout(new GridLayout(4, 1, 0, 0));
 		
-		tglbtnPause = new JToggleButton("Pause");
-		tglbtnPause.addActionListener(new PauseAL());
-		tglbtnPause.setEnabled(false);
-		toolBar.add(tglbtnPause);
+		panel_12 = new JPanel();
+		panel_11.add(panel_12);
+		panel_12.setLayout(new BorderLayout(0, 0));
 		
-		tglbtnStop = new JToggleButton("Stop");
-		tglbtnStop.addActionListener(new StopAL());
-		tglbtnStop.setEnabled(false);
-		tglbtnStop.setSelected(true);
-		toolBar.add(tglbtnStop);
+		lblCultures = new JLabel("Cultures");
+		lblCultures.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_12.add(lblCultures, BorderLayout.NORTH);
 		
-		btnClear = new JButton("Clear");
-		btnClear.addActionListener(new ClearAL());
-		toolBar.add(btnClear);
-		toolBar.addSeparator();
+		graph_cultures = new GraphPanel();
+		panel_12.add(graph_cultures, BorderLayout.CENTER);
 		
-		btnCollapse = new JButton("Collapse");
-		toolBar.add(btnCollapse);
+		panel_13 = new JPanel();
+		panel_11.add(panel_13);
+		panel_13.setLayout(new BorderLayout(0, 0));
 		
-		btnInvasion = new JButton("Invasion");
-		toolBar.add(btnInvasion);
+		lblBiggestCulture = new JLabel("Institutions");
+		lblBiggestCulture.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_13.add(lblBiggestCulture, BorderLayout.NORTH);
 		
-		btnGenocide = new JButton("Genocide");
-		toolBar.add(btnGenocide);
+		graph_institutions = new GraphPanel();
+		panel_13.add(graph_institutions, BorderLayout.CENTER);
 		
+		panel_14 = new JPanel();
+		panel_11.add(panel_14);
+		panel_14.setLayout(new BorderLayout(0, 0));
 		
+		lblInstitutions = new JLabel("Borderless Cultures");
+		lblInstitutions.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_14.add(lblInstitutions, BorderLayout.NORTH);
+		
+		graph_borderless_cultures = new GraphPanel();
+		panel_14.add(graph_borderless_cultures, BorderLayout.CENTER);
+		
+		panel_15 = new JPanel();
+		panel_11.add(panel_15);
+		panel_15.setLayout(new BorderLayout(0, 0));
+		
+		lblEnergy = new JLabel("Energy");
+		lblEnergy.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_15.add(lblEnergy, BorderLayout.NORTH);
 		
 		splitPane_1 = new JSplitPane();
-		contentPane.add(splitPane_1, BorderLayout.CENTER);
+		splitPane_2.setLeftComponent(splitPane_1);
 		
 		JSplitPane splitPane = new JSplitPane();
 		splitPane_1.setRightComponent(splitPane);
@@ -335,11 +379,136 @@ public class CulturalSimulator extends JFrame {
 		
 		panel_7 = new JPanel();
 		splitPane_1.setLeftComponent(panel_7);
+		panel_7.setLayout(new BorderLayout(0, 0));
 		
-		lblNewLabel_1 = new JLabel("New label");
-		panel_7.add(lblNewLabel_1);
-		splitPane_1.setDividerLocation(200);
+		panel_1 = new JPanel();
+		panel_7.add(panel_1);
+		panel_1.setLayout(new BorderLayout(0, 0));
+		
+		panel_8 = new JPanel();
+		panel_8.setPreferredSize(new Dimension(10, 270));
+		panel_8.setBorder(new TitledBorder(null, "Events", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_1.add(panel_8, BorderLayout.NORTH);
+		panel_8.setLayout(null);
+		
+		panel_9 = new JPanel();
+		panel_9.setBounds(10, 20, 171, 145);
+		panel_9.setBorder(new TitledBorder(null, "Institutions", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_8.add(panel_9);
+		panel_9.setLayout(null);
+		
+		btnCollapse = new JButton("Destroy Content");
+		btnCollapse.setBounds(10, 20, 150, 23);
+		panel_9.add(btnCollapse);
+		
+		btnDestroyInstitutionsStructure = new JButton("Destroy Structure");
+		btnDestroyInstitutionsStructure.setBounds(10, 50, 150, 23);
+		panel_9.add(btnDestroyInstitutionsStructure);
+		
+		btnConversion = new JButton("Convert");
+		btnConversion.setBounds(10, 80, 101, 23);
+		panel_9.add(btnConversion);
+		
+		btnTraitConversion = new JButton("Convert Traits");
+		btnTraitConversion.setBounds(10, 110, 101, 23);
+		panel_9.add(btnTraitConversion);
+		
+		sp_convert = new JSpinner();
+		sp_convert.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_convert.setBounds(121, 81, 39, 20);
+		panel_9.add(sp_convert);
+		
+		sp_convert_traits = new JSpinner();
+		sp_convert_traits.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_convert_traits.setBounds(121, 110, 39, 20);
+		panel_9.add(sp_convert_traits);
+		
+		panel_10 = new JPanel();
+		panel_10.setBounds(10, 167, 171, 92);
+		panel_10.setBorder(new TitledBorder(null, "Population", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_8.add(panel_10);
+		panel_10.setLayout(null);
+		
+		btnInvasion = new JButton("Invasion");
+		btnInvasion.setBounds(10, 20, 101, 23);
+		panel_10.add(btnInvasion);
+		
+		btnGenocide = new JButton("Genocide");
+		btnGenocide.setBounds(10, 50, 101, 23);
+		panel_10.add(btnGenocide);
+		
+		sp_invasion = new JSpinner();
+		sp_invasion.setModel(new SpinnerNumberModel(new Integer(6), 1, null, new Integer(1)));
+		sp_invasion.setBounds(121, 20, 39, 20);
+		panel_10.add(sp_invasion);
+		
+		sp_genocide = new JSpinner();
+		sp_genocide.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_genocide.setBounds(121, 49, 39, 20);
+		panel_10.add(sp_genocide);
+		
+		JToolBar toolBar = new JToolBar();
+		panel_7.add(toolBar, BorderLayout.NORTH);
+		toolBar.setFloatable(false);
+		
+		tglbtnPlay = new JToggleButton("Play");
+		tglbtnPlay.addActionListener(new PlayAL());
+		toolBar.add(tglbtnPlay);
+		
+		tglbtnPause = new JToggleButton("Pause");
+		tglbtnPause.addActionListener(new PauseAL());
+		tglbtnPause.setEnabled(false);
+		toolBar.add(tglbtnPause);
+		
+		tglbtnStop = new JToggleButton("Stop");
+		tglbtnStop.addActionListener(new StopAL());
+		tglbtnStop.setEnabled(false);
+		tglbtnStop.setSelected(true);
+		toolBar.add(tglbtnStop);
+		
+		btnClear = new JButton("Clear");
+		btnClear.addActionListener(new ClearAL());
+		toolBar.add(btnClear);
+		btnGenocide.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.genocide((double) sp_genocide.getValue());
+			}
+		});
+		btnInvasion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.invasion((int) sp_invasion.getValue());
+			}
+		});
+		btnTraitConversion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.institutional_trait_conversion((double) sp_convert_traits.getValue());
+			}
+		});
+		btnConversion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.institutional_conversion((double) sp_convert.getValue());
+			}
+		});
+		btnDestroyInstitutionsStructure.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.destroy_institutions_structure();
+			}
+		});
+		btnCollapse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.destroy_institutions_content();
+			}
+		});
+		splitPane_1.setDividerLocation(190);
 		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
+		splitPane_2.setDividerLocation(700);
+		
+		toolBar_1 = new JToolBar();
+		toolBar_1.setFloatable(false);
+		contentPane.add(toolBar_1, BorderLayout.SOUTH);
+		
+		lblJjlkjasdKlasfjdlkjAsdkfjasdfkj = new JLabel("jj;lkjasd klasfjdlkj asd;kfjasdfkj ;klasjd");
+		toolBar_1.add(lblJjlkjasdKlasfjdlkjAsdkfjasdfkj);
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 	
@@ -368,6 +537,15 @@ public class CulturalSimulator extends JFrame {
 		institutional_beliefs_association.setIcon(null);
 		alife_institutional_beliefs_space.setIcon(null);
 		alife_institutions.setIcon(null);
+		graph_cultures.scores = new ArrayList<Double>();
+		graph_cultures.scores2 = new ArrayList<Double>();
+		graph_cultures.update();
+		graph_institutions.scores = new ArrayList<Double>();
+		graph_institutions.scores2 = new ArrayList<Double>();
+		graph_institutions.update();
+		graph_borderless_cultures.scores = new ArrayList<Double>();
+		graph_borderless_cultures.scores2 = new ArrayList<Double>();
+		graph_borderless_cultures.update();
 	}
 	
 	public static void set_belief_space(BufferedImage image){
@@ -425,21 +603,23 @@ public class CulturalSimulator extends JFrame {
 					
 					tglbtnPlay.setEnabled(false);
 					mntmPlay.setEnabled(false);
-					tglbtnStop.setEnabled(true);
-					tglbtnStop.setSelected(false);
-					mntmStop.setEnabled(true);
 					tglbtnPause.setEnabled(true);
 					tglbtnPause.setSelected(false);
 					mntmPause.setEnabled(true);
+					tglbtnStop.setEnabled(true);
+					tglbtnStop.setSelected(false);
+					mntmStop.setEnabled(true);
+					btnClear.setEnabled(false);
+					mntmClear.setEnabled(false);
 					
 					mntmSafeWorldState.setEnabled(false);
 					mntmLoadWorldState.setEnabled(false);
 					mnSimulation.setEnabled(false);
-					btnCollapse.setEnabled(false);
-					btnInvasion.setEnabled(false);
-					btnGenocide.setEnabled(false);
-					btnClear.setEnabled(false);
-					mntmClear.setEnabled(false);
+					
+
+//					btnCollapse.setEnabled(false);
+//					btnInvasion.setEnabled(false);
+//					btnGenocide.setEnabled(false);
 					
 					
 				} else {
@@ -463,22 +643,22 @@ public class CulturalSimulator extends JFrame {
 				tglbtnPlay.setEnabled(true);
 				tglbtnPlay.setSelected(false);
 				mntmPlay.setEnabled(true);
-				
-				tglbtnStop.setEnabled(false);
-				mntmStop.setEnabled(false);
-				
 				tglbtnPause.setEnabled(false);
 				mntmPause.setEnabled(false);
+				tglbtnStop.setEnabled(false);
+				mntmStop.setEnabled(false);
+				btnClear.setEnabled(true);
+				mntmClear.setEnabled(true);
 				
 				
 				mntmSafeWorldState.setEnabled(true);
 				mntmLoadWorldState.setEnabled(true);
 				mnSimulation.setEnabled(true);
-				btnCollapse.setEnabled(true);
-				btnInvasion.setEnabled(true);
-				btnGenocide.setEnabled(true);
-				btnClear.setEnabled(true);
-				mntmClear.setEnabled(true);
+				
+				
+//				btnCollapse.setEnabled(true);
+//				btnInvasion.setEnabled(true);
+//				btnGenocide.setEnabled(true);
 				
 			} 
 

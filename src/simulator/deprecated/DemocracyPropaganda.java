@@ -1,4 +1,4 @@
-package simulator.destruction;
+package simulator.deprecated;
 
 
 

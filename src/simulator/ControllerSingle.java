@@ -73,7 +73,7 @@ public class ControllerSingle extends Controller
 			is_saved = true;
 			inFile.close();
 			if (simulation.iteration > 0){
-				simulation.print_beliefs_spaces();
+				simulation.update_gui();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -225,6 +225,56 @@ public class ControllerSingle extends Controller
     	simulation.resume();
     }
 		
+    /**
+     * Destroy the simulation institution 
+     **/
+    public void destroy_institutions(){
+    	simulation.setDestroy_institutions_content();
+    	simulation.setDestroy_institutions_structure();
+    	simulation.update_gui();    	
+    }
+    
+    /**
+     * Destroy the simulation institution 
+     **/
+    public void destroy_institutions_content(){
+    	simulation.setDestroy_institutions_content();
+    	simulation.update_gui();    	
+    }
+    
+    /**
+     * Destroy the simulation institution 
+     **/
+    public void destroy_institutions_structure(){
+    	simulation.setDestroy_institutions_structure();
+    	simulation.update_gui();    	
+    }
+    
+    /**
+     * Invading culture 
+     **/
+    public void invasion(int radius){
+    	simulation.setInvasion(radius);
+    	simulation.update_gui();
+    }
+    
+    /**
+     * Genocide kills the population 
+     **/
+    public void genocide(double prob){
+    	simulation.setGenocide(prob);
+    	simulation.update_gui();
+    }
+    
+    public void institutional_conversion(double prob){
+    	simulation.setInstitutional_conversion(prob);
+    	simulation.update_gui();
+    }
+    
+    public void institutional_trait_conversion(double prob){
+    	simulation.setInstitutional_trait_conversion(prob);
+    	simulation.update_gui();    	
+    }
 
     
     /**
