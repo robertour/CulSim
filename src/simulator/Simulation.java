@@ -503,7 +503,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 
 	private void run_experiment_batch(BufferedWriter writer){
+		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Batch Mode (Multi-thread) \n");
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
+			//Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
 			run_iteration();
 			
 			// write results of the current checkpoint
@@ -529,6 +531,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 	
 	private String run_experiment_single(BufferedWriter writer){
+		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Executed in single mode (no multi-thread). \n");
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			
