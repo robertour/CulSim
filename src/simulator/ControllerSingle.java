@@ -24,6 +24,12 @@ public class ControllerSingle extends Controller
 {
 
 
+	public ControllerSingle(Printable ta_output) {
+		super(ta_output);
+	}
+
+
+
 	/**
 	 * References the Executor service that handles the threads
 	 */
@@ -193,8 +199,6 @@ public class ControllerSingle extends Controller
  
     	// Load static variables that the simulation is going to access
     	IS_BATCH = false;
-    	TA_OUTPUT = CulturalSimulator.TA_OUTPUT;
-    	RESULTS_DIR = CulturalSimulator.RESULTS_DIR;
     	is_saved = false;
     		    	
     	// This is a pool of threads of the size of the cores of the computer
@@ -203,7 +207,7 @@ public class ControllerSingle extends Controller
     	simulation.IDENTIFIER = -999;
     	exec.submit(simulation);
 
-    	TA_OUTPUT.append("Task submitted\n");
+    	TA_OUTPUT.print("Task submitted\n");
     	
     	exec.shutdown();
     	
@@ -315,12 +319,12 @@ public class ControllerSingle extends Controller
     private class SimulationExecuter extends Thread {
     	
     	public void run (){
-	    	TA_OUTPUT.append("Simulation Executor Started\n");
+	    	TA_OUTPUT.print("Simulation Executor Started\n");
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				TA_OUTPUT.append("SUCCESS: No Errors Reported!\n");
+				TA_OUTPUT.print("SUCCESS: No Errors Reported!\n");
 			} catch (InterruptedException e) {
-				TA_OUTPUT.append("Simulation interrupted\n");
+				TA_OUTPUT.print("Simulation interrupted\n");
 			}
 	    	
 	    	try {

@@ -35,18 +35,18 @@ public class BatchMode extends JDialog {
 	private JButton btn_resume;
 	public JTextField tf_results_dir;
 	public JTextField tf_experimental_file;
-	public static String EXPERIMENTAL_FILE = "";
-	public static String RESULTS_DIR = "./";
+	private String EXPERIMENTAL_FILE = "";
+	private static String RESULTS_DIR = "./";
 	
 	private JFileChooser jfc_experiment = new JFileChooser("./sample.csv");
 	private JFileChooser jfc_results = new JFileChooser("./");
 	
-	private ControllerCSV controller = new ControllerCSV();
+	private ControllerCSV controller;
 	private JButton btn_start;
 	private JButton btn_stop;
 	private JButton btn_open_file;
 	private JButton btn_open_experiment;
-	public static JTextArea TA_OUTPUT;
+	private static OutputArea TA_OUTPUT;
 	private JPanel panel;
 	private JPanel panel_1;
 	private JSpinner spinner;
@@ -95,9 +95,11 @@ public class BatchMode extends JDialog {
 		scrollPane.setBounds(10, 344, 582, 187);
 		contentPane.add(scrollPane);
 		
-		TA_OUTPUT = new JTextArea();
+		TA_OUTPUT = new OutputArea();
 		TA_OUTPUT.setEditable(false);
 		scrollPane.setViewportView(TA_OUTPUT);
+		
+		controller = new ControllerCSV(TA_OUTPUT);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(10, 11, 582, 172);
@@ -189,7 +191,7 @@ public class BatchMode extends JDialog {
 					tf_results_dir.setText(jfc_experiment.getCurrentDirectory().getAbsolutePath());
 					EXPERIMENTAL_FILE = tf_experimental_file.getText();
 					try {
-						controller.load_tasks();
+						controller.load_tasks(EXPERIMENTAL_FILE);
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -265,7 +267,7 @@ public class BatchMode extends JDialog {
 				EXPERIMENTAL_FILE = tf_experimental_file.getText();
 				
 				try {
-					controller.load_tasks();
+					controller.load_tasks(EXPERIMENTAL_FILE);
 					btn_start.setEnabled(true);
 				} catch (FileNotFoundException e) {
 					System.out.println("WARNING: Sample experimental file not found (" + EXPERIMENTAL_FILE + ")");
@@ -280,8 +282,7 @@ public class BatchMode extends JDialog {
 
 				RESULTS_DIR = dir.getAbsolutePath() + "/";
 				(new File(RESULTS_DIR + "/iterations/")).mkdirs();
-				controller.RESULTS_DIR = RESULTS_DIR;
-				
+				ControllerCSV.RESULTS_DIR = RESULTS_DIR;	
 				
 				controller.start();
 				btn_start.setEnabled(false);
@@ -303,5 +304,12 @@ public class BatchMode extends JDialog {
 		});
 		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+	}
+
+	public static class OutputArea extends JTextArea implements Printable {
+		@Override
+		public void print(String str) {
+			TA_OUTPUT.append(str);		
+		}
 	}
 }

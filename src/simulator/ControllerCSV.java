@@ -32,6 +32,10 @@ public class ControllerCSV extends Controller
 {
 
 	
+	public ControllerCSV(Printable ta_output) {
+		super(ta_output);
+	}
+
 	// Keep the tasks in a list. Don't start until the entire file is read.
 	private ArrayList<Simulation> tasks = null;
 	
@@ -40,13 +44,13 @@ public class ControllerCSV extends Controller
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
-    public void load_tasks() throws FileNotFoundException {
+    public void load_tasks(String experimental_file) throws FileNotFoundException {
     	
     	// This is used to randomize the experiment.
     	Random rand = new Random();
     	
     	//Get scanner instance        
-    	Scanner scanner = new Scanner(new File(BatchMode.EXPERIMENTAL_FILE));
+    	Scanner scanner = new Scanner(new File(experimental_file));
         
     	//skip the column titles
         scanner.nextLine();
@@ -128,8 +132,6 @@ public class ControllerCSV extends Controller
     	 * Load static variables that the simulation is going to access
     	 */
     	IS_BATCH = true;
-    	TA_OUTPUT = BatchMode.TA_OUTPUT;
-    	RESULTS_DIR = BatchMode.RESULTS_DIR;
     	
     	// This is a pool of threads of the size of the cores of the computer
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -140,7 +142,7 @@ public class ControllerCSV extends Controller
     		exec.submit(w);
     	} 
     
-    	TA_OUTPUT.append("All Tasks Submitted\n");
+    	TA_OUTPUT.print("All Tasks Submitted\n");
     	
     	exec.shutdown();
     	
@@ -185,12 +187,12 @@ public class ControllerCSV extends Controller
     private class SimulationExecuter extends Thread {
     	
     	public void run (){
-    		TA_OUTPUT.append("Simulation Executor Started\n");
+    		TA_OUTPUT.print("Simulation Executor Started\n");
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				TA_OUTPUT.append("All the experiments where finished succesfully\n");
+				TA_OUTPUT.print("All the experiments where finished succesfully\n");
 			} catch (InterruptedException e) {
-				TA_OUTPUT.append("Simulation interrupted\n");
+				TA_OUTPUT.print("Simulation interrupted\n");
 			}
 	    	
 	    	try {

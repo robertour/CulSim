@@ -18,7 +18,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import java.awt.RenderingHints;
 import javax.swing.JMenuBar;
@@ -54,8 +53,8 @@ public class CulturalSimulator extends JFrame {
 	
 	private JFileChooser jfc_load = new JFileChooser("./worlds/");
 	
-	public static ControllerSingle controller = new ControllerSingle();
-	public static JTextArea TA_OUTPUT;
+	public static ControllerSingle controller;
+	public static BatchMode.OutputArea TA_OUTPUT;
 	private static JLabel belief_space = new JLabel("");
 	private static JLabel alife_institutional_beliefs_space = new JLabel("");
 	private static JLabel alife_institutions = new JLabel("");
@@ -433,10 +432,12 @@ public class CulturalSimulator extends JFrame {
 		scrollPane.setMinimumSize(new Dimension(23, 200));
 		panel_2.add(scrollPane);
 		
-		TA_OUTPUT = new JTextArea();
+		TA_OUTPUT = new BatchMode.OutputArea();
 		TA_OUTPUT.setEditable(false);
 		scrollPane.setViewportView(TA_OUTPUT);
 		splitPane.setDividerLocation(500);
+		
+		controller = new ControllerSingle(TA_OUTPUT);
 		
 		panel_7 = new JPanel();
 		splitPane_1.setLeftComponent(panel_7);
@@ -789,6 +790,7 @@ public class CulturalSimulator extends JFrame {
 			
 						RESULTS_DIR = dir.getAbsolutePath() + "/";
 						(new File(RESULTS_DIR + "/iterations/")).mkdirs();
+						ControllerSingle.RESULTS_DIR = RESULTS_DIR;
 
 						controller.play();
 					} else {

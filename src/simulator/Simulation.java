@@ -341,24 +341,24 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				simulation_setup();
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				Controller.TA_OUTPUT.append("simulation_setup() failed");
+				Controller.TA_OUTPUT.print("simulation_setup() failed");
 				failed = true;
 			}
-			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
+			Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
 			try {
 				setup();
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				Controller.TA_OUTPUT.append("simulation_setup() failed");
+				Controller.TA_OUTPUT.print("simulation_setup() failed");
 				failed = true;
 			}
-			Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
+			Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
 			save_state();
 			try {
 				writer.write(results());				
 			} catch (IOException e) {
 				e.printStackTrace();
-				Controller.TA_OUTPUT.append("writer.write(results()); failed");
+				Controller.TA_OUTPUT.print("writer.write(results()); failed");
 				failed = true;
 			}
 		} else {
@@ -368,7 +368,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 		
 		String r = "";
-		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
+		Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
 		startTime = System.currentTimeMillis();
 	    try {
 	    	if (Controller.IS_BATCH){
@@ -378,7 +378,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	    	}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.append("run_experiment(); failed");
+			Controller.TA_OUTPUT.print("run_experiment(); failed");
 			failed = true;
 		}
 	    endTime = System.currentTimeMillis();
@@ -388,16 +388,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.append("system.gc(); failed");
+			Controller.TA_OUTPUT.print("system.gc(); failed");
 			failed = true;
 		}
 		
 	    if (is_finished){
-		    Controller.TA_OUTPUT.append("Finished: " + get_identification() + "\n");
+		    Controller.TA_OUTPUT.print("Finished: " + get_identification() + "\n");
 	    } else if (failed){
-	    	Controller.TA_OUTPUT.append("Failed: " + get_identification() + "\n");
+	    	Controller.TA_OUTPUT.print("Failed: " + get_identification() + "\n");
 		} else {
-	    	Controller.TA_OUTPUT.append("Stopped: " + get_identification() + "\n");
+	    	Controller.TA_OUTPUT.print("Stopped: " + get_identification() + "\n");
 	    }
 	    
 	    /** 
@@ -503,9 +503,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 
 	private void run_experiment_batch(BufferedWriter writer){
-		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Batch Mode (Multi-thread) \n");
+		Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Batch Mode (Multi-thread) \n");
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			//Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
+			//Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
 			run_iteration();
 			
 			// write results of the current checkpoint
@@ -531,7 +531,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 	
 	private String run_experiment_single(BufferedWriter writer){
-		Controller.TA_OUTPUT.append("(ID: " + IDENTIFIER +  "): " + "Executed in single mode (no multi-thread). \n");
+		Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Executed in single mode (no multi-thread). \n");
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			
@@ -593,7 +593,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	                 }                       
 	             }  
 	             catch (InterruptedException e) {                    
-	            	 Controller.TA_OUTPUT.append("Error while trying to wait" + "\n");
+	            	 Controller.TA_OUTPUT.print("Error while trying to wait" + "\n");
 	             }    
 	         }                           
 	     } 
@@ -623,14 +623,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			reset();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.append("reset(); failed");
+			Controller.TA_OUTPUT.print("reset(); failed");
 			failed = true;
 		}
 		try {
 			System.gc();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.append("system.gc(); failed");
+			Controller.TA_OUTPUT.print("system.gc(); failed");
 			failed = true;
 		}
 	}
