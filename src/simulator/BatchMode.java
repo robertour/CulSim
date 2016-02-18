@@ -7,6 +7,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
+
+import simulator.control.ControllerCSV;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 
@@ -17,7 +20,6 @@ import java.io.FileNotFoundException;
 
 import javax.swing.JTextField;
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JSpinner;
@@ -282,7 +284,7 @@ public class BatchMode extends JDialog {
 
 				RESULTS_DIR = dir.getAbsolutePath() + "/";
 				(new File(RESULTS_DIR + "/iterations/")).mkdirs();
-				ControllerCSV.RESULTS_DIR = RESULTS_DIR;	
+				controller.setRESULTS_DIR(RESULTS_DIR);	
 				
 				controller.start();
 				btn_start.setEnabled(false);
@@ -304,12 +306,5 @@ public class BatchMode extends JDialog {
 		});
 		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-	}
-
-	public static class OutputArea extends JTextArea implements Printable {
-		@Override
-		public void print(String str) {
-			TA_OUTPUT.append(str);		
-		}
 	}
 }

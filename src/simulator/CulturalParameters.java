@@ -24,6 +24,9 @@ import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.border.TitledBorder;
+
+import simulator.control.ControllerSingle;
+
 import javax.swing.UIManager;
 import java.awt.Color;
 import javax.swing.SpinnerNumberModel;

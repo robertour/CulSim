@@ -4,6 +4,7 @@ public class Flache extends Flache2 {
 
 	private static final long serialVersionUID = -4468160398655999146L;
 
+	
 	@Override
 	public void run_iteration() {
 		for (int ic = 0; ic < CHECKPOINT ; ic++) {

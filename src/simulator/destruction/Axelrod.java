@@ -1,16 +1,17 @@
 package simulator.destruction;
 
-import simulator.Simulation;
+import simulator.control.Simulation;
 
 public class Axelrod extends Simulation {
+
 	private static final long serialVersionUID = 8293331514566105316L;
 
 	/**
 	 * Register all the mismatches between two neighbors.
 	 */
 	protected int [] mismatches;
-	
 
+	
 	@Override
 	public void setup() {
 		mismatches = new int [TRAITS];		

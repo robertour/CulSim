@@ -1,6 +1,6 @@
 package simulator.destruction;
 
-import simulator.Simulation;
+import simulator.control.Simulation;
 
 public class Flache2 extends Simulation {
 
@@ -22,6 +22,7 @@ public class Flache2 extends Simulation {
 	 * Candidates for the trait
 	 */
 	protected int [] trait_candidates;
+
 	
 	@Override
 	public void setup() {

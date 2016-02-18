@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import simulator.CulturalSimulator;
-import simulator.deprecated.AxelrodOld;
 
 /**
  * Based on FlacheExperiment1 this class implements:
@@ -19,7 +18,7 @@ import simulator.deprecated.AxelrodOld;
  * @author tico
  *
  */
-public class Ulloa extends AxelrodOld {
+public class Ulloa extends Axelrod {
 	
 	private static final long serialVersionUID = 6739780243602561128L;
 
@@ -114,12 +113,6 @@ public class Ulloa extends AxelrodOld {
 	protected transient int lc;
 	protected transient int nrr;
 	protected transient int nrc;
-
-
-	
-
-	
-	
 
 	@Override
 	public void setup() {
@@ -674,6 +667,49 @@ public class Ulloa extends AxelrodOld {
 
 	
 	/**
+	 * Destroy the institutions content by resetting the content of
+	 * the institutions
+	 */
+	protected void destroy_institutions_content(double prob){
+		// Initialize cultures and nationalities
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				for (int f = 0; f < FEATURES; f++) {
+					if (Math.random() < prob) {
+						institution_beliefs[r * COLS + c][f] = -1;
+					}
+				}
+			}
+		}
+		
+	}
+
+	/**
+	 * Destroy the institutions structure by resetting the 
+	 * 1 to 1 relationship between institutions and citizens
+	 */
+	protected void destroy_institutions_structure(double prob){
+
+		int institution = -2222;
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				abandon_institution(r, c);
+				institution = search_free_institution(r, c);
+				institutions[r][c] = institution;
+				institutionsN[institution] = 1;
+				
+				countryman_right_r[r][c] = r;
+				countryman_right_c[r][c] = c;
+				countryman_left_r[r][c] = r;
+				countryman_left_c[r][c] = c;
+
+			}
+		}
+		
+		check_circular_list();
+	}
+	
+	/**
 	 * Invasion inserts a group of foreigners with its own 
 	 * institution associated. All of them, including the
 	 * institution have the same traits.
@@ -683,16 +719,15 @@ public class Ulloa extends AxelrodOld {
 		int c = COLS/2;
 		
 		int institution = search_free_institution(r, c);
+		// found its  own institution in free space
+		abandon_institution(r, c);
+		institutions[r][c] = institution;
+		institutionsN[institution] = 1;
 		
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f] = TRAITS;
 			institution_beliefs[institution][f] = TRAITS;
 		}
-		
-		// found its  own institution in free space
-		abandon_institution(r, c);
-		institutions[r][c] = institution;
-		institutionsN[institution] = 1;
 		
 		int r2;
 		int c2;
@@ -738,34 +773,9 @@ public class Ulloa extends AxelrodOld {
 				}
 			}
 		}
-
+	
 	}
 
-	
-	/**
-	 * Destroy the institutions structure by resetting the 
-	 * 1 to 1 relationship between institutions and citizens
-	 */
-	protected void destroy_institutions_structure(){
-
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-			
-				institutions[r][c] = r * COLS + c;
-				institutionsN[r * COLS + c] = 1;
-				
-				countryman_right_r[r][c] = r;
-				countryman_right_c[r][c] = c;
-				countryman_left_r[r][c] = r;
-				countryman_left_c[r][c] = c;
-				
-
-			}
-		}
-		
-		check_circular_list();
-	}
-	
 	/**
 	 * Convert entire institution with certain probability
 	 * @param prob
@@ -800,22 +810,6 @@ public class Ulloa extends AxelrodOld {
 	}
 
 	/**
-	 * Destroy the institutions content by resetting the content of
-	 * the institutions
-	 */
-	protected void destroy_institutions_content(){
-		// Initialize cultures and nationalities
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				for (int f = 0; f < FEATURES; f++) {
-					institution_beliefs[r * COLS + c][f] = -1;
-				}
-			}
-		}
-		
-	}
-	
-	/**
 	 * A genocide would indicate traits as dead.
 	 * 
 	 * @param probability
@@ -828,8 +822,14 @@ public class Ulloa extends AxelrodOld {
 				if (institutionsN[institution] > 1){
 					abandon_institution(r, c);
 					institution = search_free_institution(r,c);
+					
 					institutions[r][c] = institution;
 					institutionsN[institution] = 1;
+					
+					countryman_right_r[r][c] = r;
+					countryman_right_c[r][c] = c;
+					countryman_left_r[r][c] = r;
+					countryman_left_c[r][c] = c;
 				}
 				
 				for (int f = 0; f < FEATURES; f++) {
@@ -1021,6 +1021,14 @@ public class Ulloa extends AxelrodOld {
 		
 	}
 
+	/**
+	 * This looks for a non currently occupied institution  near the given
+	 * coordinates. 
+	 * 
+	 * @param r
+	 * @param c
+	 * @return
+	 */
 	private int search_free_institution(int r, int c) {
 	    int x=0, y=0, dx = 0, dy = -1;
 	    int t = Math.max(ROWS,COLS);
@@ -1041,17 +1049,20 @@ public class Ulloa extends AxelrodOld {
 	        x+=dx; y+=dy;
 	    }
 	    
+	    // This should never happen
 	    for (int r1 = 0; r1 < ROWS; r1++){
 	    	for (int c1 = 0; c1 < COLS; c1++){
 	    		if (institutionsN[r1 * COLS + c1] == 0 || 
 	    				institutionsN[r1 * COLS + c1] == 1 &&
 	    				r1*COLS+c1 == institutions[r1][c1]){
-	    			return r1*COLS+c1;
+	    			return r*COLS + c;
 	    		}
 	    	}
-	    	
 	    }
+
 	
+	    
+	    // This should never happen either
 	    return -99999;
 	}
 	

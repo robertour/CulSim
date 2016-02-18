@@ -1,4 +1,4 @@
-package simulator;
+package simulator.control;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,10 +12,6 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import simulator.deprecated.AxelrodOld;
-import simulator.deprecated.Democracy;
-import simulator.deprecated.DemocracyPropaganda;
-import simulator.deprecated.Propaganda;
 import simulator.destruction.Flache;
 import simulator.destruction.Axelrod;
 import simulator.destruction.Flache2;
@@ -31,11 +27,25 @@ import simulator.destruction.Ulloa;
 public class ControllerCSV extends Controller
 {
 
+	/**
+	 * The area to append the results (log)
+	 */
+	protected static Printable log = null;
 	
-	public ControllerCSV(Printable ta_output) {
-		super(ta_output);
+	/**
+	 * Directory to write results
+	 */
+	protected static String RESULTS_DIR = null;
+	
+	
+	public ControllerCSV(Printable output) {
+		log = output;
 	}
 
+	public void setRESULTS_DIR(String results_dir) {
+		RESULTS_DIR = results_dir;
+	}
+	
 	// Keep the tasks in a list. Don't start until the entire file is read.
 	private ArrayList<Simulation> tasks = null;
 	
@@ -66,12 +76,8 @@ public class ControllerCSV extends Controller
         		Simulation simulation = null;
         		String type = scanner.next();
 		    		switch (type) {
-		    		case "DemocracyPropaganda": simulation = new DemocracyPropaganda(); break;
-		    		case "Propaganda": simulation = new Propaganda(); break;
-		    		case "Democracy": simulation = new Democracy(); break;
 		    		case "Flache": simulation = new Flache(); break;
 		    		case "Ulloa": simulation = new Ulloa(); break;		    		
-        			case "AXELROD":	simulation = new AxelrodOld();	break;
         			case "FLACHE1":	simulation = new Axelrod();	break;
         			case "FLACHE2":	simulation = new Flache2();	break;
         		}
@@ -133,6 +139,8 @@ public class ControllerCSV extends Controller
     	 */
     	IS_BATCH = true;
     	
+    	
+    	
     	// This is a pool of threads of the size of the cores of the computer
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
@@ -142,7 +150,7 @@ public class ControllerCSV extends Controller
     		exec.submit(w);
     	} 
     
-    	TA_OUTPUT.print("All Tasks Submitted\n");
+    	log.print("All Tasks Submitted\n");
     	
     	exec.shutdown();
     	
@@ -187,12 +195,12 @@ public class ControllerCSV extends Controller
     private class SimulationExecuter extends Thread {
     	
     	public void run (){
-    		TA_OUTPUT.print("Simulation Executor Started\n");
+    		log.print("Simulation Executor Started\n");
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				TA_OUTPUT.print("All the experiments where finished succesfully\n");
+				log.print("All the experiments where finished succesfully\n");
 			} catch (InterruptedException e) {
-				TA_OUTPUT.print("Simulation interrupted\n");
+				log.print("Simulation interrupted\n");
 			}
 	    	
 	    	try {

@@ -1,4 +1,4 @@
-package simulator;
+package simulator.control;
 
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -8,9 +8,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import simulator.CulturalParameters;
+import simulator.CulturalSimulator;
+import simulator.destruction.Ulloa;
 
  
 /**
@@ -23,13 +28,16 @@ import java.util.concurrent.TimeUnit;
 public class ControllerSingle extends Controller
 {
 
-
-	public ControllerSingle(Printable ta_output) {
-		super(ta_output);
-	}
-
-
-
+	/**
+	 * The area to append the results (log)
+	 */
+	protected static Printable log = null;
+	
+	/**
+	 * Directory to write results
+	 */
+	protected static String RESULTS_DIR = null;
+	
 	/**
 	 * References the Executor service that handles the threads
 	 */
@@ -45,9 +53,29 @@ public class ControllerSingle extends Controller
 	 */
 	public boolean is_saved = true;
 	
+	/**
+	 * Constructor
+	 * @param ta_output
+	 */
+	public ControllerSingle(Printable output) {
+		log = output;
+	}
+		
+	public void setRESULTS_DIR(String results_dir) {
+		RESULTS_DIR = results_dir;
+	}
+	
 	public int get_iteration(){
 		return simulation.iteration;
 	}
+	
+	/** 
+	 * Call when there is no simulation assigned.
+	 */
+	public void initialize_simulation(){
+		simulation = new Ulloa();
+	}
+	
 	
 	/** 
 	 * Save the simulation object
@@ -67,8 +95,9 @@ public class ControllerSingle extends Controller
 	
 	/** 
 	 * Load a simulation object
+	 * @throws IOException 
 	 */
-	public void load_simulation(String simfile){
+	public void load_simulation(String simfile) throws IOException{
 		if (simulation != null){
 			simulation.clean(); // clean the memory
 		}
@@ -77,17 +106,16 @@ public class ControllerSingle extends Controller
 			simulation = (Simulation) inFile.readObject();
 			is_saved = true;
 			inFile.close();
+			CulturalSimulator.clean_belief_spaces();
 			if (simulation.iteration > 0){
+				simulation.save_state();
+				simulation.results();
 				simulation.update_gui();
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+			restore_parameters_to_interface();
+		}  catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		restore_parameters_to_interface();
 	}
 	
 	
@@ -151,11 +179,40 @@ public class ControllerSingle extends Controller
 	 */
 	public void restart_simulation(){
 		if (simulation != null){
+			simulation.starter.clean();
 			simulation.clean();
-			simulation = simulation.clone();	
+			simulation = simulation.clone();
 			CulturalSimulator.clean_belief_spaces();
 		}
 	}
+	
+	/**
+	 * Restart the simulation leaving no garbage behind
+	 */
+	public void reload_state(){
+		if (simulation != null){
+			simulation.clean();
+			simulation = simulation.starter;
+			simulation.save_state();
+			CulturalSimulator.clean_belief_spaces();
+			simulation.results();
+			simulation.update_gui();
+		}
+	}
+	
+	/**
+	 * Save the current state of the simulation to reload from it
+	 */
+	public void save_state(){
+		if (simulation != null){
+			simulation.save_state();
+			simulation.results();
+			//CulturalSimulator.clean_belief_spaces();
+			simulation.update_gui();
+		}
+	}
+	
+	
 	
 	/**
 	 * Load the parameters from the interface
@@ -167,6 +224,7 @@ public class ControllerSingle extends Controller
 		
 		int ind = CulturalParameters.classSelector.getSelectedIndex();
 		try {
+
 			simulation = (Simulation) CulturalParameters.classes.get(ind).newInstance();
 			simulation.ITERATIONS = (int) CulturalParameters.sp_iterations.getValue();
 	    	simulation.CHECKPOINT = (int) CulturalParameters.sp_checkpoints.getValue();
@@ -196,7 +254,7 @@ public class ControllerSingle extends Controller
 	 */
     public void play() 
     {
- 
+
     	// Load static variables that the simulation is going to access
     	IS_BATCH = false;
     	is_saved = false;
@@ -207,7 +265,7 @@ public class ControllerSingle extends Controller
     	simulation.IDENTIFIER = -999;
     	exec.submit(simulation);
 
-    	TA_OUTPUT.print("Task submitted\n");
+    	log.print("Task submitted\n");
     	
     	exec.shutdown();
     	
@@ -238,60 +296,29 @@ public class ControllerSingle extends Controller
     	simulation.resume();
     }
 		
+
     /**
-     * Destroy the simulation institution 
-     **/
-    public void destroy_institutions(){
-    	simulation.setDestroy_institutions_content();
-    	simulation.setDestroy_institutions_structure();
-    	simulation.update_gui();    	
-    }
-    
+     * Add a catastrophic event to the simulation
+     * @param e
+     */
+	public void add_event(Event e){
+		simulation.event(e);
+	}
+	
     /**
-     * Destroy the simulation institution 
-     **/
-    public void destroy_institutions_content(){
-    	simulation.setDestroy_institutions_content();
-    	simulation.update_gui();    	
-    }
-    
-    /**
-     * Destroy the simulation institution 
-     **/
-    public void destroy_institutions_structure(){
-    	simulation.setDestroy_institutions_structure();
-    	simulation.update_gui();    	
-    }
-    
-    /**
-     * Invading culture 
-     **/
-    public void invasion(int radius){
-    	simulation.setInvasion(radius);
-    	simulation.update_gui();
-    }
-    
-    /**
-     * Genocide kills the population 
-     **/
-    public void genocide(double prob){
-    	simulation.setGenocide(prob);
-    	simulation.update_gui();
-    }
-    
-    public void institutional_conversion(double prob){
-    	simulation.setInstitutional_conversion(prob);
-    	simulation.update_gui();
-    }
-    
-    public void institutional_trait_conversion(double prob){
-    	simulation.setInstitutional_trait_conversion(prob);
-    	simulation.update_gui();    	
-    }
-    
+     * Add a catastrophic events to the simulation
+     * @param e
+     */
+	public void add_events(ArrayList<Event> events){
+		simulation.events(events);
+	}
+
+	
+	/**
+	 * Set the new parameters
+	 */
     public void setParameters(){
     	simulation.setParameters();
-    	simulation.update_gui();
     }
 
     
@@ -319,19 +346,20 @@ public class ControllerSingle extends Controller
     private class SimulationExecuter extends Thread {
     	
     	public void run (){
-	    	TA_OUTPUT.print("Simulation Executor Started\n");
+	    	log.print("Simulation Executor Started\n");
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				TA_OUTPUT.print("SUCCESS: No Errors Reported!\n");
+				log.print("SUCCESS: No Errors Reported!\n");
 			} catch (InterruptedException e) {
-				TA_OUTPUT.print("Simulation interrupted\n");
+				log.print("Simulation interrupted\n");
 			}
-	    	
+
 	    	try {
 				write_results();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
     	}
     }
    

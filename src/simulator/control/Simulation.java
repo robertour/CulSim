@@ -1,4 +1,4 @@
-package simulator;
+package simulator.control;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -13,15 +13,16 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+import simulator.CulturalSimulator;
+
 
 public abstract class Simulation  implements Callable<String>, Serializable {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 8793729684553266527L;
 	
 	/**
@@ -34,7 +35,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	public int BUFFERED_SIZE = 512;
 	
 	
-	// Identify the simulation
 	/**
 	 * Identify the current simulation object
 	 */
@@ -81,12 +81,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Frequency of regulatory process (democracy or propaganda)
 	 */
-	protected int FREQ_DEM = 10;
+	protected int FREQ_DEM = 0;
 	
 	/**
 	 * Frequency of regulatory process 2 (propaganda)
 	 */
-	protected int FREQ_PROP = 3;
+	protected int FREQ_PROP = 0;
 	
 	// Neighborhood
 	/**
@@ -189,11 +189,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Number of alife institutions
 	 */
-	protected int alife_institutions = -1;
+	protected int alife_institutions = 0;
 	/**
 	 * Members of the biggest institution
 	 */
-	protected int biggest_institution = -1;
+	protected int biggest_institution = 0;
 	/**
 	 * Number of members of the biggest borderless cluster
 	 */
@@ -235,17 +235,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Indicates if there are any catastrophic events scheduled
 	 */
-	protected volatile boolean invasion = false;
-	protected volatile int inv_radius = -1;
-	protected volatile boolean destroy_institutions_structure = false;
-	protected volatile boolean destroy_institutions_content = false;
-	protected volatile boolean genocide = false;
-	protected volatile double gen_prob = -1;
-	protected volatile boolean institutional_conversion = false;
-	protected volatile double ic_prob = -1;
-	protected volatile boolean institutional_trait_conversion = false;
-	protected volatile double itc_prob = -1;
-	protected volatile boolean set_parameters = false;
+	protected volatile ArrayList<Event> events = new ArrayList<Event>();
+	protected volatile boolean executing_events = false;
+	private volatile boolean set_parameters = false;
 	
 	/**
 	 * This object is necessary in order to suspend the thread
@@ -284,6 +276,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * calculate similarity/change of worlds.
 	 */
 	protected Simulation starter = null;
+	
+	/**
+	 * This will be where the log is printed
+	 */
+	protected transient Printable log = null;
+	
+	/**
+	 * The results directory
+	 */
+	protected transient String results_dir = null;
 
 
 	/**
@@ -329,9 +331,17 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		failed = false;
 		BufferedWriter writer = null;
 		
+		if (Controller.IS_BATCH){
+			log = ControllerCSV.log;
+			results_dir = ControllerCSV.RESULTS_DIR;
+		} else {		
+			log = ControllerSingle.log;
+			results_dir = ControllerSingle.RESULTS_DIR;
+		}
+		
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-			        new FileOutputStream(Controller.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+			        new FileOutputStream(results_dir + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -341,24 +351,24 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				simulation_setup();
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				Controller.TA_OUTPUT.print("simulation_setup() failed");
+				log.print("simulation_setup() failed");
 				failed = true;
 			}
-			Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
+			log.print("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
 			try {
 				setup();
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				Controller.TA_OUTPUT.print("simulation_setup() failed");
+				log.print("simulation_setup() failed");
 				failed = true;
 			}
-			Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
+			log.print("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
 			save_state();
 			try {
 				writer.write(results());				
 			} catch (IOException e) {
 				e.printStackTrace();
-				Controller.TA_OUTPUT.print("writer.write(results()); failed");
+				log.print("writer.write(results()); failed");
 				failed = true;
 			}
 		} else {
@@ -368,17 +378,17 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 		
 		String r = "";
-		Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
+		log.print("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
 		startTime = System.currentTimeMillis();
 	    try {
 	    	if (Controller.IS_BATCH){
-	    		run_experiment_batch(writer);
+	    		r = run_experiment_batch(writer);
 	    	}else {
 	    		r = run_experiment_single(writer);
 	    	}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.print("run_experiment(); failed");
+			log.print("run_experiment(); failed");
 			failed = true;
 		}
 	    endTime = System.currentTimeMillis();
@@ -388,16 +398,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.print("system.gc(); failed");
+			log.print("system.gc(); failed");
 			failed = true;
 		}
 		
 	    if (is_finished){
-		    Controller.TA_OUTPUT.print("Finished: " + get_identification() + "\n");
+		    log.print("Finished: " + get_identification() + "\n");
 	    } else if (failed){
-	    	Controller.TA_OUTPUT.print("Failed: " + get_identification() + "\n");
+	    	log.print("Failed: " + get_identification() + "\n");
 		} else {
-	    	Controller.TA_OUTPUT.print("Stopped: " + get_identification() + "\n");
+	    	log.print("Stopped: " + get_identification() + "\n");
 	    }
 	    
 	    /** 
@@ -476,7 +486,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-			        new FileOutputStream(Controller.RESULTS_DIR + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+			        new FileOutputStream(results_dir + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
 			writer.write(header());
 			writer.flush();
 			writer.close();
@@ -502,15 +512,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		cultures = null;		
 	}
 
-	private void run_experiment_batch(BufferedWriter writer){
-		Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Batch Mode (Multi-thread) \n");
+	private String run_experiment_batch(BufferedWriter writer){
+		log.print("(ID: " + IDENTIFIER +  "): " + "Batch Mode (Multi-thread) \n");
+		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
-			//Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
+			//output.print("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
 			run_iteration();
-			
+			r = results();
 			// write results of the current checkpoint
 			try {
-				writer.write(results());				
+				writer.write(r);				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -528,10 +539,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		if (iteration == ITERATIONS){
 			is_finished = true;
 		}
+		return r;
 	}
 	
 	private String run_experiment_single(BufferedWriter writer){
-		Controller.TA_OUTPUT.print("(ID: " + IDENTIFIER +  "): " + "Executed in single mode (no multi-thread). \n");
+
+		log.print("(ID: " + IDENTIFIER +  "): " + "Executed in single mode (no multi-thread). \n");
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration++) {
 			
@@ -593,7 +606,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	                 }                       
 	             }  
 	             catch (InterruptedException e) {                    
-	            	 Controller.TA_OUTPUT.print("Error while trying to wait" + "\n");
+	            	 log.print("Error while trying to wait" + "\n");
 	             }    
 	         }                           
 	     } 
@@ -614,7 +627,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	    playing = false;  
 	    cancelled = true;
 	}
-
+	
+	
 	/** 
 	 * clean memory structures
 	 */
@@ -623,14 +637,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			reset();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.print("reset(); failed");
+			log.print("reset(); failed");
 			failed = true;
 		}
 		try {
 			System.gc();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Controller.TA_OUTPUT.print("system.gc(); failed");
+			log.print("system.gc(); failed");
 			failed = true;
 		}
 	}
@@ -863,94 +877,76 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 
 	public void check_for_events(){
-		if (invasion){
-			invasion(inv_radius);
-			invasion = false;
-		}
-		if (genocide){
-			genocide(gen_prob);
-			genocide = false;
-		}
-		if (destroy_institutions_content){
-			destroy_institutions_content();
-			destroy_institutions_content = false;
-		}
-		if (destroy_institutions_structure){
-			destroy_institutions_structure();
-			destroy_institutions_structure = false;
-		}
-		if (institutional_conversion) {
-			institutional_conversion(ic_prob);
-			institutional_conversion = false;
-		}
-		if (institutional_trait_conversion) {
-			institutional_trait_conversion(itc_prob);
-			institutional_trait_conversion = false;
+		if (events.size() > 0){
+			executing_events = true;
+			for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
+				Event event = (Event) iterator.next();
+				event.execute(this);				
+			}
+			events.clear();
+			executing_events = false;
 		}
 		if (set_parameters){
 			set_parameters();
 			set_parameters = false;
 		}
 	}
-
-	public void setDestroy_institutions_structure() {
-		if (playing){
-			this.destroy_institutions_structure = true;
+	
+	/**
+	 * Execute an event if it is not running, otherwise add it to the list
+	 * @param e
+	 */
+	public void event(Event e){
+		if (playing) {
+			boolean loop = true;
+			while (loop){
+				if (!executing_events){
+					events.add(e);
+					loop = false;
+				}
+				try {
+				    Thread.sleep(1);
+				} catch(InterruptedException ex) {
+				    Thread.currentThread().interrupt();
+				}
+			}
 		} else {
-			destroy_institutions_structure();
-			update_gui();
-		}
-	}
-
-	public void setDestroy_institutions_content() {
-		if (playing){
-			this.destroy_institutions_content = true;
-		} else {
-			destroy_institutions_content();
-			update_gui();
-		}
-	}
-
-	public void setInvasion(int radius) {
-		if (playing){
-			this.invasion = true;
-			inv_radius = radius;
-		} else {
-			invasion(radius);
-			update_gui();
-		}
-	}
-
-	public void setInstitutional_conversion(double prob) {
-		if (playing){
-			this.institutional_conversion = true;
-			this.ic_prob = prob;
-		} else {
-			institutional_conversion(prob);
-			update_gui();
-		}
-	}
-
-	public void setInstitutional_trait_conversion(double prob) {
-		if (playing){
-			this.institutional_trait_conversion = true;
-			this.itc_prob = prob;
-		} else {
-			institutional_trait_conversion(prob);
-			update_gui();
-		}
-	}
-
-	public void setGenocide(double prob) {
-		if (playing){
-			this.genocide = true;
-			this.gen_prob = prob;
-		} else {
-			genocide(prob);
+			e.execute(this);
 			update_gui();
 		}
 	}
 	
+	
+	/**
+	 * Execute events if it is not running, otherwise add them to the list
+	 * @param events
+	 */
+	public void events(ArrayList<Event> es){
+		if (playing) {
+			boolean loop = true;
+			while (loop){
+				if (!executing_events){
+					this.events.addAll(es);
+					loop = false;
+				}
+				try {
+				    Thread.sleep(1);
+				} catch(InterruptedException ex) {
+				    Thread.currentThread().interrupt();
+				}
+			}
+		} else {
+			for (Iterator<Event> iterator = es.iterator(); iterator.hasNext();) {
+				Event event = (Event) iterator.next();
+				event.execute(this);
+			}			
+			update_gui();
+		}
+	}
+	
+	/**
+	 * Set the parameters if it is not running, otherwise rise a flag to check for parameter modifications.
+	 */
 	public void setParameters() {
 		if (playing){
 			this.set_parameters = true;
@@ -959,9 +955,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}
 	}
 
-	protected void destroy_institutions_structure(){}
-	protected void destroy_institutions_content(){}
-	
 	/**
 	 * This method modifies the parameters of the simulation during execution.
 	 */
@@ -973,6 +966,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		FREQ_DEM = (int) CulturalSimulator.sp_democracy.getValue();
 		FREQ_PROP = (int) CulturalSimulator.sp_propaganda.getValue();
 	}
+		
+	protected void destroy_institutions_structure(double prob){}
+	protected void destroy_institutions_content(double prob){}
 	
 	/**
 	 * An invasion will introduce a foreign group with neighborhood 
@@ -1050,14 +1046,21 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		CulturalSimulator.graph_cultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
 		CulturalSimulator.l_cultures.setText(cultureN + "/" + biggest_cluster);
 		CulturalSimulator.graph_cultures.update();
+		
 		CulturalSimulator.graph_borderless_cultures.scores.add((double) culture_borderlessN / TOTAL_AGENTS);
 		CulturalSimulator.graph_borderless_cultures.scores2.add((double) biggest_borderless_cluster / TOTAL_AGENTS);
 		CulturalSimulator.l_borderless.setText(culture_borderlessN + "/" + biggest_borderless_cluster);
 		CulturalSimulator.graph_borderless_cultures.update();
+		
 		CulturalSimulator.graph_energy_foreign_trait.scores.add((double) energy / (TOTAL_AGENTS*FEATURES));
 		CulturalSimulator.graph_energy_foreign_trait.scores2.add((double) foreiners_traits / (TOTAL_AGENTS*FEATURES));
 		CulturalSimulator.l_energy_foreigners.setText(energy + "/" + foreiners_traits);
 		CulturalSimulator.graph_energy_foreign_trait.update();
+		
+		CulturalSimulator.graph_similarity.scores.add((double )similarity / (TOTAL_AGENTS*FEATURES));
+		CulturalSimulator.graph_similarity.scores2.add((double) similarity / (TOTAL_AGENTS*FEATURES));
+		CulturalSimulator.l_similarity.setText("" + similarity);
+		CulturalSimulator.graph_similarity.update();
 		
 	}
 		

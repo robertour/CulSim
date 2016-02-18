@@ -8,6 +8,16 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
+
+import simulator.control.ControllerSingle;
+import simulator.control.ConvertInstitutions;
+import simulator.control.ConvertTraits;
+import simulator.control.DestroyInstitutionsContent;
+import simulator.control.DestroyInstitutionsStructure;
+import simulator.control.Event;
+import simulator.control.Genocide;
+import simulator.control.Invasion;
+
 import javax.swing.ImageIcon;
 
 import java.awt.event.ActionListener;
@@ -16,6 +26,9 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -41,6 +54,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import java.awt.Font;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 public class CulturalSimulator extends JFrame {
 
@@ -54,7 +69,9 @@ public class CulturalSimulator extends JFrame {
 	private JFileChooser jfc_load = new JFileChooser("./worlds/");
 	
 	public static ControllerSingle controller;
-	public static BatchMode.OutputArea TA_OUTPUT;
+	private ArrayList<Event> events = new ArrayList<Event>();
+	
+	private OutputArea output_area;
 	private static JLabel belief_space = new JLabel("");
 	private static JLabel alife_institutional_beliefs_space = new JLabel("");
 	private static JLabel alife_institutions = new JLabel("");
@@ -141,6 +158,35 @@ public class CulturalSimulator extends JFrame {
 	public static JSpinner sp_democracy;
 	private JLabel label_7;
 	public static JSpinner sp_propaganda;
+	private JTabbedPane tabbedPane;
+	private JPanel panel_25;
+	private JPanel panel_26;
+	private JButton btn_add_destroy_content;
+	private JButton btn_add_destroy_structure;
+	private JButton btn_convert_institutions;
+	private JButton btn_convert_traits;
+	private JSpinner sp_add_convert;
+	private JSpinner sp_add_convert_traits;
+	private JSpinner sp_add_content;
+	private JSpinner sp_add_structure;
+	private JPanel panel_27;
+	private JButton btn_invasion;
+	private JButton btn_genocide;
+	private JSpinner sp_add_invasion;
+	private JSpinner sp_add_genocide;
+	private JButton button_6;
+	private JSpinner sp_content;
+	private JSpinner sp_structure;
+	private JTextArea ta_event_set;
+	private JPanel panel_28;
+	private JPanel panel_29;
+	private JLabel lbl_similarity;
+	public static JLabel l_similarity;
+	public static GraphPanel graph_similarity;
+	private JButton btnReload;
+	private JMenuItem mntmReload;
+	private JButton btnSave;
+	private JMenuItem mntmSave;
 	
 	/**
 	 * Launch the application.
@@ -167,8 +213,7 @@ public class CulturalSimulator extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 895, 722);
 		
-		parameters_dialog =  new CulturalParameters(this);
-		batch_mode_dialog = new BatchMode(this);
+
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -207,7 +252,11 @@ public class CulturalSimulator extends JFrame {
 				if (jfc_load.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					if (want_to_continue(jfc_load)){
 						String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
-						controller.load_simulation(conf_file);
+						try {
+							controller.load_simulation(conf_file);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 					} 
 				}
 			}
@@ -244,6 +293,14 @@ public class CulturalSimulator extends JFrame {
 		mntmClear = new JMenuItem("Clear");
 		mntmClear.addActionListener(new ClearAL());
 		mnControls.add(mntmClear);
+		
+		mntmReload = new JMenuItem("Reload");
+		mntmReload.addActionListener(new ReloadAL());
+		
+		mntmSave = new JMenuItem("Save");
+		mntmSave.addActionListener(new SaveAL());
+		mnControls.add(mntmSave);
+		mnControls.add(mntmReload);
 		
 		mnSimulation = new JMenu("Simulation");
 		menuBar.add(mnSimulation);
@@ -432,12 +489,14 @@ public class CulturalSimulator extends JFrame {
 		scrollPane.setMinimumSize(new Dimension(23, 200));
 		panel_2.add(scrollPane);
 		
-		TA_OUTPUT = new BatchMode.OutputArea();
-		TA_OUTPUT.setEditable(false);
-		scrollPane.setViewportView(TA_OUTPUT);
+		output_area = new OutputArea();
+		output_area.setEditable(false);
+		scrollPane.setViewportView(output_area);
 		splitPane.setDividerLocation(500);
 		
-		controller = new ControllerSingle(TA_OUTPUT);
+		controller = new ControllerSingle(output_area);
+		parameters_dialog =  new CulturalParameters(this);
+		batch_mode_dialog = new BatchMode(this);
 		
 		panel_7 = new JPanel();
 		splitPane_1.setLeftComponent(panel_7);
@@ -447,71 +506,115 @@ public class CulturalSimulator extends JFrame {
 		panel_7.add(panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setPreferredSize(new Dimension(5, 375));
+		panel_1.add(tabbedPane, BorderLayout.NORTH);
+		
 		panel_8 = new JPanel();
+		tabbedPane.addTab("Event", null, panel_8, null);
 		panel_8.setPreferredSize(new Dimension(10, 270));
-		panel_8.setBorder(new TitledBorder(null, "Events", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_1.add(panel_8, BorderLayout.NORTH);
+		panel_8.setBorder(null);
 		panel_8.setLayout(null);
 		
 		panel_9 = new JPanel();
-		panel_9.setBounds(10, 20, 171, 145);
+		panel_9.setBounds(5, 5, 180, 145);
 		panel_9.setBorder(new TitledBorder(null, "Institutions", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_8.add(panel_9);
 		panel_9.setLayout(null);
 		
 		btnCollapse = new JButton("Destroy Content");
-		btnCollapse.setBounds(10, 20, 150, 23);
+		btnCollapse.setBounds(10, 20, 120, 23);
 		panel_9.add(btnCollapse);
 		
 		btnDestroyInstitutionsStructure = new JButton("Destroy Structure");
-		btnDestroyInstitutionsStructure.setBounds(10, 50, 150, 23);
+		btnDestroyInstitutionsStructure.setBounds(10, 50, 120, 23);
 		panel_9.add(btnDestroyInstitutionsStructure);
 		
 		btnConversion = new JButton("Convert");
-		btnConversion.setBounds(10, 80, 101, 23);
+		btnConversion.setBounds(10, 80, 120, 23);
 		panel_9.add(btnConversion);
 		
 		btnTraitConversion = new JButton("Convert Traits");
-		btnTraitConversion.setBounds(10, 110, 101, 23);
+		btnTraitConversion.setBounds(10, 110, 120, 23);
 		panel_9.add(btnTraitConversion);
 		
 		sp_convert = new JSpinner();
 		sp_convert.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_convert.setBounds(121, 81, 39, 20);
+		sp_convert.setBounds(135, 81, 39, 20);
 		panel_9.add(sp_convert);
 		
 		sp_convert_traits = new JSpinner();
 		sp_convert_traits.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_convert_traits.setBounds(121, 110, 39, 20);
+		sp_convert_traits.setBounds(135, 110, 39, 20);
 		panel_9.add(sp_convert_traits);
 		
+		sp_content = new JSpinner();
+		sp_content.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_content.setBounds(135, 21, 39, 20);
+		panel_9.add(sp_content);
+		
+		sp_structure = new JSpinner();
+		sp_structure.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_structure.setBounds(135, 51, 39, 20);
+		panel_9.add(sp_structure);
+		
 		panel_10 = new JPanel();
-		panel_10.setBounds(10, 167, 171, 92);
+		panel_10.setBounds(5, 150, 180, 83);
 		panel_10.setBorder(new TitledBorder(null, "Population", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel_8.add(panel_10);
 		panel_10.setLayout(null);
 		
 		btnInvasion = new JButton("Invasion");
-		btnInvasion.setBounds(10, 20, 101, 23);
+		btnInvasion.setBounds(10, 20, 120, 23);
 		panel_10.add(btnInvasion);
 		
 		btnGenocide = new JButton("Genocide");
-		btnGenocide.setBounds(10, 50, 101, 23);
+		btnGenocide.setBounds(10, 50, 120, 23);
 		panel_10.add(btnGenocide);
 		
 		sp_invasion = new JSpinner();
 		sp_invasion.setModel(new SpinnerNumberModel(new Integer(6), 1, null, new Integer(1)));
-		sp_invasion.setBounds(121, 20, 39, 20);
+		sp_invasion.setBounds(135, 20, 39, 20);
 		panel_10.add(sp_invasion);
 		
 		sp_genocide = new JSpinner();
 		sp_genocide.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_genocide.setBounds(121, 49, 39, 20);
+		sp_genocide.setBounds(135, 49, 39, 20);
 		panel_10.add(sp_genocide);
+		btnGenocide.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.add_event(new Genocide((double) sp_genocide.getValue()));
+			}
+		});
+		btnInvasion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.add_event(new Invasion((int) sp_invasion.getValue()));
+			}
+		});
+		btnTraitConversion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.add_event(new ConvertTraits((double) sp_convert_traits.getValue()));
+			}
+		});
+		btnConversion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.add_event(new ConvertInstitutions((double) sp_convert.getValue()));
+			}
+		});
+		btnDestroyInstitutionsStructure.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.add_event(new DestroyInstitutionsStructure((double) sp_structure.getValue()));
+			}
+		});
+		btnCollapse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				controller.add_event(new DestroyInstitutionsContent((double) sp_content.getValue()));
+			}
+		});
 		
 		panel_21 = new JPanel();
-		panel_21.setBorder(new TitledBorder(null, "Parameters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_1.add(panel_21, BorderLayout.CENTER);
+		tabbedPane.addTab("Parameters", null, panel_21, null);
+		panel_21.setBorder(null);
 		panel_21.setLayout(null);
 		
 		panel_22 = new JPanel();
@@ -543,7 +646,7 @@ public class CulturalSimulator extends JFrame {
 		panel_23 = new JPanel();
 		panel_23.setLayout(null);
 		panel_23.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_23.setBounds(10, 21, 170, 78);
+		panel_23.setBounds(5, 5, 180, 78);
 		panel_21.add(panel_23);
 		
 		label_2 = new JLabel("Mutation:");
@@ -561,7 +664,7 @@ public class CulturalSimulator extends JFrame {
 		((JSpinner.NumberEditor) sp_mutation.getEditor()).getFormat().setMinimumFractionDigits(6);
 		sp_mutation.setValue(0.000001f);
 		sp_mutation.setToolTipText("How often a random change in a feature occurs?");
-		sp_mutation.setBounds(90, 20, 70, 20);
+		sp_mutation.setBounds(90, 20, 80, 20);
 		panel_23.add(sp_mutation);
 		
 		sp_selection_error = new JSpinner();
@@ -569,13 +672,13 @@ public class CulturalSimulator extends JFrame {
 		((JSpinner.NumberEditor) sp_selection_error.getEditor()).getFormat().setMinimumFractionDigits(6);
 		sp_selection_error.setValue(0.000001f);
 		sp_selection_error.setToolTipText("How often an agent confuses the selection of an agent that can be influnce by or not?");
-		sp_selection_error.setBounds(90, 45, 70, 20);
+		sp_selection_error.setBounds(90, 45, 80, 20);
 		panel_23.add(sp_selection_error);
 		
 		panel_24 = new JPanel();
 		panel_24.setLayout(null);
 		panel_24.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Controls4", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Institutions", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_24.setBounds(10, 105, 170, 124);
+		panel_24.setBounds(5, 84, 180, 124);
 		panel_21.add(panel_24);
 		
 		label_4 = new JLabel("Influence:");
@@ -598,7 +701,7 @@ public class CulturalSimulator extends JFrame {
 		((JSpinner.NumberEditor) sp_influence.getEditor()).getFormat().setMinimumFractionDigits(3);
 		sp_influence.setValue(0.85f);
 		sp_influence.setToolTipText("Institutional influence over the agent");
-		sp_influence.setBounds(90, 20, 70, 20);
+		sp_influence.setBounds(90, 20, 80, 20);
 		panel_24.add(sp_influence);
 		
 		sp_loyalty = new JSpinner();
@@ -606,13 +709,13 @@ public class CulturalSimulator extends JFrame {
 		((JSpinner.NumberEditor) sp_loyalty.getEditor()).getFormat().setMinimumFractionDigits(3);
 		sp_loyalty.setValue(0.5f);
 		sp_loyalty.setToolTipText("Agent's loyalty towards the institution");
-		sp_loyalty.setBounds(90, 45, 70, 20);
+		sp_loyalty.setBounds(90, 45, 80, 20);
 		panel_24.add(sp_loyalty);
 		
 		sp_democracy = new JSpinner();
 		sp_democracy.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
 		sp_democracy.setToolTipText("How often a democratic process occurs?");
-		sp_democracy.setBounds(90, 70, 70, 20);
+		sp_democracy.setBounds(90, 70, 80, 20);
 		panel_24.add(sp_democracy);
 		
 		label_7 = new JLabel("Propaganda:");
@@ -623,7 +726,7 @@ public class CulturalSimulator extends JFrame {
 		sp_propaganda = new JSpinner();
 		sp_propaganda.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
 		sp_propaganda.setToolTipText("How often a propaganda process occurs?");
-		sp_propaganda.setBounds(90, 95, 70, 20);
+		sp_propaganda.setBounds(90, 95, 80, 20);
 		panel_24.add(sp_propaganda);
 		
 		JButton btnSetParameters = new JButton("Set Parameters");
@@ -632,8 +735,169 @@ public class CulturalSimulator extends JFrame {
 				controller.setParameters();
 			}
 		});
-		btnSetParameters.setBounds(10, 231, 173, 23);
+		btnSetParameters.setBounds(5, 215, 180, 23);
 		panel_21.add(btnSetParameters);
+		
+		panel_25 = new JPanel();
+		panel_25.setLayout(null);
+		panel_25.setPreferredSize(new Dimension(10, 270));
+		panel_25.setBorder(null);
+		tabbedPane.addTab("Event Set", null, panel_25, null);
+		
+		panel_26 = new JPanel();
+		panel_26.setLayout(null);
+		panel_26.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Add Events", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_26.setBounds(5, 5, 180, 200);
+		panel_25.add(panel_26);
+		
+		btn_add_destroy_content = new JButton("Destroy Content");
+		btn_add_destroy_content.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent arg0) {
+				events.add(new DestroyInstitutionsContent((double) sp_add_content.getValue()));
+				update_event_set();
+			}
+		});
+		btn_add_destroy_content.setBounds(10, 20, 120, 23);
+		panel_26.add(btn_add_destroy_content);
+		
+		btn_add_destroy_structure = new JButton("Destroy Structure");
+		btn_add_destroy_structure.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				events.add(new DestroyInstitutionsStructure((double) sp_add_structure.getValue()));
+				update_event_set();
+			}
+		});
+		btn_add_destroy_structure.setBounds(10, 50, 120, 23);
+		panel_26.add(btn_add_destroy_structure);
+		
+		btn_convert_institutions = new JButton("Convert");
+		btn_convert_institutions.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				events.add(new ConvertInstitutions((double) sp_add_convert.getValue()));
+				update_event_set();
+			}
+		});
+		btn_convert_institutions.setBounds(10, 80, 120, 23);
+		panel_26.add(btn_convert_institutions);
+		
+		btn_convert_traits = new JButton("Convert Traits");
+		btn_convert_traits.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				events.add(new ConvertTraits((double) sp_add_convert_traits.getValue()));
+				update_event_set();
+			}
+		});
+		btn_convert_traits.setBounds(10, 110, 120, 23);
+		panel_26.add(btn_convert_traits);
+		
+		sp_add_convert = new JSpinner();
+		sp_add_convert.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_add_convert.setBounds(135, 81, 39, 20);
+		panel_26.add(sp_add_convert);
+		
+		sp_add_convert_traits = new JSpinner();
+		sp_add_convert_traits.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_add_convert_traits.setBounds(135, 110, 39, 20);
+		panel_26.add(sp_add_convert_traits);
+		
+		sp_add_content = new JSpinner();
+		sp_add_content.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_add_content.setBounds(135, 21, 39, 20);
+		panel_26.add(sp_add_content);
+		
+		sp_add_structure = new JSpinner();
+		sp_add_structure.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_add_structure.setBounds(135, 51, 39, 20);
+		panel_26.add(sp_add_structure);
+		
+		btn_invasion = new JButton("Invasion");
+		btn_invasion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				events.add(new Invasion((int) sp_add_invasion.getValue()));
+				update_event_set();
+			}
+		});
+		btn_invasion.setBounds(10, 140, 120, 23);
+		panel_26.add(btn_invasion);
+		
+		sp_add_invasion = new JSpinner();
+		sp_add_invasion.setModel(new SpinnerNumberModel(new Integer(6), null, null, new Integer(1)));
+		sp_add_invasion.setBounds(135, 140, 39, 20);
+		panel_26.add(sp_add_invasion);
+		
+		btn_genocide = new JButton("Genocide");
+		btn_genocide.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				events.add(new Genocide((double) sp_add_genocide.getValue()));
+				update_event_set();
+			}
+		});
+		btn_genocide.setBounds(10, 170, 120, 23);
+		panel_26.add(btn_genocide);
+		
+		sp_add_genocide = new JSpinner();
+		sp_add_genocide.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
+		sp_add_genocide.setBounds(135, 170, 39, 20);
+		panel_26.add(sp_add_genocide);
+		
+		panel_27 = new JPanel();
+		panel_27.setLayout(null);
+		panel_27.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Set", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_27.setBounds(5, 211, 180, 135);
+		panel_25.add(panel_27);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(10, 20, 160, 75);
+		panel_27.add(scrollPane_1);
+		
+		ta_event_set = new JTextArea();
+		ta_event_set.setFont(new Font("Arial Narrow", Font.PLAIN, 10));
+		ta_event_set.setEditable(false);
+		scrollPane_1.setViewportView(ta_event_set);
+		
+		JButton btnClear_1 = new JButton("Go");
+		btnClear_1.addActionListener(new ActionListener() {
+			
+			@SuppressWarnings("unchecked")
+			public void actionPerformed(ActionEvent arg0) {
+				controller.add_events((ArrayList<Event>) events.clone());
+				
+			}
+		});
+		btnClear_1.setBounds(95, 101, 75, 23);
+		panel_27.add(btnClear_1);
+		
+		button_6 = new JButton("Clear");
+		button_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				events.clear();
+				update_event_set();
+			}
+		});
+		button_6.setBounds(10, 101, 75, 23);
+		panel_27.add(button_6);
+		
+		panel_28 = new JPanel();
+		panel_28.setPreferredSize(new Dimension(10, 160));
+		panel_1.add(panel_28, BorderLayout.SOUTH);
+		panel_28.setLayout(new BorderLayout(0, 0));
+		
+		panel_29 = new JPanel();
+		panel_28.add(panel_29, BorderLayout.NORTH);
+		panel_29.setLayout(new BorderLayout(0, 0));
+		
+		lbl_similarity = new JLabel("Similarity");
+		lbl_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		lbl_similarity.setHorizontalAlignment(SwingConstants.LEFT);
+		panel_29.add(lbl_similarity, BorderLayout.WEST);
+		
+		l_similarity = new JLabel("");
+		l_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		panel_29.add(l_similarity, BorderLayout.EAST);
+		
+		graph_similarity = new GraphPanel();
+		panel_28.add(graph_similarity, BorderLayout.CENTER);
 		
 		JToolBar toolBar = new JToolBar();
 		panel_7.add(toolBar, BorderLayout.NORTH);
@@ -657,41 +921,22 @@ public class CulturalSimulator extends JFrame {
 		btnClear = new JButton("Clear");
 		btnClear.addActionListener(new ClearAL());
 		toolBar.add(btnClear);
-		btnGenocide.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.genocide((double) sp_genocide.getValue());
-			}
-		});
-		btnInvasion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.invasion((int) sp_invasion.getValue());
-			}
-		});
-		btnTraitConversion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.institutional_trait_conversion((double) sp_convert_traits.getValue());
-			}
-		});
-		btnConversion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.institutional_conversion((double) sp_convert.getValue());
-			}
-		});
-		btnDestroyInstitutionsStructure.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.destroy_institutions_structure();
-			}
-		});
-		btnCollapse.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.destroy_institutions_content();
-			}
-		});
-		splitPane_1.setDividerLocation(190);
 		
+		btnReload = new JButton("Reload");
+		btnReload.setEnabled(false);
+		btnReload.addActionListener(new ReloadAL());		
+		
+		btnSave = new JButton("Save");
+		btnSave.addActionListener(new SaveAL());
+		btnSave.setEnabled(false);
+		toolBar.add(btnSave);
+		toolBar.add(btnReload);
+		
+		splitPane_1.setDividerLocation(195);		
 		splitPane_2.setDividerLocation(700);
 		
 		panel_20 = new JPanel();
+		panel_20.setBackground(Color.WHITE);
 		contentPane.add(panel_20, BorderLayout.SOUTH);
 		panel_20.setLayout(new GridLayout(2, 1, 0, 0));
 		
@@ -705,10 +950,25 @@ public class CulturalSimulator extends JFrame {
 		l_current_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		panel_20.add(l_current_identification);
 		
-		controller.load_simulation("./simulation.parameters");
+		try {
+			controller.load_simulation("./simulation.parameters");
+		} catch (IOException e1) {
+			controller.initialize_simulation();
+			controller.save_simulation("./simulation.parameters");
+		}
 		
-		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
+		DefaultCaret caret = (DefaultCaret)output_area.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+	}
+	
+	private void update_event_set(){
+		int i = 1;
+		ta_event_set.setText("");
+		for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
+			Event event = (Event) iterator.next();
+			ta_event_set.append(i + ". " + event + "\n");
+			i++;			
+		}
 	}
 	
 	public static boolean want_to_continue(Component c){
@@ -740,6 +1000,7 @@ public class CulturalSimulator extends JFrame {
 		graph_institutions.clean();
 		graph_borderless_cultures.clean();
 		graph_energy_foreign_trait.clean();
+		graph_similarity.clean();
 	}
 	
 	public static void set_belief_space(BufferedImage image){
@@ -790,7 +1051,7 @@ public class CulturalSimulator extends JFrame {
 			
 						RESULTS_DIR = dir.getAbsolutePath() + "/";
 						(new File(RESULTS_DIR + "/iterations/")).mkdirs();
-						ControllerSingle.RESULTS_DIR = RESULTS_DIR;
+						controller.setRESULTS_DIR(RESULTS_DIR);
 
 						controller.play();
 					} else {
@@ -807,6 +1068,10 @@ public class CulturalSimulator extends JFrame {
 					mntmStop.setEnabled(true);
 					btnClear.setEnabled(false);
 					mntmClear.setEnabled(false);
+					btnReload.setEnabled(false);
+					mntmReload.setEnabled(false);
+					btnSave.setEnabled(false);
+					mntmSave.setEnabled(false);
 					
 					mntmSafeWorldState.setEnabled(false);
 					mntmLoadWorldState.setEnabled(false);
@@ -819,7 +1084,7 @@ public class CulturalSimulator extends JFrame {
 					
 					
 				} else {
-					TA_OUTPUT.append("Warning: GUI in an unstable state");
+					output_area.append("Warning: GUI in an unstable state");
 				}
 			} 
 
@@ -845,7 +1110,11 @@ public class CulturalSimulator extends JFrame {
 				mntmStop.setEnabled(false);
 				btnClear.setEnabled(true);
 				mntmClear.setEnabled(true);
-				
+				btnReload.setEnabled(true);
+				mntmReload.setEnabled(true);
+				btnSave.setEnabled(true);
+				mntmSave.setEnabled(true);
+			
 				
 				mntmSafeWorldState.setEnabled(true);
 				mntmLoadWorldState.setEnabled(true);
@@ -890,6 +1159,30 @@ public class CulturalSimulator extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			
 			controller.restart_simulation();
+			
+			btnReload.setEnabled(false);
+			mntmReload.setEnabled(false);
+			btnSave.setEnabled(false);
+			mntmSave.setEnabled(false);
+		}
+	}
+	
+	
+	private class ReloadAL extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent arg0) {
+			
+			controller.reload_state();
+		}
+	}
+	
+	private class SaveAL extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent arg0) {
+			
+			controller.save_state();
 		}
 	}
 }
