@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -242,7 +243,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * This object is necessary in order to suspend the thread
 	 */
-	protected transient Object o = null;
+	protected transient Object monitor;
 	
 	/**
 	 * Indicates if the simulation ended completely, without any interruptions.
@@ -294,6 +295,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	public Simulation(){
 		TYPE = this.getClass().getSimpleName().toUpperCase();
+		monitor = new Object();
 		save_state();
 	}
 	
@@ -323,7 +325,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @returns the last line of results
 	 */
 	public String call() {
-		o = new Object();
+		monitor = new Object();
 		playing = true;
 		suspended = false;
 		cancelled = false;
@@ -332,8 +334,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		BufferedWriter writer = null;
 		
 		if (Controller.IS_BATCH){
-			log = ControllerCSV.log;
-			results_dir = ControllerCSV.RESULTS_DIR;
+			log = ControllerBatch.log;
+			results_dir = ControllerBatch.RESULTS_DIR;
 		} else {		
 			log = ControllerSingle.log;
 			results_dir = ControllerSingle.RESULTS_DIR;
@@ -341,7 +343,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-			        new FileOutputStream(results_dir + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+			        new FileOutputStream(results_dir + Controller.ITERATIONS_DIR + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -414,16 +416,30 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	     * Always make sure to save and clear memory in batch mode
 	     */
 	    if (Controller.IS_BATCH) {
-	    	/**
-	    	 * TODO Safe the final state of each simulation
-	    	 */
+	    	save_state();
+	    	save_simulation();
 	    	clean();
 	    }
 
 		return r;			
 	}
+
 	
-	
+	/** 
+	 * Save the simulation object
+	 */
+	private void save_simulation(){
+
+		try {
+			File f = new File(results_dir + Controller.SIMULATIONS_DIR + IDENTIFIER + ".simfile");
+			f.getParentFile().mkdirs();
+			ObjectOutputStream write = new ObjectOutputStream (new FileOutputStream(f));				
+			write.writeObject(this);
+			write.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * Setups the object in order to run the experiment. Initialize all the variables
@@ -486,7 +502,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
-			        new FileOutputStream(results_dir + "/iterations/" + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
+			        new FileOutputStream(results_dir + Controller.ITERATIONS_DIR + IDENTIFIER + "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"), BUFFERED_SIZE);
 			writer.write(header());
 			writer.flush();
 			writer.close();
@@ -512,10 +528,15 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		cultures = null;		
 	}
 
+	/**
+	 * Run experiments in batch mode.
+	 * @param writer
+	 * @return
+	 */
 	private String run_experiment_batch(BufferedWriter writer){
 		log.print("(ID: " + IDENTIFIER +  "): " + "Batch Mode (Multi-thread) \n");
 		String r = "";
-		for (iteration = 0; iteration < ITERATIONS; iteration++) {
+		for (iteration = 0; playing && iteration < ITERATIONS; iteration++) {
 			//output.print("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
 			run_iteration();
 			r = results();
@@ -577,39 +598,38 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}
 		
 		return r;
-	}
-		
+	}		
 	
 	protected abstract void run_iteration();
+	
 	/**
 	 * Continue the execution of the thread
 	 */
 	public void resume() {       
 	    playing = true;
 	    suspended = false;
-	    synchronized (o) {  
-	        o.notifyAll();  
-	    }  
+	    if (monitor != null){
+		    synchronized (monitor) {  
+		        monitor.notifyAll();  
+		    }  
+	    }
 	}
 
 	/**
 	 * Set a suspended state. Just wait until the thread is resumed.
 	 */
 	protected void set_suspended(){
-		 while(suspended){  
-	         synchronized(o){  
-	        	 try {                   
-	                 while(suspended){  
-	                     synchronized(o){  
-	                         o.wait();  
-	                     }                           
-	                 }                       
-	             }  
-	             catch (InterruptedException e) {                    
-	            	 log.print("Error while trying to wait" + "\n");
-	             }    
-	         }                           
-	     } 
+		while(suspended){
+			synchronized(monitor){  
+				try {
+		        	monitor.wait();
+				}
+				catch (InterruptedException e) {                    
+			        log.print("Error while trying to wait" + "\n");
+			    } 
+		    }  
+		}
+	
 	}
 
 	/**
@@ -627,7 +647,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	    playing = false;  
 	    cancelled = true;
 	}
-	
 	
 	/** 
 	 * clean memory structures
@@ -684,12 +703,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	public static String header() {
 		return "id,timestamp,duration,iterations,checkpoint,"
 				+ "type,rows,cols,features,traits,radius,"
-				+ "alpha,alpha_prime,freq_proc,freq_proc2,mutation,selection_error,"
+				+ "alpha,alpha_prime,freq_dem,freq_prop,mutation,selection_error,"
 				+ "iteration,generations,"
 				+ "cultures,biggest_cluster,institutions,biggest_institution,"
 				+ "borderless_cultures, biggest_borderless_culture, energy, foreign_dispersion\n";		
 	}
 	
+	/**
+	 * Generates an identification of the system and its current state
+	 * @return
+	 */
 	public String get_identification(){
 		return TYPE + " " + 
 				ROWS + "x" + COLS + "(" + RADIUS + "): " +
@@ -731,12 +754,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				generations + "," +
 				cultureN  + "," +
 				biggest_cluster + "," +
-				"-1," +
-				"-1," +
+				alife_institutions + "," +
+				biggest_institution + "," +
 				culture_borderlessN + "," +
 				biggest_borderless_cluster + "," +
 				energy + "," +
-				foreiners_traits + ",";			
+				foreiners_traits + "\n";			
 	}
 
 	/**
@@ -746,25 +769,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	protected String results() {
 		count_clusters();
 		count_borderless_clusters();
-		energy_and_foreigners_traits();
-		calculate_similarity();
+		calculate_responses();
 		return this.get_results();				
 	}
 	
-	
-	private void calculate_similarity(){
-		similarity = 0;
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				for (int f = 0; f < FEATURES; f++) {
-					if (beliefs[r][c][f] == starter.beliefs[r][c][f]){
-						similarity++;						
-					}
-				}
-			}
-		}
-	}
-
+	/**
+	 * Count clusters size and number of cultures
+	 */
 	private void count_clusters() {
 		biggest_cluster = 0;
 		cultureN = 0;
@@ -783,6 +794,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		flag_mark = !flag_mark;
 	}
 
+	/**
+	 * Auxiliar (recursive) method to count cultures
+	 * @param r
+	 * @param c
+	 */
 	private void expand(int r, int c) {
 		flags[r][c] = flag_mark;
 		cultures[r][c] = cultureN;
@@ -808,6 +824,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}		
 	}
 
+	/**
+	 * Count the number of cultures considering neighborhoods of the size of the radius 
+	 */
 	private void count_borderless_clusters() {
 		biggest_borderless_cluster = 0;
 		culture_borderlessN = 0;
@@ -826,6 +845,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		flag_mark = !flag_mark;
 	}
 
+	/** 
+	 * Auxiliar (recursive) method
+	 * @param r
+	 * @param c
+	 */
 	private void expand_borderless(int r, int c) {
 		flags[r][c] = flag_mark;
 		cultures[r][c] = culture_borderlessN;
@@ -845,6 +869,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 	}
 
+	/** 
+	 * Compare if two cultures are equivalent
+	 * 
+	 * @param c1
+	 * @param c2
+	 * @return
+	 */
 	private boolean is_same_culture(int [] c1, int [] c2) {
 		boolean fellow = true;				
 		for (int f = 0; f < FEATURES; f++) {
@@ -856,12 +887,22 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		return fellow;
 	}
 
-	private void energy_and_foreigners_traits() {
+	
+	
+	/**
+	 * Calculate the energy of the system, the dispersion of foreign traits,
+	 * and the similarity with the starter state
+	 */
+	private void calculate_responses() {
+		similarity = 0;
 		energy = 0;
 		foreiners_traits = 0;
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
 				for (int f = 0; f < FEATURES; f++) {
+					if (beliefs[r][c][f] == starter.beliefs[r][c][f]){
+						similarity++;						
+					}
 					if (beliefs[r][c][f] == TRAITS){
 						foreiners_traits++;
 					} 
@@ -876,6 +917,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}
 	}
 
+	/**
+	 * Check if there is pending events in the list
+	 */
 	public void check_for_events(){
 		if (events.size() > 0){
 			executing_events = true;
@@ -1033,7 +1077,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}
 	}
 
-	
+	/**
+	 * Update the interface
+	 */
 	protected void update_gui(){
 		print_belief_spaces();
 		update_culture_graphs();
@@ -1041,6 +1087,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		CulturalSimulator.l_current_identification.setText("C: " + get_identification());
 	}
 	
+	/**
+	 * Add checkpoints to the interface
+	 */
 	private void update_culture_graphs(){
 		CulturalSimulator.graph_cultures.scores.add((double) cultureN / TOTAL_AGENTS);
 		CulturalSimulator.graph_cultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
@@ -1063,9 +1112,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		CulturalSimulator.graph_similarity.update();
 		
 	}
-		
-	private void print_belief_spaces(){
-		
+	
+	/**
+	 * Print belief spaces in the screen
+	 */
+	private void print_belief_spaces(){		
 		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
 
 		for (int r = 0; r < ROWS; r++) {
@@ -1089,8 +1140,4 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		CulturalSimulator.set_belief_space(image);
 		
 	}
-	
-
-
-
 }

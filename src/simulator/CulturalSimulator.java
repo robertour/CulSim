@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
+import simulator.control.Controller;
 import simulator.control.ControllerSingle;
 import simulator.control.ConvertInstitutions;
 import simulator.control.ConvertTraits;
@@ -66,7 +67,7 @@ public class CulturalSimulator extends JFrame {
 	public static String EXPERIMENTAL_FILE = "";
 	public static String RESULTS_DIR = "";
 	
-	private JFileChooser jfc_load = new JFileChooser("./worlds/");
+	private JFileChooser jfc_load = new JFileChooser(Controller.WORKSPACE_DIR + Controller.WORLDS_DIR);
 	
 	public static ControllerSingle controller;
 	private ArrayList<Event> events = new ArrayList<Event>();
@@ -213,8 +214,6 @@ public class CulturalSimulator extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 895, 722);
 		
-
-		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -308,10 +307,6 @@ public class CulturalSimulator extends JFrame {
 		JMenuItem mntmDefineParameters = new JMenuItem("Parameters");
 		mntmDefineParameters.setAction(action);
 		mnSimulation.add(mntmDefineParameters);
-		mnSimulation.addSeparator();
-		
-		JMenuItem mntmCollapse = new JMenuItem("Collapse");
-		mnSimulation.add(mntmCollapse);
 		mnSimulation.addSeparator();
 		
 		mntmBatchMode = new JMenuItem("Batch Mode");
@@ -1043,14 +1038,15 @@ public class CulturalSimulator extends JFrame {
 				
 					if (!tglbtnPause.isSelected() && tglbtnStop.isSelected()){
 							
-						File dir = new File(parameters_dialog.tf_results_dir.getText() + "/results/");
+						File dir = new File(parameters_dialog.tf_results_dir.getText() + Controller.RESULTS_DIR);
 						
+						String result_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);
 						for( int i = 0; dir.exists(); i++) {
-							dir = new File(parameters_dialog.tf_results_dir.getText() + "/results" + i + "/");	
+							dir = new File(parameters_dialog.tf_results_dir.getText() + result_dir + i + "/");	
 						}
 			
 						RESULTS_DIR = dir.getAbsolutePath() + "/";
-						(new File(RESULTS_DIR + "/iterations/")).mkdirs();
+						(new File(RESULTS_DIR + Controller.ITERATIONS_DIR)).mkdirs();
 						controller.setRESULTS_DIR(RESULTS_DIR);
 
 						controller.play();

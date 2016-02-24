@@ -2,11 +2,14 @@ package simulator.control;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -18,13 +21,13 @@ import simulator.destruction.Flache2;
 import simulator.destruction.Ulloa;
  
 /**
- * The controller of the simulations handles the simulation. It creates the tasks
- * and provide an interface for the user to interrupt, suspend or resume the 
- * simulation.
+ * This controller creates the tasks base on a CSV configuration file and it
+ * can provide an interface for the user to interrupt, suspend or resume the 
+ * simulation, or run in a console mode
  * 
  * @author tico
  */
-public class ControllerCSV extends Controller
+public class ControllerBatch extends Controller
 {
 
 	/**
@@ -37,30 +40,59 @@ public class ControllerCSV extends Controller
 	 */
 	protected static String RESULTS_DIR = null;
 	
+	// Keep the tasks in a list. Don't start until the entire file is read.
+	protected ArrayList<Simulation> tasks = null;
 	
-	public ControllerCSV(Printable output) {
+	public ControllerBatch(Printable output) {
 		log = output;
 	}
 
-	public void setRESULTS_DIR(String results_dir) {
+	public void set_RESULTS_DIR(String results_dir) {
 		RESULTS_DIR = results_dir;
 	}
-	
-	// Keep the tasks in a list. Don't start until the entire file is read.
-	private ArrayList<Simulation> tasks = null;
-	
+
+	/** 
+	 * Load a simulation object
+	 * @throws IOException 
+	 */
+	public Simulation load_simulation(String simfile){
+		Simulation s = null;
+		try {
+			ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(simfile));
+			s = (Simulation) inFile.readObject();
+			inFile.close();
+		}  catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
+		return s;
+	}
 
 	/**
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
-    public void load_tasks(String experimental_file) throws FileNotFoundException {
+    public void load_tasks(ArrayList<String> conf_files, int repetitions) {
+    	tasks = new ArrayList<Simulation>();
+
+    	for (Iterator<String> iterator = conf_files.iterator(); iterator.hasNext();) {
+			String string = (String) iterator.next();
+			for (int j = 0; j < repetitions; j++) {
+    			tasks.add(this.load_simulation(string));	
+			}	
+		}
+    }
+	
+	/**
+	 * Open the files and creates the tasks for the experiments
+	 * @throws FileNotFoundException
+	 */
+    public void load_tasks(String csv_file) throws FileNotFoundException {
     	
     	// This is used to randomize the experiment.
     	Random rand = new Random();
     	
     	//Get scanner instance        
-    	Scanner scanner = new Scanner(new File(experimental_file));
+    	Scanner scanner = new Scanner(new File(csv_file));
         
     	//skip the column titles
         scanner.nextLine();
@@ -110,7 +142,6 @@ public class ControllerCSV extends Controller
          
         //Do not forget to close the scanner 
         scanner.close();
-        
     }
     
     /**
@@ -139,8 +170,6 @@ public class ControllerCSV extends Controller
     	 */
     	IS_BATCH = true;
     	
-    	
-    	
     	// This is a pool of threads of the size of the cores of the computer
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
@@ -158,15 +187,29 @@ public class ControllerCSV extends Controller
         
     }
 
+    /** 
+     * Cancel all threads
+     * @throws IOException
+     */
+    public void clean_all() {
+    	if (tasks != null) {
+	    	for(Simulation w : tasks) {
+	    		w.clean();
+	    	} 
+    	}
+    }
     
     /** 
      * Cancel all threads
      * @throws IOException
      */
     public void cancel_all() {
-    	for(Simulation w : tasks) {
-    		w.cancel();
-    	} 
+    	if (tasks != null){
+	    	for(Simulation w : tasks) {
+	    		w.cancel();
+	    	} 
+	    	exec.shutdownNow();
+    	}
     }
     
     /**
@@ -198,7 +241,7 @@ public class ControllerCSV extends Controller
     		log.print("Simulation Executor Started\n");
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				log.print("All the experiments where finished succesfully\n");
+				log.print("The experiments where finished without errors\n");
 			} catch (InterruptedException e) {
 				log.print("Simulation interrupted\n");
 			}

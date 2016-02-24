@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.border.TitledBorder;
 
+import simulator.control.Controller;
 import simulator.control.ControllerSingle;
 
 import javax.swing.UIManager;
@@ -58,8 +59,8 @@ public class CulturalParameters extends JDialog {
 	public static JSpinner sp_traits;
 	private String [] packs = {"simulator.previous", "simulator.destruction"};
 	
-	private JFileChooser jfc_load = new JFileChooser("./configurations/");
-	private JFileChooser jfc_results = new JFileChooser("./");
+	private JFileChooser jfc_load = new JFileChooser(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
+	private JFileChooser jfc_results = new JFileChooser(Controller.WORKSPACE_DIR);
 
 	private JComboBox<String> cb_presets;
 	public JTextField tf_results_dir;
@@ -346,12 +347,12 @@ public class CulturalParameters extends JDialog {
 						public void actionPerformed(ActionEvent e) {
 							if (CulturalSimulator.want_to_continue(CulturalParameters.this)){
 								if (cb_presets.getSelectedIndex() != 0){
-									controller.load_parameters("./presets/" + (String) cb_presets.getSelectedItem());
+									controller.load_parameters(Controller.PRESETS_DIR + (String) cb_presets.getSelectedItem());
 								}
 							} 
 						}
 					});
-					cb_presets.setModel(new DefaultComboBoxModel<String>(listFiles("./presets/")));
+					cb_presets.setModel(new DefaultComboBoxModel<String>(listFiles("./" + Controller.PRESETS_DIR)));
 				}
 				{
 					JButton btnNewButton = new JButton("Save To File");

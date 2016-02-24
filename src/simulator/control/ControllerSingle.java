@@ -82,11 +82,11 @@ public class ControllerSingle extends Controller
 	 */
 	public void save_simulation(String simfile){
 		if (simulation != null){
-			ObjectOutputStream write;
 			try {
-				write = new ObjectOutputStream (new FileOutputStream(simfile));				
+				ObjectOutputStream write = new ObjectOutputStream (new FileOutputStream(simfile));				
 				write.writeObject(simulation);
 				is_saved = true;
+				write.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
