@@ -1,6 +1,8 @@
-package simulator.control;
+package simulator.control.events;
 
 import java.io.Serializable;
+
+import simulator.control.Simulation;
 
 public abstract class Event implements Serializable{
 	private static final long serialVersionUID = 8176633784954763258L;
@@ -15,11 +17,11 @@ public abstract class Event implements Serializable{
 		if (distribution.getType() == Distribution.UNIFORM) {
 			simulation.uniform_event(distribution.getProbability(), this);
 		} else if (distribution.getType() == Distribution.NORMAL) {
-			simulation.event_normal(distribution.getRowNormalDistribution(simulation.ROWS, simulation.rand),
-					distribution.getColumnNormalDistribution(simulation.COLS, simulation.rand),	this);			
+			simulation.event_normal(distribution.getRowNormalDistribution(simulation.ROWS, simulation.getRand()),
+					distribution.getColumnNormalDistribution(simulation.COLS, simulation.getRand()),	this);			
 		} else if (distribution.getType() == Distribution.NEWMANN) {
-			simulation.newman_event(distribution.getRow(simulation.ROWS, simulation.rand), 
-									distribution.getCol(simulation.COLS, simulation.rand),
+			simulation.newman_event(distribution.getRow(simulation.ROWS, simulation.getRand()), 
+									distribution.getCol(simulation.COLS, simulation.getRand()),
 									distribution.getRadious(), this);			
 		}
 		

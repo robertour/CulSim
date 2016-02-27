@@ -9,8 +9,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import simulator.control.Distribution;
+import simulator.control.events.Distribution;
+
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.awt.event.ActionEvent;
 
 public class SingleDistributionDialog extends JDialog {
@@ -19,9 +22,7 @@ public class SingleDistributionDialog extends JDialog {
 	
 	private final JPanel contentPanel = new JPanel();
 	private DistributionPanel d_panel;
-	private Notifiable notifiable = null;
-
-
+	private ArrayList<Notifiable> notifiables = new ArrayList<Notifiable>();
 
 	/**
 	 * Launch the application.
@@ -64,7 +65,10 @@ public class SingleDistributionDialog extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						SingleDistributionDialog.this.notifiable.update();
+						for (Iterator<Notifiable> i = notifiables.iterator(); i.hasNext();) {
+							Notifiable notifiable = (Notifiable) i.next();
+							notifiable.update();
+						}
 						SingleDistributionDialog.this.setVisible(false);						
 					}
 				});
@@ -79,8 +83,8 @@ public class SingleDistributionDialog extends JDialog {
 		return d_panel.get_distribution();
 	}
 	
-	public void setNotifiable(Notifiable n){
-		this.notifiable = n;
+	public void addNotifiable(Notifiable n){
+		notifiables.add(n);
 	}
 	
 	public String toString(){

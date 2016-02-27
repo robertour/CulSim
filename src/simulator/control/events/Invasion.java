@@ -1,4 +1,6 @@
-package simulator.control;
+package simulator.control.events;
+
+import simulator.control.Simulation;
 
 /**
  * Invasion event
@@ -17,14 +19,14 @@ public class Invasion extends Event {
 	}
 
 	public void execute(Simulation simulation) {
-		institution = simulation.pre_invasion(distribution.getRow(simulation.ROWS, simulation.rand), 
-											distribution.getRow(simulation.ROWS, simulation.rand));
+		institution = simulation.pre_invasion(distribution.getRow(simulation.ROWS, simulation.getRand()), 
+											distribution.getRow(simulation.ROWS, simulation.getRand()));
 		super.execute(simulation);
 	}
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation){
-		if (simulation.rand.nextDouble() < p){
+		if (simulation.getRand().nextDouble() < p){
 			simulation.invade(r, c, institution);
 		}
 	}

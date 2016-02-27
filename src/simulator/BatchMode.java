@@ -10,7 +10,13 @@ import javax.swing.text.DefaultCaret;
 
 import simulator.control.Controller;
 import simulator.control.ControllerBatch;
-import simulator.control.Event;
+import simulator.control.events.ConvertInstitutions;
+import simulator.control.events.ConvertTraits;
+import simulator.control.events.DestroyInstitutionsContent;
+import simulator.control.events.DestroyInstitutionsStructure;
+import simulator.control.events.Event;
+import simulator.control.events.Genocide;
+import simulator.control.events.Invasion;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -39,9 +45,9 @@ import javax.swing.JList;
 import javax.swing.DefaultListModel;
 import java.awt.Font;
 import javax.swing.JTextArea;
+import java.awt.GridLayout;
 
 public class BatchMode extends JDialog {
-
 
 	private static final long serialVersionUID = -6498782807057797553L;
 	private JPanel contentPane;
@@ -78,18 +84,6 @@ public class BatchMode extends JDialog {
 	private DefaultListModel<String> conf_list;
 	private ArrayList<String> file_list;
 	private JTabbedPane tp_batch_mode;
-	private JButton btn_content;
-	private JButton btn_structure;
-	private JButton btn_convert;
-	private JButton btn_convert_traits;
-	private JSpinner sp_convert;
-	private JSpinner sp_convert_traits;
-	private JSpinner sp_content;
-	private JSpinner sp_structure;
-	private JButton btn_invasion;
-	private JSpinner sp_invasion;
-	private JButton btn_genocide;
-	private JSpinner sp_genocide;
 	private JScrollPane scroll_pane;
 	private JButton btnLoad;
 	private JTextField tf_results_dir_csv;
@@ -98,6 +92,13 @@ public class BatchMode extends JDialog {
 	private JButton button_1;
 	private JButton btnSave;
 	private JTextArea ta_set_events;
+	private JPanel panel;
+	private EventPanel institutionPanel;
+	private EventPanel conversionPanel;
+	private EventPanel invasionPanel;
+	private EventPanel genocidePanel;
+	private DoubleDistributionDialog double_dialog;
+	private SingleDistributionDialog simple_dialog;
 	
 	/**
 	 * Launch the application.
@@ -118,8 +119,9 @@ public class BatchMode extends JDialog {
 	/**
 	 * Create the frame.
 	 */
-	public BatchMode(JFrame owner) {
-		super (owner);
+	public BatchMode(CulturalSimulator cultural_simulator) {
+		super (cultural_simulator);
+		setTitle("Batch Mode");
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -154,7 +156,7 @@ public class BatchMode extends JDialog {
 		controller = new ControllerBatch(TA_OUTPUT);
 		
 		tp_batch_mode = new JTabbedPane(JTabbedPane.TOP);
-		tp_batch_mode.setBounds(10, 11, 582, 212);
+		tp_batch_mode.setBounds(10, 11, 582, 220);
 		contentPane.add(tp_batch_mode);
 		
 		conf_list = new DefaultListModel<String>();
@@ -323,62 +325,8 @@ public class BatchMode extends JDialog {
 		lblFolderWithResults.setBounds(10, 15, 83, 15);
 		tab_catastrophic.add(lblFolderWithResults);
 		
-		btn_content = new JButton("Destroy Content");
-		btn_content.setBounds(10, 46, 120, 25);
-		tab_catastrophic.add(btn_content);
-		
-		sp_content = new JSpinner();
-		sp_content.setBounds(135, 47, 39, 23);
-		tab_catastrophic.add(sp_content);
-		sp_content.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
-		
-		btn_structure = new JButton("Destroy Structure");
-		btn_structure.setBounds(10, 81, 120, 25);
-		tab_catastrophic.add(btn_structure);
-		
-		sp_structure = new JSpinner();
-		sp_structure.setBounds(135, 81, 39, 23);
-		tab_catastrophic.add(sp_structure);
-		sp_structure.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
-		
-		btn_invasion = new JButton("Invasion");
-		btn_invasion.setBounds(10, 116, 120, 25);
-		tab_catastrophic.add(btn_invasion);
-		
-		sp_invasion = new JSpinner();
-		sp_invasion.setBounds(135, 116, 39, 23);
-		tab_catastrophic.add(sp_invasion);
-		sp_invasion.setModel(new SpinnerNumberModel(new Integer(6), null, null, new Integer(1)));
-		
-		btn_convert = new JButton("Convert");
-		btn_convert.setBounds(191, 46, 120, 25);
-		tab_catastrophic.add(btn_convert);
-		
-		sp_convert = new JSpinner();
-		sp_convert.setBounds(316, 47, 39, 23);
-		tab_catastrophic.add(sp_convert);
-		sp_convert.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		
-		btn_convert_traits = new JButton("Convert Traits");
-		btn_convert_traits.setBounds(191, 81, 120, 25);
-		tab_catastrophic.add(btn_convert_traits);
-		
-		sp_convert_traits = new JSpinner();
-		sp_convert_traits.setBounds(316, 81, 39, 23);
-		tab_catastrophic.add(sp_convert_traits);
-		sp_convert_traits.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		
-		btn_genocide = new JButton("Genocide");
-		btn_genocide.setBounds(191, 116, 120, 25);
-		tab_catastrophic.add(btn_genocide);
-		
-		sp_genocide = new JSpinner();
-		sp_genocide.setBounds(316, 116, 39, 23);
-		tab_catastrophic.add(sp_genocide);
-		sp_genocide.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		
 		scroll_pane = new JScrollPane();
-		scroll_pane.setBounds(365, 46, 202, 95);
+		scroll_pane.setBounds(405, 46, 160, 104);
 		tab_catastrophic.add(scroll_pane);
 		
 		ta_set_events = new JTextArea();
@@ -387,6 +335,7 @@ public class BatchMode extends JDialog {
 		scroll_pane.setViewportView(ta_set_events);
 		
 		btnLoad = new JButton("Load");
+		btnLoad.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnLoad.addActionListener(new ActionListener() {
 			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent e) {
@@ -407,20 +356,22 @@ public class BatchMode extends JDialog {
 				}
 			}
 		});
-		btnLoad.setBounds(443, 148, 57, 25);
+		btnLoad.setBounds(460, 161, 50, 25);
 		tab_catastrophic.add(btnLoad);
 		
 		button_1 = new JButton("Clear");
+		button_1.setBorder(new EmptyBorder(0, 0, 0, 0));
 		button_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				events.clear();
 				update_event_set();
 			}
 		});
-		button_1.setBounds(375, 148, 57, 25);
+		button_1.setBounds(405, 161, 50, 25);
 		tab_catastrophic.add(button_1);
 		
 		btnSave = new JButton("Save");
+		btnSave.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_disasters.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
@@ -436,44 +387,62 @@ public class BatchMode extends JDialog {
 				}
 			}
 		});
-		btnSave.setBounds(510, 148, 57, 25);
+		btnSave.setBounds(515, 161, 50, 25);
 		tab_catastrophic.add(btnSave);
-		btn_genocide.addActionListener(new ActionListener() {
+		
+		panel = new JPanel();
+		panel.setBounds(10, 41, 385, 145);
+		tab_catastrophic.add(panel);
+		panel.setLayout(new GridLayout(0, 2, 5, 0));
+		
+		
+	
+		double_dialog = cultural_simulator.destructionDialog;
+		institutionPanel = new EventPanel("Institutions destruction", double_dialog);
+		institutionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				events.add(new Genocide((double) sp_genocide.getValue()));
+				events.add(new DestroyInstitutionsStructure(double_dialog.get_distribution1()));
+				events.add(new DestroyInstitutionsContent(double_dialog.get_distribution2()));
 				update_event_set();
 			}
 		});
-		btn_convert_traits.addActionListener(new ActionListener() {
+		double_dialog.addNotifiable(institutionPanel);		
+		panel.add(institutionPanel);
+		
+		double_dialog = cultural_simulator.conversionDialog;
+		conversionPanel = new EventPanel("Institutional conversion", double_dialog);
+		conversionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				events.add(new ConvertTraits((double) sp_convert_traits.getValue()));
+				events.add(new ConvertInstitutions(double_dialog.get_distribution1()));
+				events.add(new ConvertTraits(double_dialog.get_distribution2()));
 				update_event_set();
 			}
 		});
-		btn_convert.addActionListener(new ActionListener() {
+		double_dialog.addNotifiable(conversionPanel);
+		panel.add(conversionPanel);
+		
+		simple_dialog = cultural_simulator.invasionDialog;
+		invasionPanel = new EventPanel("Invasion", simple_dialog);
+		invasionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				events.add(new ConvertInstitutions((double) sp_convert.getValue()));
+				events.add(new Invasion(simple_dialog.get_distribution()));
 				update_event_set();
 			}
 		});
-		btn_invasion.addActionListener(new ActionListener() {
+		simple_dialog.addNotifiable(invasionPanel);
+		panel.add(invasionPanel);
+		
+		simple_dialog = cultural_simulator.genocideDialog;
+		genocidePanel = new EventPanel("Genocide", simple_dialog);
+		genocidePanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				events.add(new Invasion((int) sp_invasion.getValue()));
+				events.add(new Genocide(simple_dialog.get_distribution()));
 				update_event_set();
 			}
 		});
-		btn_structure.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-//				events.add(new DestroyInstitutionsStructure((double) sp_structure.getValue()));
-				update_event_set();
-			}
-		});
-		btn_content.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-//				events.add(new DestroyInstitutionsContent((double) sp_content.getValue()));
-				update_event_set();
-			}
-		});
+		simple_dialog.addNotifiable(genocidePanel);
+		panel.add(genocidePanel);
+		
 		btn_open_experiment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (jfc_experiment.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
@@ -492,21 +461,21 @@ public class BatchMode extends JDialog {
 		});
 		
 		btn_start = new JButton("Start");
-		btn_start.setBounds(242, 234, 80, 25);
+		btn_start.setBounds(242, 235, 80, 25);
 		contentPane.add(btn_start);
 		
 		btn_pause = new JButton("Pause");
-		btn_pause.setBounds(332, 234, 80, 25);
+		btn_pause.setBounds(332, 235, 80, 25);
 		contentPane.add(btn_pause);
 		btn_pause.setEnabled(false);
 		
 		btn_resume = new JButton("Resume");
-		btn_resume.setBounds(422, 234, 80, 25);
+		btn_resume.setBounds(422, 235, 80, 25);
 		contentPane.add(btn_resume);
 		btn_resume.setEnabled(false);
 		
 		btn_stop = new JButton("Stop");
-		btn_stop.setBounds(512, 234, 80, 25);
+		btn_stop.setBounds(512, 235, 80, 25);
 		contentPane.add(btn_stop);
 		btn_stop.setEnabled(false);
 		btn_stop.addActionListener(new ActionListener() {

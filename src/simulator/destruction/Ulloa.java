@@ -667,7 +667,7 @@ public class Ulloa extends Axelrod {
 
 
 	@Override
-	protected void remove_partial_institution_content(int institution, double prob){
+	public void remove_partial_institution_content(int institution, double prob){
 		for (int f = 0; f < FEATURES; f++) {
 			if (Math.random() < prob) {
 				institution_beliefs[institution][f] = -1;
@@ -676,14 +676,14 @@ public class Ulloa extends Axelrod {
 	}
 	
 	@Override
-	protected void remove_institution_content(int institution){
+	public void remove_institution_content(int institution){
 		for (int f = 0; f < FEATURES; f++) {
 			institution_beliefs[institution][f] = -1;
 		}		
 	}
 	
 	@Override
-	protected void forget_institution(int r, int c){
+	public void forget_institution(int r, int c){
 		abandon_institution(r, c);
 		institution = search_free_institution(r, c);
 		institutions[r][c] = institution;
@@ -700,7 +700,7 @@ public class Ulloa extends Axelrod {
 	}
 	
 	@Override
-	protected int pre_invasion(int r, int c) {
+	public int pre_invasion(int r, int c) {
 		int institution = search_free_institution(r, c);
 		// found its  own institution in free space
 		abandon_institution(r, c);
@@ -720,7 +720,7 @@ public class Ulloa extends Axelrod {
 	 * the representation of the invaders, so they can refer to it
 	 * as they representative.
 	 */
-	protected void invade(int r, int c, int institution){
+	public void invade(int r, int c, int institution){
 		move_to_institution(r, c, institution);
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f]=TRAITS;
@@ -728,7 +728,7 @@ public class Ulloa extends Axelrod {
 	}
 	
 	@Override
-	protected void convert_institution(int r, int c){
+	public void convert_institution(int r, int c){
 		for (int f = 0; f < FEATURES; f++) {
 			institution_beliefs[r*ROWS+c][f] = TRAITS;
 		}
@@ -736,7 +736,7 @@ public class Ulloa extends Axelrod {
 
 	
 	@Override
-	protected void convert_institution_trait(int r, int c, double prob){
+	public void convert_institution_trait(int r, int c, double prob){
 		for (int f = 0; f < FEATURES; f++) {
 			if (Math.random() < prob) {
 				institution_beliefs[r*ROWS+c][f] = TRAITS;
@@ -749,7 +749,7 @@ public class Ulloa extends Axelrod {
 	 * 
 	 * @param probability
 	 */
-	protected void kill_individual(int r, int c){
+	public void kill_individual(int r, int c){
 		int institution = institutions[r][c];
 
 		if (institutionsN[institution] > 1){

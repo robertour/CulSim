@@ -9,10 +9,10 @@ import javax.swing.JDialog;
 import java.awt.BorderLayout;
 import javax.swing.JTextArea;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.SystemColor;
+import java.awt.FlowLayout;
 
 public class EventPanel extends JPanel implements Notifiable{
 	private static final long serialVersionUID = -7027366295698613067L;
@@ -26,7 +26,7 @@ public class EventPanel extends JPanel implements Notifiable{
 	 */
 	public EventPanel(String title, JDialog confDialog) {
 		setBorder(new TitledBorder(null, title, TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		setLayout(new BorderLayout(0, 5));
+		setLayout(new BorderLayout(0, 0));
 		
 		this.confDialog = confDialog;
 		
@@ -42,7 +42,6 @@ public class EventPanel extends JPanel implements Notifiable{
 		
 		JPanel panel = new JPanel();
 		add(panel, BorderLayout.CENTER);
-		panel.setLayout(new GridLayout(0, 2, 2, 2));
 		
 		JButton btnNewButton = new JButton("Configure");
 		btnNewButton.addActionListener(new ActionListener() {
@@ -50,6 +49,7 @@ public class EventPanel extends JPanel implements Notifiable{
 				EventPanel.this.confDialog.setVisible(true);
 			}
 		});
+		panel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 		panel.add(btnNewButton);
 		
 		btnApply = new JButton("Ok");

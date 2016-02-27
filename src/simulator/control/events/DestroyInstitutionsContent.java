@@ -1,4 +1,6 @@
-package simulator.control;
+package simulator.control.events;
+
+import simulator.control.Simulation;
 
 /**
  * Destroy institution content event
@@ -15,7 +17,7 @@ public class DestroyInstitutionsContent extends Event {
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (simulation.rand.nextDouble() < p){
+		if (simulation.getRand().nextDouble() < p){
 			simulation.remove_institution_content(r * simulation.COLS + c);
 		}
 	}

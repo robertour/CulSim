@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import simulator.CulturalSimulator;
+import simulator.control.events.Event;
 
 
 public abstract class Simulation  implements Callable<String>, Serializable {
@@ -84,12 +85,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Frequency of regulatory process (democracy or propaganda)
 	 */
-	protected int FREQ_DEM = 0;
+	public int FREQ_DEM = 0;
 	
 	/**
 	 * Frequency of regulatory process 2 (propaganda)
 	 */
-	protected int FREQ_PROP = 0;
+	public int FREQ_PROP = 0;
 	
 	// Neighborhood
 	/**
@@ -1032,7 +1033,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * 
 	 * @param probability
 	 */
-	protected void event_normal(NormalDistribution ndr, NormalDistribution ndc, Event e){
+	public void event_normal(NormalDistribution ndr, NormalDistribution ndc, Event e){
 		
 		// acc is a normalization factor
 		double max = 0.00000001f;
@@ -1058,11 +1059,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * An event is distributed in a Newman neighborhood of radius
 	 * @param radius
 	 */
-	protected void newman_event (int r, int c, int radius, Event e){
+	public void newman_event (int r, int c, int radius, Event e){
 		
-		for (int f=0; f < FEATURES; f++){
-			beliefs[r][c][f] = TRAITS;
-		}
+		e.trigger(r, c, 1.0, this);
 		
 		for (int i = 0; i <= radius; i++) {
 			for (int j = 0; j <= radius; j++) {
@@ -1093,7 +1092,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * 
 	 * @param probability
 	 */
-	protected void uniform_event(double probability, Event e){
+	public void uniform_event(double probability, Event e){
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
 				e.trigger(r, c, probability, this);
@@ -1107,28 +1106,28 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param c
 	 * @param prob
 	 */
-	protected void remove_partial_institution_content(int institution, double prob){}
+	public void remove_partial_institution_content(int institution, double prob){}
 	
 	/**
 	 * Remove complete information of an institution
 	 * @param r
 	 * @param c
 	 */
-	protected void remove_institution_content(int institution){}
+	public void remove_institution_content(int institution){}
 	
 	/**
 	 * Forget the institution I belong to
 	 * @param r
 	 * @param c
 	 */
-	protected void forget_institution(int r, int c){}
+	public void forget_institution(int r, int c){}
 	
 	/**
 	 * Convert an institution towards the invader TRAITS
 	 * @param r
 	 * @param c
 	 */
-	protected void convert_institution(int r, int c){}
+	public void convert_institution(int r, int c){}
 	
 	/**
 	 * Convert a percentage of traits towards the invader TRAITS
@@ -1136,7 +1135,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param c
 	 * @param prob
 	 */
-	protected void convert_institution_trait(int r, int c, double prob){}
+	public void convert_institution_trait(int r, int c, double prob){}
 	
 	/**
 	 * Prepare elements before an invasion. In this case, it would
@@ -1145,14 +1144,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param c
 	 * @return
 	 */
-	protected int pre_invasion(int r, int c){ return -999; }
+	public int pre_invasion(int r, int c){ return -999; }
 	
 	/**
 	 * Invade a cell
 	 * @param r
 	 * @param c
 	 */
-	protected void invade(int r, int c, int institution){
+	public void invade(int r, int c, int institution){
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f]=TRAITS;
 		}
@@ -1163,7 +1162,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param r
 	 * @param c
 	 */
-	protected void kill_individual(int r, int c){
+	public void kill_individual(int r, int c){
 		for (int f = 0; f < FEATURES; f++) {
 			beliefs[r][c][f] = DEAD_TRAIT;
 		}
@@ -1234,5 +1233,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 		CulturalSimulator.set_belief_space(image);
 		
+	}
+	
+	/**
+	 * Return the random seeder
+	 * @return
+	 */
+	public Random getRand(){
+		return rand;
 	}
 }

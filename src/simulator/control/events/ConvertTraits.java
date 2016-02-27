@@ -1,4 +1,6 @@
-package simulator.control;
+package simulator.control.events;
+
+import simulator.control.Simulation;
 
 /**
  * Convert some traits in institutions

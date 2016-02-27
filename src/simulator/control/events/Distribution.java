@@ -1,4 +1,4 @@
-package simulator.control;
+package simulator.control.events;
 
 import java.util.Random;
 

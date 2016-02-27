@@ -1,4 +1,6 @@
-package simulator.control;
+package simulator.control.events;
+
+import simulator.control.Simulation;
 
 /**
  * Destroy institution structure event
@@ -15,7 +17,7 @@ public class DestroyInstitutionsStructure extends Event {
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (simulation.rand.nextDouble() < p){
+		if (simulation.getRand().nextDouble() < p){
 			simulation.forget_institution(r, c);
 		}
 	}

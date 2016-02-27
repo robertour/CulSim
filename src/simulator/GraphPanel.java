@@ -29,7 +29,6 @@ public class GraphPanel extends JPanel {
     private int labelPadding = 12;
     private Color lineColor = new Color(44, 102, 230, 180);
     private Color lineColor2 = new Color(230, 102, 44, 180);
-    private Color pointColor = new Color(100, 100, 100, 180);
     private Color gridColor = new Color(200, 200, 200, 200);
     private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
     private int pointWidth = 0;

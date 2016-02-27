@@ -9,8 +9,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import simulator.control.Distribution;
+import simulator.control.events.Distribution;
+
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
 
@@ -23,7 +26,7 @@ public class DoubleDistributionDialog extends JDialog {
 	private DistributionPanel d2_panel;
 	private String title1;
 	private String title2;
-	private Notifiable notifiable;
+	private ArrayList<Notifiable> notifiables = new ArrayList<Notifiable>();
 
 
 	/**
@@ -73,7 +76,10 @@ public class DoubleDistributionDialog extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						DoubleDistributionDialog.this.notifiable.update();
+						for (Iterator<Notifiable> i = notifiables.iterator(); i.hasNext();) {
+							Notifiable notifiable = (Notifiable) i.next();
+							notifiable.update();
+						}
 						DoubleDistributionDialog.this.setVisible(false);						
 					}
 				});
@@ -97,7 +103,7 @@ public class DoubleDistributionDialog extends JDialog {
 				title2 + ": " + d2_panel.get_distribution();
 	}
 	
-	public void setNotifiable(Notifiable n){
-		this.notifiable = n;
+	public void addNotifiable(Notifiable n){
+		notifiables.add(n);
 	}
 }

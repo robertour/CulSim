@@ -4,7 +4,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import simulator.control.Distribution;
+import simulator.control.events.Distribution;
 
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;

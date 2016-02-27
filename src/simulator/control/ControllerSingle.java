@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import simulator.CulturalParameters;
 import simulator.CulturalSimulator;
+import simulator.control.events.Event;
 import simulator.destruction.Ulloa;
 
  

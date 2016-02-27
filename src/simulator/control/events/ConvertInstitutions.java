@@ -1,4 +1,6 @@
-package simulator.control;
+package simulator.control.events;
+
+import simulator.control.Simulation;
 
 /**
  * Convert all traits in some institutions
@@ -16,7 +18,7 @@ public class ConvertInstitutions extends Event {
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (simulation.rand.nextDouble() < p){
+		if (simulation.getRand().nextDouble() < p){
 			simulation.convert_institution(r, c);
 		}
 	}
