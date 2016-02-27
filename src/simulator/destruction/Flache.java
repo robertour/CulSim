@@ -117,7 +117,11 @@ public class Flache extends Flache2 {
 				
 				// mutation
 				if ( rand.nextFloat() >= 1 - MUTATION ) {
-					beliefs[r][c][rand.nextInt(FEATURES)] = rand.nextInt(TRAITS);
+					mutant_feature = rand.nextInt(FEATURES);
+					// Don't change dead features
+					if (mutant_feature != DEAD_TRAIT){
+						beliefs[r][c][mutant_feature] = rand.nextInt(TRAITS);
+					}
 				}
 			}
 		} // END of checkpoint

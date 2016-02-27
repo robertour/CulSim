@@ -1,0 +1,89 @@
+package simulator;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import simulator.control.Distribution;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class SingleDistributionDialog extends JDialog {
+	
+	private static final long serialVersionUID = -8199562513877809300L;
+	
+	private final JPanel contentPanel = new JPanel();
+	private DistributionPanel d_panel;
+	private Notifiable notifiable = null;
+
+
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		try {
+			Distribution d = new Distribution(0.1);
+			
+			SingleDistributionDialog dialog = new SingleDistributionDialog(d, "Example", null);
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Create the dialog.
+	 */
+	public SingleDistributionDialog(Distribution d, String title, JFrame owner) {
+		super(owner);
+
+		setTitle("Distribution Dialog");
+		
+		setBounds(100, 100, 222, 379);
+		getContentPane().setLayout(new BorderLayout());
+		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		getContentPane().add(contentPanel, BorderLayout.CENTER);
+		contentPanel.setLayout(new BorderLayout(0, 0));
+		{
+			d_panel = new DistributionPanel(d, title);
+			
+			contentPanel.add(d_panel, BorderLayout.CENTER);
+		}
+		{
+			JPanel buttonPane = new JPanel();
+			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			getContentPane().add(buttonPane, BorderLayout.SOUTH);
+			{
+				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						SingleDistributionDialog.this.notifiable.update();
+						SingleDistributionDialog.this.setVisible(false);						
+					}
+				});
+				okButton.setActionCommand("OK");
+				buttonPane.add(okButton);
+				getRootPane().setDefaultButton(okButton);
+			}
+		}
+	}
+	
+	public Distribution get_distribution() {
+		return d_panel.get_distribution();
+	}
+	
+	public void setNotifiable(Notifiable n){
+		this.notifiable = n;
+	}
+	
+	public String toString(){
+		return d_panel.get_distribution().toString();
+	}
+}

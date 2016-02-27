@@ -7,20 +7,23 @@ package simulator.control;
  *
  */
 public class ConvertInstitutions extends Event {
+	private static final long serialVersionUID = -1746540685442267804L;
+
+	public ConvertInstitutions(Distribution d) {
+		super(d);
+	}
+
 	
-	private double prob = -99;
-
-	public ConvertInstitutions(double p) {
-		prob = p;
-	}
-
 	@Override
-	public void execute(Simulation simulation) {
-		simulation.institutional_conversion(prob);
+	public void trigger(int r, int c, double p, Simulation simulation) {
+		if (simulation.rand.nextDouble() < p){
+			simulation.convert_institution(r, c);
+		}
 	}
+
 	
 	public String toString() {
-		return "Convert institutions (" + prob + ")";
+		return "Convert Institutions: " + super.toString();
 	}
-
+	
 }

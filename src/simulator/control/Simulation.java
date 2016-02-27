@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
+
 import simulator.CulturalSimulator;
 
 
@@ -145,6 +147,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Random number generator
 	 */
 	protected Random rand = new Random();
+	
+	/**
+	 * Internal matrix to store normal probabilities
+	 */
+	private double [][] normal_probability;
 	
 	
 	/**
@@ -376,6 +383,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		} else {
 			epoch++;
 			save_state();
+			log.print("(ID: " + IDENTIFIER +  "): " + "Reload Simulation. State saved. \n");
 		}
 		
 		
@@ -432,7 +440,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 
 		try {
 			File f = new File(results_dir + Controller.SIMULATIONS_DIR + IDENTIFIER + ".simfile");
-			f.getParentFile().mkdirs();
 			ObjectOutputStream write = new ObjectOutputStream (new FileOutputStream(f));				
 			write.writeObject(this);
 			write.close();
@@ -459,6 +466,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 		flags = new boolean[ROWS][COLS];
 		cultures = new int[ROWS][COLS];
+		normal_probability = new double[ROWS][COLS];
 		
 		int n = 0;
 		for (int r = 0; r < ROWS; r++) {
@@ -525,7 +533,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		neighboursY = null;
 		neighboursN = null;
 		flags = null;
-		cultures = null;		
+		cultures = null;
+		normal_probability = null;
 	}
 
 	/**
@@ -983,7 +992,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			for (Iterator<Event> iterator = es.iterator(); iterator.hasNext();) {
 				Event event = (Event) iterator.next();
 				event.execute(this);
-			}			
+			}	
 			update_gui();
 		}
 	}
@@ -1013,15 +1022,43 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 	protected void destroy_institutions_structure(double prob){}
 	protected void destroy_institutions_content(double prob){}
+	protected void institutional_conversion(double prob){}
+	protected void institutional_trait_conversion(double prob){}
+	
+	
 	
 	/**
-	 * An invasion will introduce a foreign group with neighborhood 
-	 * of radius
+	 * An event is normally distributed in the population
+	 * 
+	 * @param probability
+	 */
+	protected void event_normal(NormalDistribution ndr, NormalDistribution ndc, Event e){
+		
+		// acc is a normalization factor
+		double max = 0.00000001f;
+		double rprob = 0;
+		for (int r = 0; r < ROWS; r++) {
+			rprob = ndr.probability(r-.5, r+.5);
+			for (int c = 0; c < COLS; c++) {
+				normal_probability[r][c] = rprob * ndc.probability(c-.5, c+.5);
+				if (normal_probability[r][c] > max){
+					max = normal_probability[r][c];
+				}
+			}			
+		}
+		
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				e.trigger(r, c, normal_probability[r][c]/max, this);
+			}
+		}
+	}
+	
+	/**
+	 * An event is distributed in a Newman neighborhood of radius
 	 * @param radius
 	 */
-	protected void invasion (int radius){
-		int r = ROWS/2;
-		int c = COLS/2;
+	protected void newman_event (int r, int c, int radius, Event e){
 		
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f] = TRAITS;
@@ -1031,60 +1068,118 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			for (int j = 0; j <= radius; j++) {
 				if ( j + i + 2 <= radius ) {
 					if ( r + i + 1 < ROWS && c + j + 1 < COLS ) {
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r + i + 1][c + j + 1][f]=TRAITS;
-						}
+						e.trigger(r + i + 1, c + j + 1, 1.0, this);
 					}
 					if ( r - i - 1 >= 0 && c - j - 1 >= 0 ) {			
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r - i - 1][c - j - 1][f]=TRAITS;
-						}
+						e.trigger(r - i - 1, c - j - 1, 1.0, this);
 					}
 				}
 				if ( j + i <= radius && ( j != 0 || i != 0 ) ) {
 					if ( r - i >= 0 && c + j < COLS ) {
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r - i][c + j][f]=TRAITS;
-						}
+						e.trigger(r - i, c + j, 1.0, this);
 					}
 					if ( r + i < ROWS && c - j >= 0 ) {
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r + i][c - j][f]=TRAITS;
-						}
+						e.trigger(r + i, c - j, 1.0, this);
 					}								
 				}
 			}
 		}
 	}
-
-	protected void institutional_conversion(double prob){}
-	protected void institutional_trait_conversion(double prob){}
+	
+	
 	
 	/**
-	 * A genocide would indicate traits as dead.
+	 * An event is distributed with uniform probability
 	 * 
 	 * @param probability
 	 */
-	protected void genocide(double probability){
+	protected void uniform_event(double probability, Event e){
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				for (int f = 0; f < FEATURES; f++) {
-					if (probability > Math.random()){
-						beliefs[r][c][f] = DEAD_TRAIT;
-					}
-				}
+				e.trigger(r, c, probability, this);
 			}
 		}
 	}
+	
+	/**
+	 * Remove partial information of an institution
+	 * @param r
+	 * @param c
+	 * @param prob
+	 */
+	protected void remove_partial_institution_content(int institution, double prob){}
+	
+	/**
+	 * Remove complete information of an institution
+	 * @param r
+	 * @param c
+	 */
+	protected void remove_institution_content(int institution){}
+	
+	/**
+	 * Forget the institution I belong to
+	 * @param r
+	 * @param c
+	 */
+	protected void forget_institution(int r, int c){}
+	
+	/**
+	 * Convert an institution towards the invader TRAITS
+	 * @param r
+	 * @param c
+	 */
+	protected void convert_institution(int r, int c){}
+	
+	/**
+	 * Convert a percentage of traits towards the invader TRAITS
+	 * @param r
+	 * @param c
+	 * @param prob
+	 */
+	protected void convert_institution_trait(int r, int c, double prob){}
+	
+	/**
+	 * Prepare elements before an invasion. In this case, it would
+	 * be finding a free institution near the r, c coordinates
+	 * @param r
+	 * @param c
+	 * @return
+	 */
+	protected int pre_invasion(int r, int c){ return -999; }
+	
+	/**
+	 * Invade a cell
+	 * @param r
+	 * @param c
+	 */
+	protected void invade(int r, int c, int institution){
+		for (int f=0; f < FEATURES; f++){
+			beliefs[r][c][f]=TRAITS;
+		}
+	}
+	
+	/**
+	 * Kill an individual on a cell
+	 * @param r
+	 * @param c
+	 */
+	protected void kill_individual(int r, int c){
+		for (int f = 0; f < FEATURES; f++) {
+			beliefs[r][c][f] = DEAD_TRAIT;
+		}
+	}
+
 
 	/**
 	 * Update the interface
 	 */
 	protected void update_gui(){
-		print_belief_spaces();
-		update_culture_graphs();
-		CulturalSimulator.l_start_identification.setText("S: " + starter.get_identification());
-		CulturalSimulator.l_current_identification.setText("C: " + get_identification());
+		if (!Controller.IS_BATCH){
+			print_belief_spaces();
+			update_culture_graphs();
+			CulturalSimulator.l_start_identification.setText("S: " + starter.get_identification());
+			CulturalSimulator.l_current_identification.setText("C: " + get_identification());
+		}
 	}
 	
 	/**

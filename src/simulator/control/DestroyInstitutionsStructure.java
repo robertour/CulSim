@@ -7,20 +7,22 @@ package simulator.control;
  *
  */
 public class DestroyInstitutionsStructure extends Event {
-	
-	private double prob = -99;
+	private static final long serialVersionUID = -9186276200796543594L;
 
-	public DestroyInstitutionsStructure(double p) {
-		prob = p;
+	public DestroyInstitutionsStructure(Distribution d) {
+		super(d);
 	}
-
+	
 	@Override
-	public void execute(Simulation simulation) {
-		simulation.destroy_institutions_structure(prob);
+	public void trigger(int r, int c, double p, Simulation simulation) {
+		if (simulation.rand.nextDouble() < p){
+			simulation.forget_institution(r, c);
+		}
 	}
 	
 	public String toString() {
-		return "Destroy institutions structure (" + prob + ")";
+		return "Structure: " + super.toString();
 	}
+
 
 }

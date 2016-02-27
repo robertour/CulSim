@@ -1,8 +1,7 @@
 package simulator.destruction;
 
-import simulator.control.Simulation;
 
-public class Flache2 extends Simulation {
+public class Flache2 extends Axelrod {
 
 	/**
 	 * 
@@ -115,7 +114,11 @@ public class Flache2 extends Simulation {
 				
 				// mutation
 				if ( rand.nextFloat() >= 1 - MUTATION ) {
-					beliefs[r][c][rand.nextInt(FEATURES)] = rand.nextInt(TRAITS);
+					mutant_feature = rand.nextInt(FEATURES);
+					// Don't change dead features
+					if (mutant_feature != DEAD_TRAIT){
+						beliefs[r][c][mutant_feature] = rand.nextInt(TRAITS);
+					}
 				}
 			}
 		} // END of checkpoint

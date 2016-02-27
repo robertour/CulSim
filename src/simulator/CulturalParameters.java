@@ -41,6 +41,7 @@ public class CulturalParameters extends JDialog {
 	public static ControllerSingle controller = CulturalSimulator.controller;
 	private final JPanel contentPanel = new JPanel();
 	public static JComboBox<String> classSelector;
+	@SuppressWarnings("rawtypes")
 	public static ArrayList<Class> classes;
 	public static ArrayList<String> prettyNames;
 	public static JSpinner sp_influence;
@@ -457,6 +458,7 @@ public class CulturalParameters extends JDialog {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
+	@SuppressWarnings("rawtypes")
 	private static String[] getClasses(String [] packageNames)
 	        throws ClassNotFoundException, IOException {
 	    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

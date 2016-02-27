@@ -15,6 +15,7 @@ import simulator.control.ConvertInstitutions;
 import simulator.control.ConvertTraits;
 import simulator.control.DestroyInstitutionsContent;
 import simulator.control.DestroyInstitutionsStructure;
+import simulator.control.Distribution;
 import simulator.control.Event;
 import simulator.control.Genocide;
 import simulator.control.Invasion;
@@ -48,6 +49,8 @@ import java.awt.Component;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Insets;
+
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import javax.swing.JSplitPane;
@@ -57,6 +60,7 @@ import javax.swing.SpinnerNumberModel;
 import java.awt.Font;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import java.awt.SystemColor;
 
 public class CulturalSimulator extends JFrame {
 
@@ -100,25 +104,13 @@ public class CulturalSimulator extends JFrame {
 	private JMenuItem mntmSafeWorldState;
 	private JMenuItem mntmLoadWorldState;
 	private JMenuItem mntmExit;
-	private JButton btnCollapse;
-	private JButton btnInvasion;
-	private JButton btnGenocide;
 	private JButton btnClear;
 	private JMenu mnSimulation;
 	private JMenuItem mntmClear;
 	private JSplitPane splitPane_1;
 	private JPanel panel_7;
-	private JButton btnDestroyInstitutionsStructure;
-	private JButton btnConversion;
-	private JButton btnTraitConversion;
 	private JPanel panel_1;
 	private JPanel panel_8;
-	private JPanel panel_9;
-	private JSpinner sp_convert;
-	private JSpinner sp_convert_traits;
-	private JPanel panel_10;
-	private JSpinner sp_invasion;
-	private JSpinner sp_genocide;
 	private JSplitPane splitPane_2;
 	private JPanel panel_11;
 	private JPanel panel_12;
@@ -176,8 +168,6 @@ public class CulturalSimulator extends JFrame {
 	private JSpinner sp_add_invasion;
 	private JSpinner sp_add_genocide;
 	private JButton button_6;
-	private JSpinner sp_content;
-	private JSpinner sp_structure;
 	private JTextArea ta_event_set;
 	private JPanel panel_28;
 	private JPanel panel_29;
@@ -188,6 +178,16 @@ public class CulturalSimulator extends JFrame {
 	private JMenuItem mntmReload;
 	private JButton btnSave;
 	private JMenuItem mntmSave;
+	private EventPanel instDestructionPanel;
+	private EventPanel instConversionPanel;
+	private EventPanel invasionPanel;
+	private EventPanel genocidePanel;
+	private DoubleDistributionDialog destructionDialog;
+	private DoubleDistributionDialog conversionDialog;
+	private SingleDistributionDialog invasionDialog;
+	private SingleDistributionDialog genocideDialog;
+	private JPanel panel_10;
+
 	
 	/**
 	 * Launch the application.
@@ -195,8 +195,30 @@ public class CulturalSimulator extends JFrame {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				
+//				double [][] cov = new double[2][2];
+//				cov[0][0] = 1000000; //=1000
+//				cov[0][1] = 500000;
+//				cov[1][0] = 500000;
+//				cov[1][1] = 1000000; //=1000
+//				MultivariateNormalDistribution mnd = new MultivariateNormalDistribution(new double[] {5000,5000}, cov);
+//				double [][]sample = mnd.sample(10);
+//								
+//				
+//				for (int i = 0; i < sample.length; i++) {
+//					for (int j = 0; j < sample[0].length; j++) {
+//						System.out.print(sample[i][j] + " ");
+//					}
+//					System.out.println();					
+//				}
+				
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+				    UIManager.getDefaults().put("TabbedPane.contentBorderInsets", new Insets(1,0,0,0));
+				    UIManager.getDefaults().put("TabbedPane.tabAreaInsets", new Insets(0,0,0,0));
+				    UIManager.getDefaults().put("TabbedPane.tabsOverlapBorder", true);
+				    UIManager.getDefaults().put("TabbedPane.lightHighlight", Color.BLACK);
 					CulturalSimulator frame = new CulturalSimulator();
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -212,7 +234,7 @@ public class CulturalSimulator extends JFrame {
 	public CulturalSimulator() {
 		setTitle("Cultural Simulator");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 895, 722);
+		setBounds(0, 0, 895, 722);
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -346,6 +368,7 @@ public class CulturalSimulator extends JFrame {
 		panel_16.add(lblCultures_1, BorderLayout.WEST);
 		
 		l_cultures = new JLabel("");
+		l_cultures.setForeground(SystemColor.textHighlight);
 		l_cultures.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of immediate neighbors.");
 		panel_16.add(l_cultures, BorderLayout.EAST);
 		
@@ -363,6 +386,7 @@ public class CulturalSimulator extends JFrame {
 		lblInstitutions.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		l_borderless = new JLabel("");
+		l_borderless.setForeground(SystemColor.textHighlight);
 		l_borderless.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
 		panel_18.add(l_borderless, BorderLayout.EAST);
 		
@@ -385,6 +409,7 @@ public class CulturalSimulator extends JFrame {
 		panel_17.add(lblNewLabel_1, BorderLayout.WEST);
 		
 		l_institutions = new JLabel("");
+		l_institutions.setForeground(SystemColor.textHighlight);
 		l_institutions.setToolTipText("Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
 		panel_17.add(l_institutions, BorderLayout.EAST);
 		
@@ -396,12 +421,13 @@ public class CulturalSimulator extends JFrame {
 		panel_15.add(panel_19, BorderLayout.NORTH);
 		panel_19.setLayout(new BorderLayout(0, 0));
 		
-		lblEnergy = new JLabel("Energy");
+		lblEnergy = new JLabel("Energy:");
 		lblEnergy.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
 		panel_19.add(lblEnergy, BorderLayout.NORTH);
 		lblEnergy.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		l_energy_foreigners = new JLabel("");
+		l_energy_foreigners.setForeground(SystemColor.textHighlight);
 		l_energy_foreigners.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
 		panel_19.add(l_energy_foreigners, BorderLayout.EAST);
 		
@@ -498,114 +524,77 @@ public class CulturalSimulator extends JFrame {
 		panel_7.setLayout(new BorderLayout(0, 0));
 		
 		panel_1 = new JPanel();
+		panel_1.setBorder(new EmptyBorder(0, 0, 0, 0));
 		panel_7.add(panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBorder(null);
 		tabbedPane.setPreferredSize(new Dimension(5, 375));
 		panel_1.add(tabbedPane, BorderLayout.NORTH);
 		
 		panel_8 = new JPanel();
 		tabbedPane.addTab("Event", null, panel_8, null);
 		panel_8.setPreferredSize(new Dimension(10, 270));
-		panel_8.setBorder(null);
-		panel_8.setLayout(null);
+		panel_8.setBorder(new EmptyBorder(5, 0, 0, 0));
 		
-		panel_9 = new JPanel();
-		panel_9.setBounds(5, 5, 180, 145);
-		panel_9.setBorder(new TitledBorder(null, "Institutions", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_8.add(panel_9);
-		panel_9.setLayout(null);
 		
-		btnCollapse = new JButton("Destroy Content");
-		btnCollapse.setBounds(10, 20, 120, 23);
-		panel_9.add(btnCollapse);
-		
-		btnDestroyInstitutionsStructure = new JButton("Destroy Structure");
-		btnDestroyInstitutionsStructure.setBounds(10, 50, 120, 23);
-		panel_9.add(btnDestroyInstitutionsStructure);
-		
-		btnConversion = new JButton("Convert");
-		btnConversion.setBounds(10, 80, 120, 23);
-		panel_9.add(btnConversion);
-		
-		btnTraitConversion = new JButton("Convert Traits");
-		btnTraitConversion.setBounds(10, 110, 120, 23);
-		panel_9.add(btnTraitConversion);
-		
-		sp_convert = new JSpinner();
-		sp_convert.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_convert.setBounds(135, 81, 39, 20);
-		panel_9.add(sp_convert);
-		
-		sp_convert_traits = new JSpinner();
-		sp_convert_traits.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_convert_traits.setBounds(135, 110, 39, 20);
-		panel_9.add(sp_convert_traits);
-		
-		sp_content = new JSpinner();
-		sp_content.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_content.setBounds(135, 21, 39, 20);
-		panel_9.add(sp_content);
-		
-		sp_structure = new JSpinner();
-		sp_structure.setModel(new SpinnerNumberModel(new Double(1.0), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_structure.setBounds(135, 51, 39, 20);
-		panel_9.add(sp_structure);
+		panel_8.setLayout(new BorderLayout(0, 0));
 		
 		panel_10 = new JPanel();
-		panel_10.setBounds(5, 150, 180, 83);
-		panel_10.setBorder(new TitledBorder(null, "Population", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_8.add(panel_10);
-		panel_10.setLayout(null);
+		panel_10.setPreferredSize(new Dimension(10, 340));
+		panel_8.add(panel_10, BorderLayout.NORTH);
+		panel_10.setLayout(new GridLayout(4, 0, 0, 5));
+		destructionDialog = new DoubleDistributionDialog(new Distribution(1.0), new Distribution(1.0), "Structure", "Content", this);
+		instDestructionPanel = new EventPanel("Institutions destruction", destructionDialog);
+		instDestructionPanel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<Event> events = new ArrayList<Event>();
+				events.add(new DestroyInstitutionsStructure(destructionDialog.get_distribution1()));
+				events.add(new DestroyInstitutionsContent(destructionDialog.get_distribution2()));
+				controller.add_events(events);
+			}
+		});
+		destructionDialog.setNotifiable(instDestructionPanel);		
+		panel_10.add(instDestructionPanel);
 		
-		btnInvasion = new JButton("Invasion");
-		btnInvasion.setBounds(10, 20, 120, 23);
-		panel_10.add(btnInvasion);
+		conversionDialog = new DoubleDistributionDialog(new Distribution(-1.0,-1.0,0.2), new Distribution(-1.0,-1.0,0.2), "Full", "Partial", this);
+		instConversionPanel = new EventPanel("Institutional conversion", conversionDialog);
+		instConversionPanel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<Event> events = new ArrayList<Event>();
+				events.add(new ConvertInstitutions(conversionDialog.get_distribution1()));
+				events.add(new ConvertTraits(conversionDialog.get_distribution2()));
+				controller.add_events(events);
+			}
+		});
+		conversionDialog.setNotifiable(instConversionPanel);
+		panel_10.add(instConversionPanel);
 		
-		btnGenocide = new JButton("Genocide");
-		btnGenocide.setBounds(10, 50, 120, 23);
-		panel_10.add(btnGenocide);
+		invasionDialog = new SingleDistributionDialog(new Distribution(0.5,0.5,10), "Invasion", this);
+		invasionPanel = new EventPanel("Invasion", invasionDialog);
+		invasionPanel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<Event> events = new ArrayList<Event>();
+				events.add(new Invasion(invasionDialog.get_distribution()));
+				controller.add_events(events);
+			}
+		});
+		invasionDialog.setNotifiable(invasionPanel);
+		panel_10.add(invasionPanel);
 		
-		sp_invasion = new JSpinner();
-		sp_invasion.setModel(new SpinnerNumberModel(new Integer(6), 1, null, new Integer(1)));
-		sp_invasion.setBounds(135, 20, 39, 20);
-		panel_10.add(sp_invasion);
-		
-		sp_genocide = new JSpinner();
-		sp_genocide.setModel(new SpinnerNumberModel(new Double(0.1), new Double(0.0), new Double(1.0), new Double(0.1)));
-		sp_genocide.setBounds(135, 49, 39, 20);
-		panel_10.add(sp_genocide);
-		btnGenocide.addActionListener(new ActionListener() {
+		genocideDialog = new SingleDistributionDialog(new Distribution(-1.0,-1.0,0.2), "Genocide", this);
+		genocidePanel = new EventPanel("Genocide", genocideDialog);
+		genocidePanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				controller.add_event(new Genocide((double) sp_genocide.getValue()));
+
+				ArrayList<Event> events = new ArrayList<Event>();
+				events.add(new Genocide(genocideDialog.get_distribution()));
+				controller.add_events(events);
 			}
 		});
-		btnInvasion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.add_event(new Invasion((int) sp_invasion.getValue()));
-			}
-		});
-		btnTraitConversion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.add_event(new ConvertTraits((double) sp_convert_traits.getValue()));
-			}
-		});
-		btnConversion.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.add_event(new ConvertInstitutions((double) sp_convert.getValue()));
-			}
-		});
-		btnDestroyInstitutionsStructure.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.add_event(new DestroyInstitutionsStructure((double) sp_structure.getValue()));
-			}
-		});
-		btnCollapse.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				controller.add_event(new DestroyInstitutionsContent((double) sp_content.getValue()));
-			}
-		});
+		genocideDialog.setNotifiable(genocidePanel);
+		panel_10.add(genocidePanel);
 		
 		panel_21 = new JPanel();
 		tabbedPane.addTab("Parameters", null, panel_21, null);
@@ -749,7 +738,7 @@ public class CulturalSimulator extends JFrame {
 		btn_add_destroy_content.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent arg0) {
-				events.add(new DestroyInstitutionsContent((double) sp_add_content.getValue()));
+				//events.add(new DestroyInstitutionsContent((double) sp_add_content.getValue()));
 				update_event_set();
 			}
 		});
@@ -759,7 +748,7 @@ public class CulturalSimulator extends JFrame {
 		btn_add_destroy_structure = new JButton("Destroy Structure");
 		btn_add_destroy_structure.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new DestroyInstitutionsStructure((double) sp_add_structure.getValue()));
+				//events.add(new DestroyInstitutionsStructure((double) sp_add_structure.getValue()));
 				update_event_set();
 			}
 		});
@@ -769,7 +758,7 @@ public class CulturalSimulator extends JFrame {
 		btn_convert_institutions = new JButton("Convert");
 		btn_convert_institutions.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new ConvertInstitutions((double) sp_add_convert.getValue()));
+				//events.add(new ConvertInstitutions((double) sp_add_convert.getValue()));
 				update_event_set();
 			}
 		});
@@ -779,7 +768,7 @@ public class CulturalSimulator extends JFrame {
 		btn_convert_traits = new JButton("Convert Traits");
 		btn_convert_traits.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new ConvertTraits((double) sp_add_convert_traits.getValue()));
+				//events.add(new ConvertTraits((double) sp_add_convert_traits.getValue()));
 				update_event_set();
 			}
 		});
@@ -809,7 +798,7 @@ public class CulturalSimulator extends JFrame {
 		btn_invasion = new JButton("Invasion");
 		btn_invasion.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Invasion((int) sp_add_invasion.getValue()));
+				//events.add(new Invasion((int) sp_add_invasion.getValue()));
 				update_event_set();
 			}
 		});
@@ -824,7 +813,7 @@ public class CulturalSimulator extends JFrame {
 		btn_genocide = new JButton("Genocide");
 		btn_genocide.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Genocide((double) sp_add_genocide.getValue()));
+				//events.add(new Genocide((double) sp_add_genocide.getValue()));
 				update_event_set();
 			}
 		});
@@ -882,12 +871,13 @@ public class CulturalSimulator extends JFrame {
 		panel_28.add(panel_29, BorderLayout.NORTH);
 		panel_29.setLayout(new BorderLayout(0, 0));
 		
-		lbl_similarity = new JLabel("Similarity");
+		lbl_similarity = new JLabel("Similarity:");
 		lbl_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
 		lbl_similarity.setHorizontalAlignment(SwingConstants.LEFT);
 		panel_29.add(lbl_similarity, BorderLayout.WEST);
 		
 		l_similarity = new JLabel("");
+		l_similarity.setForeground(SystemColor.textHighlight);
 		l_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
 		panel_29.add(l_similarity, BorderLayout.EAST);
 		
@@ -931,17 +921,19 @@ public class CulturalSimulator extends JFrame {
 		splitPane_2.setDividerLocation(700);
 		
 		panel_20 = new JPanel();
-		panel_20.setBackground(Color.WHITE);
+		panel_20.setBackground(SystemColor.control);
 		contentPane.add(panel_20, BorderLayout.SOUTH);
 		panel_20.setLayout(new GridLayout(2, 1, 0, 0));
 		
 		
 		
 		l_start_identification = new JLabel("S:");
+		l_start_identification.setForeground(SystemColor.textHighlight);
 		l_start_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		panel_20.add(l_start_identification);
 		
 		l_current_identification = new JLabel("C:");
+		l_current_identification.setForeground(SystemColor.textHighlight);
 		l_current_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		panel_20.add(l_current_identification);
 		

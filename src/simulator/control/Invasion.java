@@ -7,20 +7,31 @@ package simulator.control;
  *
  */
 public class Invasion extends Event {
-	
-	private int radius = -99;
 
-	public Invasion(int r) {
-		radius = r;
+	private static final long serialVersionUID = 8805514313035882018L;
+
+	private int institution = -9999;
+
+	public Invasion(Distribution d) {
+		super(d);
 	}
 
-	@Override
 	public void execute(Simulation simulation) {
-		simulation.invasion(radius);
+		institution = simulation.pre_invasion(distribution.getRow(simulation.ROWS, simulation.rand), 
+											distribution.getRow(simulation.ROWS, simulation.rand));
+		super.execute(simulation);
 	}
 	
+	@Override
+	public void trigger(int r, int c, double p, Simulation simulation){
+		if (simulation.rand.nextDouble() < p){
+			simulation.invade(r, c, institution);
+		}
+	}
+	
+
 	public String toString() {
-		return "Invasion (" + radius + ")";
+		return "Invasion: " + super.toString();
 	}
 
 }

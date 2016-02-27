@@ -10,13 +10,7 @@ import javax.swing.text.DefaultCaret;
 
 import simulator.control.Controller;
 import simulator.control.ControllerBatch;
-import simulator.control.ConvertInstitutions;
-import simulator.control.ConvertTraits;
-import simulator.control.DestroyInstitutionsContent;
-import simulator.control.DestroyInstitutionsStructure;
 import simulator.control.Event;
-import simulator.control.Genocide;
-import simulator.control.Invasion;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -310,7 +304,7 @@ public class BatchMode extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				jfc_scenarios.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY );
 				if (jfc_scenarios.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					tf_scenarios_dir.setText(jfc_scenarios.getSelectedFile().getAbsolutePath());
+					tf_scenarios_dir.setText(jfc_scenarios.getSelectedFile().getAbsolutePath() + "\\");
 				}
 			}
 		});
@@ -318,7 +312,7 @@ public class BatchMode extends JDialog {
 		tab_catastrophic.add(btnOpen);		
 		
 		tf_scenarios_dir = new JTextField();
-		tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath());
+		tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath() + "\\");
 		tf_scenarios_dir.setEditable(false);
 		tf_scenarios_dir.setColumns(10);
 		tf_scenarios_dir.setBounds(75, 10, 399, 25);
@@ -446,37 +440,37 @@ public class BatchMode extends JDialog {
 		tab_catastrophic.add(btnSave);
 		btn_genocide.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Genocide((double) sp_genocide.getValue()));
+//				events.add(new Genocide((double) sp_genocide.getValue()));
 				update_event_set();
 			}
 		});
 		btn_convert_traits.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new ConvertTraits((double) sp_convert_traits.getValue()));
+//				events.add(new ConvertTraits((double) sp_convert_traits.getValue()));
 				update_event_set();
 			}
 		});
 		btn_convert.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new ConvertInstitutions((double) sp_convert.getValue()));
+//				events.add(new ConvertInstitutions((double) sp_convert.getValue()));
 				update_event_set();
 			}
 		});
 		btn_invasion.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Invasion((int) sp_invasion.getValue()));
+//				events.add(new Invasion((int) sp_invasion.getValue()));
 				update_event_set();
 			}
 		});
 		btn_structure.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new DestroyInstitutionsStructure((double) sp_structure.getValue()));
+//				events.add(new DestroyInstitutionsStructure((double) sp_structure.getValue()));
 				update_event_set();
 			}
 		});
 		btn_content.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new DestroyInstitutionsContent((double) sp_content.getValue()));
+//				events.add(new DestroyInstitutionsContent((double) sp_content.getValue()));
 				update_event_set();
 			}
 		});
@@ -548,23 +542,37 @@ public class BatchMode extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.clean_all();
 				
-				if (tp_batch_mode.getSelectedComponent() == tab_conf_file) {
-					controller.load_tasks(file_list, (int) sp_repetitions.getValue());
-				} else if (tp_batch_mode.getSelectedComponent() == tab_csv) {
-					EXPERIMENTAL_FILE = tf_experimental_file.getText();
+				if (tp_batch_mode.getSelectedComponent() == tab_conf_file || 
+						tp_batch_mode.getSelectedComponent() == tab_csv ) {
 					
-					try {
-						controller.load_tasks(EXPERIMENTAL_FILE);
-						btn_start.setEnabled(true);
-					} catch (FileNotFoundException e) {
-						System.out.println("WARNING: Sample experimental file not found (" + EXPERIMENTAL_FILE + ")");
-						e.printStackTrace();
+					if (tp_batch_mode.getSelectedComponent() == tab_conf_file) {
+						controller.load_tasks(file_list, (int) sp_repetitions.getValue());
+					} else if (tp_batch_mode.getSelectedComponent() == tab_csv) {
+						EXPERIMENTAL_FILE = tf_experimental_file.getText();
+						
+						try {
+							controller.load_tasks(EXPERIMENTAL_FILE);
+							btn_start.setEnabled(true);
+						} catch (FileNotFoundException e) {
+							System.out.println("WARNING: Sample experimental file not found (" + EXPERIMENTAL_FILE + ")");
+							e.printStackTrace();
+						}
 					}
+					
+					// Look for an non-existent directory to save the results
+					File dir = new File(tf_results_dir.getText() + Controller.RESULTS_DIR);
+					String relative_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);
+					for( int i = 0; dir.exists(); i++) {
+						dir = new File(tf_results_dir.getText() + relative_dir + i + "/");	
+					}
+					results_dir = dir.getAbsolutePath() + "/";
+					controller.set_RESULTS_DIR(results_dir);
+					
 			    } else if (tp_batch_mode.getSelectedComponent() == tab_catastrophic) {
-			    	ArrayList<String> sim_list = new ArrayList<String>();  
+			    	ArrayList<String> sim_list = new ArrayList<String>();  			    	
 			    	
-			    	
-			    	File simulations_dir = new File (tf_scenarios_dir.getText() + ControllerBatch.SIMULATIONS_DIR);
+			    	File simulations_dir = new File (tf_scenarios_dir.getText() + 
+			    			ControllerBatch.SIMULATIONS_DIR);
 			    	if (simulations_dir.exists() && simulations_dir.isDirectory()){
 			    	
 						File[] directoryListing = simulations_dir.listFiles();
@@ -572,33 +580,42 @@ public class BatchMode extends JDialog {
 							for (File child : directoryListing) {
 								sim_list.add(child.getAbsolutePath());
 							}
+						} else {
+							TA_OUTPUT.print("The " + ControllerBatch.SIMULATIONS_DIR + " directory was not found on " +
+										"the provided directory. Please make sure you are providing a directory with " +
+										"the results of a Batch process (either CSV or Configuration Files).");
+							return;
 						}
 					}
 			    	
-			    	controller.load_tasks(sim_list, 1);
+			    	controller.load_tasks_with_events(sim_list, events, 1);
+			    	
+			    	// Look for an non-existent directory inside the scenarios to save the results
+			    	File dir = new File(tf_scenarios_dir.getText() + Controller.RESULTS_DIR);
+			    	String relative_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);			    	
+					for( int i = 0; dir.exists(); i++) {
+						dir = new File(tf_scenarios_dir.getText() + relative_dir + i + "/");	
+					}
+					results_dir = dir.getAbsolutePath() + "/";
+					controller.set_RESULTS_DIR(results_dir);
 			    }
 			
-				
-				File dir = new File(tf_results_dir.getText() + Controller.RESULTS_DIR);
-				
-				for( int i = 0; dir.exists(); i++) {
-					dir = new File(tf_results_dir.getText() + "/results" + i + "/");	
-				}
-
-				results_dir = dir.getAbsolutePath() + "/";
+				// Create the  subdirectories for the results inside the corresponding results directory
 				(new File(results_dir + Controller.ITERATIONS_DIR)).mkdirs();
-				controller.set_RESULTS_DIR(results_dir);	
+				(new File(results_dir + Controller.SIMULATIONS_DIR)).mkdirs();
 				
-				controller.start();
 				btn_start.setEnabled(false);
 				btn_pause.setEnabled(true);
 				btn_resume.setEnabled(false);
 				btn_stop.setEnabled(true);
 				btn_open_experiment.setEnabled(false);
 				btn_open_file.setEnabled(false);
-
+				
+				controller.start();
+				
 			}
 		});
+
 		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}

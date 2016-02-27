@@ -35,11 +35,6 @@ public class Ulloa extends Axelrod {
 
 	
 	/**
-	 * Internal variable for the non death traits
-	 */
-	protected int non_death_traits[];
-	
-	/**
 	 * Implements a circular doubled linked list with the members of the 
 	 * same culture (country men)
 	 */
@@ -89,30 +84,33 @@ public class Ulloa extends Axelrod {
 	 * are transient in order to avoid them to be saved in the serialized
 	 * object. 
 	 */
-	protected transient int c;
-	protected transient int r;
-	protected transient int n;
-	protected transient int nr;
-	protected transient int nc;
-	protected transient int institution;
-	protected transient int neighbors_institution;
-	protected transient int mismatchesN;
-	protected transient int institution_overlap;
-	protected transient int neighbors_institution_overlap;
-	protected transient int selected_feature;
-	protected transient int selected_trait;
-	protected transient int institution_trait;
-	protected transient int neighbors_institution_trait;
-	protected transient double institution_resistance;
-	protected transient float institutional_factor;
-	protected transient int non_death_traitsN;
-	protected transient int differences;
-	protected transient int rr;
-	protected transient int rc;
-	protected transient int lr;
-	protected transient int lc;
-	protected transient int nrr;
-	protected transient int nrc;
+	private transient int c;
+	private transient int r;
+	private transient int n;
+	private transient int nr;
+	private transient int nc;
+	private transient int institution;
+	private transient int neighbors_institution;
+	private transient int mismatchesN;
+	private transient int institution_overlap;
+	private transient int neighbors_institution_overlap;
+	private transient int selected_feature;
+	private transient int selected_trait;
+	private transient int institution_trait;
+	private transient int neighbors_institution_trait;
+	private transient double institution_resistance;
+	private transient float institutional_factor;
+	private transient int non_death_traitsN;
+	private transient int differences;
+	private transient int rr;
+	private transient int rc;
+	private transient int lr;
+	private transient int lc;
+	private transient int nrr;
+	private transient int nrc;
+	
+
+	
 
 	@Override
 	public void setup() {
@@ -122,8 +120,6 @@ public class Ulloa extends Axelrod {
 		
 		institution_beliefs = new int[ROWS*COLS][FEATURES];
 		institutionsN = new int[ROWS*COLS];
-		non_death_traits = new int [FEATURES];
-
 		
 		countryman_right_r = new int[ROWS][COLS];
 		countryman_right_c = new int[ROWS][COLS];
@@ -206,9 +202,10 @@ public class Ulloa extends Axelrod {
 				// and its neighbors's institution					
 				neighbors_institution_overlap = 0;
 				
+				// Compare the agents
 				for (int f = 0; f < FEATURES; f++) {
 					if (beliefs[nr][nc][f] != DEAD_TRAIT){
-						non_death_traits[non_death_traitsN] = f;
+						non_death_features[non_death_traitsN] = f;
 						non_death_traitsN++;
 						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
 							mismatches[mismatchesN] = f;
@@ -231,10 +228,10 @@ public class Ulloa extends Axelrod {
 				// the agent cannot interact with a dead individual
 				if (non_death_traitsN > 0){
 
-					// if arrive by selection error, there is still 
+					// if it manage to arrive by selection error, there is still 
 					// a chance of influencing the institution
 					if (mismatchesN == 0 ) {  
-						selected_feature = non_death_traits[rand.nextInt(non_death_traitsN)];
+						selected_feature = non_death_features[rand.nextInt(non_death_traitsN)];
 					} else {
 						selected_feature = mismatches[rand.nextInt(mismatchesN)];
 					}
@@ -395,8 +392,11 @@ public class Ulloa extends Axelrod {
 				
 				// mutation
 				if ( rand.nextFloat() >= 1 - MUTATION ) {
-					// TODO after the first invasion TRAITS should be bigger?
-					beliefs[r][c][rand.nextInt(FEATURES)] = rand.nextInt(TRAITS);
+					mutant_feature = rand.nextInt(FEATURES);
+					// Don't change dead features
+					if (mutant_feature != DEAD_TRAIT){
+						beliefs[r][c][mutant_feature] = rand.nextInt(TRAITS);
+					}
 				}
 				
 			} // END of total agents
@@ -665,59 +665,42 @@ public class Ulloa extends Axelrod {
 		return super.results();
 	}
 
-	
-	/**
-	 * Destroy the institutions content by resetting the content of
-	 * the institutions
-	 */
-	protected void destroy_institutions_content(double prob){
-		// Initialize cultures and nationalities
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				for (int f = 0; f < FEATURES; f++) {
-					if (Math.random() < prob) {
-						institution_beliefs[r * COLS + c][f] = -1;
-					}
-				}
+
+	@Override
+	protected void remove_partial_institution_content(int institution, double prob){
+		for (int f = 0; f < FEATURES; f++) {
+			if (Math.random() < prob) {
+				institution_beliefs[institution][f] = -1;
 			}
-		}
-		
-	}
-
-	/**
-	 * Destroy the institutions structure by resetting the 
-	 * 1 to 1 relationship between institutions and citizens
-	 */
-	protected void destroy_institutions_structure(double prob){
-
-		int institution = -2222;
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				abandon_institution(r, c);
-				institution = search_free_institution(r, c);
-				institutions[r][c] = institution;
-				institutionsN[institution] = 1;
-				
-				countryman_right_r[r][c] = r;
-				countryman_right_c[r][c] = c;
-				countryman_left_r[r][c] = r;
-				countryman_left_c[r][c] = c;
-
-			}
-		}
-		
-		check_circular_list();
+		}		
 	}
 	
-	/**
-	 * Invasion inserts a group of foreigners with its own 
-	 * institution associated. All of them, including the
-	 * institution have the same traits.
-	 */
-	protected void invasion (int radius){
-		int r = ROWS/2;
-		int c = COLS/2;
+	@Override
+	protected void remove_institution_content(int institution){
+		for (int f = 0; f < FEATURES; f++) {
+			institution_beliefs[institution][f] = -1;
+		}		
+	}
+	
+	@Override
+	protected void forget_institution(int r, int c){
+		abandon_institution(r, c);
+		institution = search_free_institution(r, c);
+		institutions[r][c] = institution;
+		institutionsN[institution] = 1;
 		
+		countryman_right_r[r][c] = r;
+		countryman_right_c[r][c] = c;
+		countryman_left_r[r][c] = r;
+		countryman_left_c[r][c] = c;
+		
+		for (int f = 0; f < FEATURES; f++) {
+			institution_beliefs[institution][f] = -1;
+		}
+	}
+	
+	@Override
+	protected int pre_invasion(int r, int c) {
 		int institution = search_free_institution(r, c);
 		// found its  own institution in free space
 		abandon_institution(r, c);
@@ -729,118 +712,65 @@ public class Ulloa extends Axelrod {
 			institution_beliefs[institution][f] = TRAITS;
 		}
 		
-		int r2;
-		int c2;
-		
-		for (int i = 0; i <= radius; i++) {
-			for (int j = 0; j <= radius; j++) {
-				if ( j + i + 2 <= radius ) {
-					if ( r + i + 1 < ROWS && c + j + 1 < COLS ) {
-						r2 = r + i + 1;
-						c2 = c + j + 1;
-						move_to_institution(r2, c2, r, c);
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r2][c2][f]=TRAITS;
-						}
-						
-					}
-					if ( r - i - 1 >= 0 && c - j - 1 >= 0 ) {
-						r2 = r - i - 1;
-						c2 = c - j - 1;
-						move_to_institution(r2, c2, r, c);
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r2][c2][f]=TRAITS;
-						}
-					}
-				}
-				if ( j + i <= radius && ( j != 0 || i != 0 ) ) {
-					if ( r - i >= 0 && c + j < COLS ) {
-						r2 = r - i;
-						c2 = c + j;
-						move_to_institution(r2, c2, r, c);
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r2][c2][f]=TRAITS;
-						}
-					}
-					if ( r + i < ROWS && c - j >= 0 ) {
-						r2 = r + i;
-						c2 = c - j;
-						move_to_institution(r2, c2, r, c);
-						for (int f=0; f < FEATURES; f++){
-							beliefs[r2][c2][f]=TRAITS;
-						}
-					}								
-				}
+		return institution;
+	}
+	
+	/**
+	 * Before the invasion, a free institution has to be taken as 
+	 * the representation of the invaders, so they can refer to it
+	 * as they representative.
+	 */
+	protected void invade(int r, int c, int institution){
+		move_to_institution(r, c, institution);
+		for (int f=0; f < FEATURES; f++){
+			beliefs[r][c][f]=TRAITS;
+		}
+	}
+	
+	@Override
+	protected void convert_institution(int r, int c){
+		for (int f = 0; f < FEATURES; f++) {
+			institution_beliefs[r*ROWS+c][f] = TRAITS;
+		}
+	}
+
+	
+	@Override
+	protected void convert_institution_trait(int r, int c, double prob){
+		for (int f = 0; f < FEATURES; f++) {
+			if (Math.random() < prob) {
+				institution_beliefs[r*ROWS+c][f] = TRAITS;
 			}
 		}
-	
-	}
-
-	/**
-	 * Convert entire institution with certain probability
-	 * @param prob
-	 */
-	protected void institutional_conversion(double prob){
-		for (int i = 0; i < ROWS*COLS; i++ ){
-			if (institutionsN[i] > 0){
-				if (Math.random() < prob) {
-					for (int f = 0; f < FEATURES; f++) {
-						institution_beliefs[i][f] = TRAITS;
-					}
-				}
-			}			
-		}		
-	}
-	
-	/**
-	 * Convert traits of institutions with certain probability
-	 * @param prob
-	 */
-	protected void institutional_trait_conversion(double prob){
-		for (int i = 0; i < ROWS*COLS; i++ ){
-			if (institutionsN[i] > 0){
-				for (int f = 0; f < FEATURES; f++) {
-					if (Math.random() < prob) {
-						institution_beliefs[i][f] = TRAITS;
-					}
-				}
-
-			}			
-		}		
-	}
+	}	
 
 	/**
 	 * A genocide would indicate traits as dead.
 	 * 
 	 * @param probability
 	 */
-	protected void genocide(double prob){
-		int institution = 0;
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				institution = institutions[r][c];
-				if (institutionsN[institution] > 1){
-					abandon_institution(r, c);
-					institution = search_free_institution(r,c);
-					
-					institutions[r][c] = institution;
-					institutionsN[institution] = 1;
-					
-					countryman_right_r[r][c] = r;
-					countryman_right_c[r][c] = c;
-					countryman_left_r[r][c] = r;
-					countryman_left_c[r][c] = c;
-				}
-				
-				for (int f = 0; f < FEATURES; f++) {
-					if (prob > Math.random()){
-						beliefs[r][c][f] = DEAD_TRAIT;
-						institution_beliefs[institution][f] = INACTIVE_TRAIT;						
-					}
-				}
-			}
+	protected void kill_individual(int r, int c){
+		int institution = institutions[r][c];
+
+		if (institutionsN[institution] > 1){
+			abandon_institution(r, c);
+			institution = search_free_institution(r,c);
+			
+			institutions[r][c] = institution;
+			institutionsN[institution] = 1;
+			
+			countryman_right_r[r][c] = r;
+			countryman_right_c[r][c] = c;
+			countryman_left_r[r][c] = r;
+			countryman_left_c[r][c] = c;
+		}
+		
+		for (int f = 0; f < FEATURES; f++) {
+			beliefs[r][c][f] = DEAD_TRAIT;
+			institution_beliefs[institution][f] = INACTIVE_TRAIT;						
 		}
 	}
+
 	
 	/**
 	 * Abandon my institution
@@ -875,17 +805,15 @@ public class Ulloa extends Axelrod {
 		
 	}
 	
-	/** 
-	 * Move from my institution to my neighbors
+	/**
+	 * Move to another institution.
 	 * 
 	 * @param r
 	 * @param c
-	 * @param nr
-	 * @param nc
+	 * @param neighbors_institution
 	 */
-	private void move_to_institution (int r, int c, int nr, int nc){
-		institution = institutions[r][c];
-		neighbors_institution = institutions[nr][nc];
+	private void move_to_institution (int r, int c, int neighbors_institution){
+		institution = institutions[r][c];	
 		
 		// its institution lost a citizen
 		institutionsN[institution]--;
@@ -927,9 +855,7 @@ public class Ulloa extends Axelrod {
 	protected void update_gui(){
 		super.update_gui();
 		update_institutions_graph();
-		print_alife_institutional_beliefs_space();
-		print_alife_institutions();
-		print_institutional_beliefs_association();
+		print_institutional_beliefs_space();
 	}
 
 	protected void update_institutions_graph(){
@@ -939,86 +865,75 @@ public class Ulloa extends Axelrod {
 		CulturalSimulator.graph_institutions.update();	
 	}
 
-	protected void print_institutional_beliefs_association(){
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
-		int institution = 0;
-		String ohex = "";
-		
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				
-				institution = institutions[r][c];
-				ohex = "";
-				for (int f = 0; f < FEATURES; f++) {
-					if (institution_beliefs[institution][f] == -1){
-						ohex += Integer.toHexString(15);
-					} else if (institution_beliefs[institution][f] == -2){
-						ohex += Integer.toHexString(0);
-					} else {
-						ohex += Integer.toHexString(institution_beliefs[institution][f]+1);
-					}
-				}
-				ohex = "#" + ohex;
-	
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
-			}
-		}
-		
-		
-		
-		CulturalSimulator.set_institutional_beliefs_association(image);
-	}
 
-	protected void print_alife_institutional_beliefs_space(){
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+	protected void print_institutional_beliefs_space(){
+		BufferedImage alife_institutional_beliefs_space_image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+		String ohex_alife_institutions_beliefs_space_image = "";
+		
+		BufferedImage alife_insititutions_image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+		String alife_institution_ohex;
+		
+		BufferedImage institutonal_beliefs_association_image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+		String institutonal_beliefs_association_ohex = "";
+		
 		int institution = 0;
-		String ohex = "";
+		int belonging_institution = 0;
+
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				ohex = "";
 				institution = r * COLS + c;
+				
+				ohex_alife_institutions_beliefs_space_image = "";
+				alife_institution_ohex = "";
+
+				
+				// Alife institutional Belief Space
 				if (institutionsN[institution] == 0){
-					ohex = "#000000";
+					ohex_alife_institutions_beliefs_space_image = "#000000";
 				} else {
 					for (int f = 0; f < FEATURES; f++) {
 						if (institution_beliefs[institution][f] == -1){
-							ohex += Integer.toHexString(15);
+							ohex_alife_institutions_beliefs_space_image += Integer.toHexString(15);
 						} else {
-							ohex += Integer.toHexString(institution_beliefs[r*COLS+c][f]+1);	
+							ohex_alife_institutions_beliefs_space_image += Integer.toHexString(institution_beliefs[r*COLS+c][f]+1);	
 						}
 					}
-					ohex = "#" + ohex;
+					ohex_alife_institutions_beliefs_space_image = "#" + ohex_alife_institutions_beliefs_space_image;
 				}
 				
-								
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
-			}
-		}
-		
-		CulturalSimulator.set_alife_institutional_beliefs_space(image);
-	}
-
-	protected void print_alife_institutions(){
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
-		int institution = 0;
-		String ohex;
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				ohex = "";
-				institution = r*COLS+c;
-				
+				// Alife Institutions
 				if (institutionsN[institution] == 0){
-					ohex = "#000000";
+					alife_institution_ohex = "#000000";
 				} else {
-					ohex = "#ffffff";
+					alife_institution_ohex = "#ffffff";
 				}
 				
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
+				// Assoation of the agent to the instution belief space
+				belonging_institution = institutions[r][c];
+				
+				institutonal_beliefs_association_ohex = "";
+				for (int f = 0; f < FEATURES; f++) {
+					if (institution_beliefs[belonging_institution][f] == -1){
+						institutonal_beliefs_association_ohex += Integer.toHexString(15);
+					} else if (institution_beliefs[belonging_institution][f] == -2){
+						institutonal_beliefs_association_ohex += Integer.toHexString(0);
+					} else {
+						institutonal_beliefs_association_ohex += Integer.toHexString(institution_beliefs[belonging_institution][f]+1);
+					}
+				}
+				institutonal_beliefs_association_ohex = "#" + institutonal_beliefs_association_ohex;
+						
+				alife_insititutions_image.setRGB(r, c, Color.decode(alife_institution_ohex).getRGB());
+				alife_institutional_beliefs_space_image.setRGB(r, c, Color.decode(ohex_alife_institutions_beliefs_space_image).getRGB());
+				institutonal_beliefs_association_image.setRGB(r, c, Color.decode(institutonal_beliefs_association_ohex).getRGB());
+
+			
 			}
 		}
 		
-		CulturalSimulator.set_alife_institutions(image);
-		
+		CulturalSimulator.set_institutional_beliefs_association(institutonal_beliefs_association_image);
+		CulturalSimulator.set_alife_institutions(alife_insititutions_image);
+		CulturalSimulator.set_alife_institutional_beliefs_space(alife_institutional_beliefs_space_image);
 	}
 
 	/**
@@ -1060,7 +975,6 @@ public class Ulloa extends Axelrod {
 	    	}
 	    }
 
-	
 	    
 	    // This should never happen either
 	    return -99999;

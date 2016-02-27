@@ -71,13 +71,30 @@ public class ControllerBatch extends Controller
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
-    public void load_tasks(ArrayList<String> conf_files, int repetitions) {
+    public void load_tasks(ArrayList<String> sim_files, int repetitions) {
     	tasks = new ArrayList<Simulation>();
 
-    	for (Iterator<String> iterator = conf_files.iterator(); iterator.hasNext();) {
+    	for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
 			String string = (String) iterator.next();
 			for (int j = 0; j < repetitions; j++) {
     			tasks.add(this.load_simulation(string));	
+			}	
+		}
+    }
+    
+	/**
+	 * Open the files and creates the tasks for the experiments
+	 * @throws FileNotFoundException
+	 */
+    public void load_tasks_with_events(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) {
+    	tasks = new ArrayList<Simulation>();
+
+    	for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
+			String string = (String) iterator.next();
+			for (int j = 0; j < repetitions; j++) {
+				Simulation s = this.load_simulation(string);
+				s.events(events);
+    			tasks.add(s);	
 			}	
 		}
     }
