@@ -224,13 +224,13 @@ public class CulturalParameters extends JDialog {
 				panel_2.setLayout(null);
 				{
 					JLabel lblNewLabel = new JLabel("Iterations: ");
-					lblNewLabel.setToolTipText("How many checkpoints would you like to register? The total number of generations will be multiplied by the checkpoints!");
+					lblNewLabel.setToolTipText("How many iterations would you let the simulation run for? ");
 					lblNewLabel.setBounds(10, 23, 64, 14);
 					panel_2.add(lblNewLabel);
 				}
 				{
-					JLabel lblCheckpoint = new JLabel("Checkpoints:");
-					lblCheckpoint.setToolTipText("How often do you want to save results, update graphs, check for Pause/Stop/Resume states?");
+					JLabel lblCheckpoint = new JLabel("Speed:");
+					lblCheckpoint.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
 					lblCheckpoint.setBounds(10, 48, 64, 14);
 					panel_2.add(lblCheckpoint);
 				}
@@ -242,13 +242,13 @@ public class CulturalParameters extends JDialog {
 				}
 				
 				sp_iterations = new JSpinner();
-				sp_iterations.setToolTipText("checkpoints!");
-				sp_iterations.setModel(new SpinnerNumberModel(new Integer(1000), null, null, new Integer(1)));
-				sp_iterations.setBounds(84, 20, 56, 20);
+				sp_iterations.setToolTipText("How many iterations would you let the simulation run for? ");
+				sp_iterations.setModel(new SpinnerNumberModel(new Integer(100000), null, null, new Integer(1)));
+				sp_iterations.setBounds(67, 20, 73, 20);
 				panel_2.add(sp_iterations);
 				
 				sp_checkpoints = new JSpinner();
-				sp_checkpoints.setToolTipText("How often do you want to save results, update graphs, check for Pause/Stop/Resume states?");
+				sp_checkpoints.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
 				sp_checkpoints.setModel(new SpinnerNumberModel(new Integer(100), null, null, new Integer(1)));
 				sp_checkpoints.setBounds(84, 45, 56, 20);
 				panel_2.add(sp_checkpoints);
@@ -374,13 +374,13 @@ public class CulturalParameters extends JDialog {
 						tf_results_dir.setBounds(109, 278, 453, 20);
 						contentPanel.add(tf_results_dir);
 						tf_results_dir.setColumns(10);
-						tf_results_dir.setText(jfc_results.getCurrentDirectory().getAbsolutePath());
+						tf_results_dir.setText(jfc_results.getCurrentDirectory().getAbsolutePath() + "\\");
 						
 						JButton btnBrowse = new JButton("Browse");
 						btnBrowse.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
 								if (jfc_results.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
-									tf_results_dir.setText(jfc_results.getSelectedFile().getAbsolutePath());
+									tf_results_dir.setText(jfc_results.getSelectedFile().getAbsolutePath() + "\\");
 								}
 							}
 						});

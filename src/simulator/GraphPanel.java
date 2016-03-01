@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.util.ArrayList;
@@ -27,8 +26,11 @@ public class GraphPanel extends JPanel {
 
     private int padding = 5;
     private int labelPadding = 12;
+    
     private Color lineColor = new Color(44, 102, 230, 180);
     private Color lineColor2 = new Color(230, 102, 44, 180);
+    private Color lineColor3 = new Color(44, 230, 102, 180);
+    
     private Color gridColor = new Color(200, 200, 200, 200);
     private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
     private int pointWidth = 0;
@@ -37,14 +39,17 @@ public class GraphPanel extends JPanel {
 	private int maxScore = -1;
     public ArrayList<Double> scores;
     public ArrayList<Double> scores2;
+    public ArrayList<Double> scores3;
 
-    public GraphPanel(ArrayList<Double> scores, ArrayList<Double> scores2) {
+    public GraphPanel(ArrayList<Double> scores, ArrayList<Double> scores2, ArrayList<Double> scores3) {
         this.scores = scores;
         this.scores2 = scores2;
+        this.scores3 = scores3;
     }
     public GraphPanel() {
         this.scores = new ArrayList<Double>();
         this.scores2 = new ArrayList<Double>();
+        this.scores3 = new ArrayList<Double>();
         this.setMaxScore(1);
         this.setMinScore(0);
     }
@@ -58,20 +63,6 @@ public class GraphPanel extends JPanel {
 
         double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (scores.size() - 1);
         double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxScore() - getMinScore());
-
-        List<Point> graphPoints = new ArrayList<>();
-        for (int i = 0; i < scores.size(); i++) {
-            int x1 = (int) (i * xScale + padding + labelPadding);
-            int y1 = (int) ((getMaxScore() - scores.get(i)) * yScale + padding);
-            graphPoints.add(new Point(x1, y1));
-        }
-        
-        List<Point> graphPoints2 = new ArrayList<>();
-        for (int i = 0; i < scores2.size(); i++) {
-            int x1 = (int) (i * xScale + padding + labelPadding);
-            int y1 = (int) ((getMaxScore() - scores2.get(i)) * yScale + padding);
-            graphPoints2.add(new Point(x1, y1));
-        }
 
         // draw white background
         g2.setColor(Color.WHITE);
@@ -98,12 +89,33 @@ public class GraphPanel extends JPanel {
         }
 
         // and for x axis
-        for (int i = 0; i < scores.size(); i++) {
-            if (scores.size() > 1) {
-                int x0 = i * (getWidth() - padding * 2 - labelPadding) / (scores.size() - 1) + padding + labelPadding;
-                int x1 = x0;
-                int y0 = getHeight() - padding - labelPadding;
-                int y1 = y0 - pointWidth;
+        if (scores.size() > 1) {
+        	Stroke oldStroke = g2.getStroke();
+            int x0, x1, y0, y1;
+            int bx0, bx1, by0, by1;
+            bx1 = (int) (0 * xScale + padding + labelPadding);
+            by1 = (int) ((getMaxScore() - scores.get(0)) * yScale + padding);
+            
+            int rx0, rx1 = 0, ry0, ry1 = 0;
+            if (scores2.size() > 0){
+	            rx1 = (int) (0 * xScale + padding + labelPadding);
+	            ry1 = (int) ((getMaxScore() - scores2.get(0)) * yScale + padding);
+            }
+            int gx0, gx1 = 0, gy0, gy1 = 0;
+            if (scores3.size() > 0){
+	            gx1 = (int) (0 * xScale + padding + labelPadding);
+	            gy1 = (int) ((getMaxScore() - scores3.get(0)) * yScale + padding);
+            }
+        	
+        	
+        	for (int i = 0; i < scores.size(); i++) {
+        		
+                x0 = i * (getWidth() - padding * 2 - labelPadding) / (scores.size() - 1) + padding + labelPadding;
+                x1 = x0;
+                y0 = getHeight() - padding - labelPadding;
+                y1 = y0 - pointWidth;
+
+                g2.setStroke(oldStroke);
                 if ((i % ((int) ((scores.size() / 5.0)) + 1)) == 0) {
                     g2.setColor(gridColor);
                     g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
@@ -114,45 +126,43 @@ public class GraphPanel extends JPanel {
                     g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
                 }
                 g2.drawLine(x0, y0, x1, y1);
+                
+                g2.setStroke(GRAPH_STROKE);
+                
+                g2.setColor(lineColor);                
+                bx0 = bx1;
+                by0 = by1;
+                bx1 = (int) (i * xScale + padding + labelPadding);
+                by1 = (int) ((getMaxScore() - scores.get(i)) * yScale + padding);
+                g2.drawLine(bx0, by0, bx1, by1);
+                
+                if (scores2.size() > 0){
+	                g2.setColor(lineColor2);
+	                rx0 = rx1;
+	                ry0 = ry1;
+	                rx1 = (int) (i * xScale + padding + labelPadding);
+	                ry1 = (int) ((getMaxScore() - scores2.get(i)) * yScale + padding);
+	                g2.drawLine(rx0, ry0, rx1, ry1);
+                }
+                
+                if (scores3.size() > 0){
+	                g2.setColor(lineColor3);
+	                gx0 = gx1;
+	                gy0 = gy1;
+	                gx1 = (int) (i * xScale + padding + labelPadding);
+	                gy1 = (int) ((getMaxScore() - scores3.get(i)) * yScale + padding);
+	                g2.drawLine(gx0, gy0, gx1, gy1);
+                }
+                
             }
+        	g2.setStroke(oldStroke);
         }
 
-        // create x and y axes 
+        // create x and y axes
+        g2.setColor(Color.BLACK);
         g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, padding + labelPadding, padding);
         g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, getWidth() - padding, getHeight() - padding - labelPadding);
-
-        Stroke oldStroke = g2.getStroke();
-        g2.setColor(lineColor);
-        g2.setStroke(GRAPH_STROKE);
-        for (int i = 0; i < graphPoints.size() - 1; i++) {
-            int x1 = graphPoints.get(i).x;
-            int y1 = graphPoints.get(i).y;
-            int x2 = graphPoints.get(i + 1).x;
-            int y2 = graphPoints.get(i + 1).y;
-            g2.drawLine(x1, y1, x2, y2);
-        }
-        g2.setStroke(oldStroke);
         
-//        g2.setColor(pointColor);
-//        for (int i = 0; i < graphPoints.size(); i++) {
-//            int x = graphPoints.get(i).x - pointWidth / 2;
-//            int y = graphPoints.get(i).y - pointWidth / 2;
-//            int ovalW = pointWidth;
-//            int ovalH = pointWidth;
-//            g2.fillOval(x, y, ovalW, ovalH);
-//        }
-        
-        
-        g2.setColor(lineColor2);
-        g2.setStroke(GRAPH_STROKE);
-        for (int i = 0; i < graphPoints2.size() - 1; i++) {
-            int x1 = graphPoints2.get(i).x;
-            int y1 = graphPoints2.get(i).y;
-            int x2 = graphPoints2.get(i + 1).x;
-            int y2 = graphPoints2.get(i + 1).y;
-            g2.drawLine(x1, y1, x2, y2);
-        }
-        g2.setStroke(oldStroke);
     }
 
 //    @Override
@@ -208,12 +218,14 @@ public class GraphPanel extends JPanel {
     public void clean(){
     	scores = new ArrayList<Double>();
 		scores2 = new ArrayList<Double>();
+		scores3 = new ArrayList<Double>();
 		update();
     }
     
     private static void createAndShowGui() {
         ArrayList<Double> scores = new ArrayList<>();
         ArrayList<Double> scores2 = new ArrayList<>();
+        ArrayList<Double> scores3 = new ArrayList<>();
         
         Random random = new Random();
         int maxDataPoints = 40;
@@ -221,9 +233,10 @@ public class GraphPanel extends JPanel {
         for (int i = 0; i < maxDataPoints; i++) {
             scores.add((double) random.nextDouble() * maxScore);
             scores2.add((double) random.nextDouble() * maxScore);
+            scores3.add((double) random.nextDouble() * maxScore);
 //            scores.add((double) i);
         }
-        GraphPanel mainPanel = new GraphPanel(scores, scores2);
+        GraphPanel mainPanel = new GraphPanel(scores, scores2, scores3);
         mainPanel.setPreferredSize(new Dimension(800, 600));
         JFrame frame = new JFrame("DrawGraph");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

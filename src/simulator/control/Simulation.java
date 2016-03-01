@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
@@ -49,11 +50,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * ROWS of the world
 	 */
-	public int ROWS = 32;
+	public int ROWS = 100;
 	/**
 	 * COLS of the World
 	 */
-	public int COLS = 32;
+	public int COLS = 100;
 	/**
 	 * Total agents in the world
 	 */
@@ -132,12 +133,20 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected int [][][] beliefs = null;
 	
+	/**
+	 * Institutional Beliefs
+	 */
+	protected int [][] institution_beliefs = null;
+	/**
+	 * Size of the N institution
+	 */
+	protected int [] institutionsN = null;	
 	
 	// Main loop control
 	/**
 	 * Number of ITERATIONS of the checkpoints
 	 */
-	public int ITERATIONS = 1000;
+	public int ITERATIONS = 1000000;
 	/**
 	 * Save results and check thread status each 1000 iterations
 	 */
@@ -167,7 +176,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Internal iteration of the simulation counter
 	 */
-	protected int generations = 0;
+	protected int generation = 0;
 	
 	/**
 	 * Flag for recursion
@@ -185,6 +194,17 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Size of the current cluster
 	 */
 	private int cluster_size = 0;
+	
+	
+	/**
+	 * Average  row of the present culture in the recursion
+	 */
+	private double ave_row = -1;
+	/**
+	 * Average  row of the present culture in the recursion
+	 */
+	private double ave_col = -1;
+	
 
 	// Main simulation outputs
 	/**
@@ -204,13 +224,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected int biggest_institution = 0;
 	/**
-	 * Number of members of the biggest borderless cluster
+	 * Number of members of the biggest Newmann cluster
 	 */
-	protected int biggest_borderless_cluster = 0;
+	protected int biggest_newmann_cluster = 0;
 	/**
-	 * Number of borderless clusters
+	 * Number of Newmann clusters
 	 */
-	protected int culture_borderlessN;
+	protected int culture_newmannN;
 	/**
 	 * Energy of the System
 	 */
@@ -220,11 +240,42 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected int foreiners_traits = 0;
 	/**
-	 * Similarity with the initial state
+	 * Number of alive traits
 	 */
-	protected int similarity;
+	protected int alife_traits = 0;
+	/**
+	 * Pixel similarity with the initial state
+	 */
+	protected int pixel_similarity;
+	/**
+	 * Pixel similarity with the initial state
+	 */
+	protected int pixel_institution_similarity;
 	
-
+	/**
+	 * Defines the index of the similarity vectors. There is 4 values, the first one
+	 * being the interaction of the following three: position, size and beliefs
+	 */
+	protected static final int FULL_SIM = 0;
+	protected static final int POS_SIM = 1;
+	protected static final int SIZ_SIM = 2;
+	protected static final int BEL_SIM = 3;
+	/**
+	 * Newmann's culture similarity with the initial state
+	 */
+	private double[] newmann_similarity;
+	/**
+	 * Culture similarity with the initial state
+	 */
+	private double[] culture_similarity;
+	/**
+	 * Average center of the culture, number of people per culture, and beliefs
+	 */
+	protected List<CultureStatistics> culture_stats;
+	/**
+	 * Average center of the culture, number of people per culture, and beliefs (calculated as Newmann's)
+	 */
+	protected List<CultureStatistics> newmann_stats;
 	
 	/**
 	 * Indicates if the thread should be running. If not, it would stop or suspend as 
@@ -321,6 +372,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			starter = (Simulation) ois.readObject();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
@@ -356,7 +408,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			e.printStackTrace();
 		}
 		
-		if (generations == 0){
+		if (generation == 0){
 			try {
 				simulation_setup();
 			} catch (Exception e1) {
@@ -374,8 +426,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			}
 			log.print("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
 			save_state();
+			log.print("(ID: " + IDENTIFIER +  "): " + " State Saved. \n");
 			try {
-				writer.write(results());				
+				log.print("(ID: " + IDENTIFIER +  "): " + " Results not written. \n");
+				writer.write(results());
+				log.print("(ID: " + IDENTIFIER +  "): " + " Results written. \n");
 			} catch (IOException e) {
 				e.printStackTrace();
 				log.print("writer.write(results()); failed");
@@ -505,7 +560,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 					}
 					neighboursN[r][c] = n;
 				}
-			}			
+			}
+			
+			culture_stats = new ArrayList<CultureStatistics>();
+			newmann_stats  = new ArrayList<CultureStatistics>();
+			newmann_similarity = new double[4];
+			culture_similarity = new double[4];
+			
 		}
 		
 		BufferedWriter writer = null;
@@ -536,6 +597,10 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		flags = null;
 		cultures = null;
 		normal_probability = null;
+		culture_stats = null;
+		newmann_stats  = null;
+		newmann_similarity = null;
+		culture_similarity = null;
 	}
 
 	/**
@@ -549,6 +614,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		for (iteration = 0; playing && iteration < ITERATIONS; iteration++) {
 			//output.print("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
 			run_iteration();
+			iteration += CHECKPOINT;
+			generation += iteration;
+			
 			r = results();
 			// write results of the current checkpoint
 			try {
@@ -577,12 +645,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 
 		log.print("(ID: " + IDENTIFIER +  "): " + "Executed in single mode (no multi-thread). \n");
 		String r = "";
-		for (iteration = 0; iteration < ITERATIONS; iteration++) {
+		for (iteration = 0; iteration < ITERATIONS; iteration += CHECKPOINT) {
 			
 			check_for_events();
 			update_gui();
-			run_iteration();
-			generations += iteration * CHECKPOINT;
+			run_iteration();			
+			generation += CHECKPOINT;
 					
 			r = results();
 			// write results of the current checkpoint
@@ -714,10 +782,38 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		return "id,timestamp,duration,iterations,checkpoint,"
 				+ "type,rows,cols,features,traits,radius,"
 				+ "alpha,alpha_prime,freq_dem,freq_prop,mutation,selection_error,"
-				+ "iteration,generations,"
-				+ "cultures,biggest_cluster,institutions,biggest_institution,"
-				+ "borderless_cultures, biggest_borderless_culture, energy, foreign_dispersion\n";		
+				+ "epoch,generation,iteration,"
+				+ "energy,"
+				+ "cultures,biggest_cluster,full_sim,"
+				+ "pos_sim,siz_sim,bel_sim,"
+				+ "newmann_cultures, biggest_newmann_culture,newman_full_sim"
+				+ "newmann_pos_sim,newmann_siz_sim, newmann_bel_sim"
+				+ "institutions,biggest_institution,pixel_institution_similarity,"
+				+ "foreign,alife,pixel_similarity\n";		
 	}
+
+
+	/**
+	 * Create a CSV line for the results
+	 * @return a CSV line with current results
+	 */
+	public String get_results() {
+		return  IDENTIFIER + "," +
+				new java.sql.Timestamp(startTime) + "," +
+				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
+				ITERATIONS + "," + CHECKPOINT + "," + 
+				TYPE + "," + ROWS + "," + COLS + "," + FEATURES + "," +	TRAITS + "," + RADIUS + "," +
+				ALPHA + "," + ALPHA_PRIME + "," + FREQ_DEM + "," + FREQ_PROP + "," + MUTATION + "," + SELECTION_ERROR + "," +
+				epoch + "," + generation + "," + iteration + "," +				
+				energy + "," + 
+				cultureN  + "," + biggest_cluster + "," + culture_similarity[FULL_SIM] + "," + 
+				culture_similarity[POS_SIM] + "," + culture_similarity[SIZ_SIM] + "," + culture_similarity[BEL_SIM] + "," +
+				culture_newmannN + "," + biggest_newmann_cluster + "," + newmann_similarity[FULL_SIM] + "," +
+				newmann_similarity[POS_SIM] + "," + newmann_similarity[SIZ_SIM] + "," + newmann_similarity[BEL_SIM] + "," +				
+				alife_institutions + "," + biggest_institution + "," + pixel_institution_similarity + "," + 
+				alife_traits + "," + foreiners_traits + "," + pixel_similarity + "\n";			
+	}
+	
 	
 	/**
 	 * Generates an identification of the system and its current state
@@ -730,55 +826,30 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				"M/S:" + MUTATION + "/" + SELECTION_ERROR + " | " +
 				"a/a\':" + ALPHA + "/" + ALPHA_PRIME + " | " +
 				"D/P:" + FREQ_DEM + "/" + FREQ_PROP + 
-				" @ " + generations * CHECKPOINT + " (" +
-				"Cultures: " + cultureN + "/" + biggest_cluster + " | " +
-				"Borderless: " + culture_borderlessN + "/" + biggest_borderless_cluster + " | " +
-				"Institution: " + alife_institutions + "/" + biggest_institution + " | " +
-				"E/Dispersion: " + energy + "/" + foreiners_traits  + " | " + 
-				"Similarity: " + similarity + "/-" + ")";	
+				" @ " + epoch + "|" + generation + " (" +
+				"Energy: " + energy + " | " +
+				"Cultures: " + cultureN + "/" + biggest_cluster + "/" + 				
+				String.format("%.1g", culture_similarity[FULL_SIM]) + "=" + 
+				String.format("%.1g", culture_similarity[POS_SIM]) + "*" + 
+				String.format("%.1g", culture_similarity[SIZ_SIM]) + "*" + 
+				String.format("%.1g", culture_similarity[BEL_SIM]) + " | " +
+				"Newmann's: " + culture_newmannN + "/" + biggest_newmann_cluster + "/" + 
+				String.format("%.1g", newmann_similarity[FULL_SIM]) + "=" + 
+				String.format("%.1g", newmann_similarity[POS_SIM]) + "*" + 
+				String.format("%.1g", newmann_similarity[SIZ_SIM]) + "*" + 
+				String.format("%.1g", newmann_similarity[BEL_SIM]) + " | " +
+				"Inst: " + alife_institutions + "/" + biggest_institution + "/" + pixel_institution_similarity + " | " +
+				"Pixel: " + foreiners_traits + "/" + alife_institutions  + "/" + pixel_similarity + ")";
 	}
 
-	/**
-	 * Create a CSV line for the results
-	 * @return a CSV line with current results
-	 */
-	public String get_results() {
-		return  IDENTIFIER + "," +
-				new java.sql.Timestamp(startTime) + "," +
-				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
-				ITERATIONS + "," +  
-				CHECKPOINT + "," +  
-				TYPE + "," +  
-				ROWS + "," +
-				COLS + "," +  
-				FEATURES + "," +  
-				TRAITS + "," +  
-				RADIUS + "," +
-				ALPHA + "," +  
-				ALPHA_PRIME + "," +  
-				FREQ_DEM + "," +  
-				FREQ_PROP + "," +  
-				MUTATION + "," +  
-				SELECTION_ERROR + "," +
-				iteration * CHECKPOINT + "," +
-				generations + "," +
-				cultureN  + "," +
-				biggest_cluster + "," +
-				alife_institutions + "," +
-				biggest_institution + "," +
-				culture_borderlessN + "," +
-				biggest_borderless_cluster + "," +
-				energy + "," +
-				foreiners_traits + "\n";			
-	}
 
 	/**
 	 * Count the cluster and returns a CSV line with the results
 	 * @return a CSV line with the results
 	 */
 	protected String results() {
-		count_clusters();
-		count_borderless_clusters();
+		calculate_stats();
+		calculate_newmann_stats();
 		calculate_responses();
 		return this.get_results();				
 	}
@@ -786,22 +857,38 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Count clusters size and number of cultures
 	 */
-	private void count_clusters() {
+	private void calculate_stats() {
 		biggest_cluster = 0;
 		cultureN = 0;
+		CultureStatistics cs = null;
+		culture_stats.clear();
+		
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
 				if (flags[r][c] != flag_mark){
+										
 					cluster_size = 0;
-					expand(r, c);					
+					ave_row = 0;
+					ave_col = 0;
+					
+					calculate_stats_rec(r, c);					
 					if (cluster_size > biggest_cluster) {
 						biggest_cluster = cluster_size;						
 					}
+					
+					if (cluster_size > 2){
+
+						cs = new CultureStatistics(cluster_size, ave_row/cluster_size, ave_col/cluster_size, beliefs[r][c]);
+						culture_stats.add(cs);
+					}
+					
 					cultureN++;
 				}
 			}
 		}
 		flag_mark = !flag_mark;
+		
+		
 	}
 
 	/**
@@ -809,50 +896,67 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param r
 	 * @param c
 	 */
-	private void expand(int r, int c) {
+	private void calculate_stats_rec(int r, int c) {
 		flags[r][c] = flag_mark;
 		cultures[r][c] = cultureN;
 		cluster_size++;
+		ave_row += r;
+		ave_col += c;
 		
 		int nr = r - 1;
 		int nc = c;
 		if ( nr >= 0 && flags[nr][nc] != flag_mark && this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
-			expand(nr, nc);					
+			calculate_stats_rec(nr, nc);					
 		}
 		nr = r + 1;
 		if ( nr < ROWS && flags[nr][nc] != flag_mark && this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
-			expand(nr, nc);					
+			calculate_stats_rec(nr, nc);					
 		}
 		nr = r;
 		nc = c - 1;
 		if ( nc >= 0 && flags[nr][nc] != flag_mark && this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
-			expand(nr, nc);					
+			calculate_stats_rec(nr, nc);					
 		}
 		nc = c + 1;
 		if ( nc < COLS && flags[nr][nc] != flag_mark && this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
-			expand(nr, nc);					
+			calculate_stats_rec(nr, nc);					
 		}		
 	}
 
 	/**
 	 * Count the number of cultures considering neighborhoods of the size of the radius 
 	 */
-	private void count_borderless_clusters() {
-		biggest_borderless_cluster = 0;
-		culture_borderlessN = 0;
+	private void calculate_newmann_stats() {
+		biggest_newmann_cluster = 0;
+		culture_newmannN = 0;
+		CultureStatistics cs = null;
+		newmann_stats.clear();
+		
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
 				if (flags[r][c] != flag_mark){
-					cluster_size = 0;
-					expand_borderless(r, c);					
-					if (cluster_size > biggest_borderless_cluster) {
-						biggest_borderless_cluster = cluster_size;						
+					
+					
+					cluster_size = 0;	
+					ave_row = 0;
+					ave_col = 0;
+					
+					calculate_newmann_stats_rec(r, c);					
+					if (cluster_size > biggest_newmann_cluster) {
+						biggest_newmann_cluster = cluster_size;						
 					}
-					culture_borderlessN++;
+					
+					if (cluster_size > 2){
+						cs = new CultureStatistics(cluster_size, ave_row/cluster_size, ave_col/cluster_size, beliefs[r][c]);
+						newmann_stats.add(cs);
+						
+					}
+					culture_newmannN++;
 				}
 			}
 		}
 		flag_mark = !flag_mark;
+		
 	}
 
 	/** 
@@ -860,10 +964,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param r
 	 * @param c
 	 */
-	private void expand_borderless(int r, int c) {
+	private void calculate_newmann_stats_rec(int r, int c) {
 		flags[r][c] = flag_mark;
-		cultures[r][c] = culture_borderlessN;
+		cultures[r][c] = culture_newmannN;
 		cluster_size++;
+		ave_row += r;
+		ave_col += c;
 		
 		int nr = 0;
 		int nc = 0;
@@ -873,7 +979,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			nc = neighboursY[r][c][n];
 			if ( flags[nr][nc] != flag_mark 
 					&& this.is_same_culture(beliefs[r][c], beliefs[nr][nc])){
-				expand_borderless(nr, nc);
+				calculate_newmann_stats_rec(nr, nc);
 			}
 		}
 		
@@ -904,17 +1010,30 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * and the similarity with the starter state
 	 */
 	private void calculate_responses() {
-		similarity = 0;
+		pixel_similarity = 0;
 		energy = 0;
+		alife_traits = 0;
 		foreiners_traits = 0;
+		pixel_institution_similarity = 0;
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
+				if (institutionsN[r*ROWS+c] > 0 && starter.institutionsN[r*ROWS+c] > 0){
+					for (int f = 0; f < FEATURES; f++) {
+						if (institution_beliefs[r*ROWS+c][f] == starter.institution_beliefs[r*ROWS+c][f]){
+							pixel_institution_similarity++;						
+						}
+					}
+				}
+				
 				for (int f = 0; f < FEATURES; f++) {
 					if (beliefs[r][c][f] == starter.beliefs[r][c][f]){
-						similarity++;						
+						pixel_similarity++;						
 					}
 					if (beliefs[r][c][f] == TRAITS){
 						foreiners_traits++;
+					} 
+					if (beliefs[r][c][f] != DEAD_TRAIT){
+						alife_traits++;
 					} 
 					if (c+1 < COLS && (beliefs[r][c][f] != beliefs[r][c+1][f])){
 						energy++;
@@ -925,6 +1044,80 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				}
 			}
 		}
+
+		compare_stats(newmann_stats, starter.newmann_stats, newmann_similarity);
+		compare_stats(culture_stats, starter.culture_stats, culture_similarity);		
+
+	}
+	
+	private void compare_stats(List<CultureStatistics> stats1, List<CultureStatistics> stats2, double[] sims){
+		
+
+		if (stats1.size() == 0 || stats2.size() == 0){
+			sims[FULL_SIM] = 0.0;
+			sims[POS_SIM] = 0.0;
+			sims[SIZ_SIM] = 0.0;
+			sims[BEL_SIM] = 0.0;
+			return;
+		}
+		
+		if(stats1.size() < stats2.size()){
+			compare_stats(stats2, stats1, sims);
+			return;
+		}
+		
+		
+		sims[FULL_SIM] = 0.0;
+		sims[POS_SIM] = 0.0;
+		sims[SIZ_SIM] = 0.0;
+		sims[BEL_SIM] = 0.0;
+		double full_sim = 0;
+		double temp_full_sim = 0;
+		double pos_sim = 0;
+		double temp_pos_sim = 0;
+		double size_sim = 0;
+		double temp_size_sim = 0;
+		double bel_sim = 0;
+		double temp_bel_sim = 0;
+		
+		for (Iterator<CultureStatistics> i1 = stats1.iterator(); i1.hasNext();) {
+			CultureStatistics cs1 = (CultureStatistics) i1.next();
+			full_sim = 0;
+			pos_sim = 0;
+			size_sim = 0;
+			bel_sim = 0;
+			
+			for (Iterator<CultureStatistics> i2 = stats2.iterator(); i2.hasNext();) {
+				CultureStatistics cs2 = (CultureStatistics) i2.next();
+				temp_pos_sim = cs1.compare_positions(cs2);
+				if (pos_sim < temp_pos_sim){
+					pos_sim = temp_pos_sim;
+				}
+				temp_size_sim = cs1.compare_size(cs2);
+				if (size_sim < temp_size_sim){
+					size_sim = temp_size_sim;
+				}
+				temp_bel_sim = cs1.compare_beliefs(cs2);
+				if (bel_sim < temp_bel_sim){
+					bel_sim = temp_bel_sim;
+				}
+				temp_full_sim = temp_pos_sim * temp_size_sim * temp_bel_sim;
+				if (full_sim < temp_full_sim){
+					full_sim = temp_full_sim;
+				}
+			}
+
+			sims[FULL_SIM] += full_sim;
+			sims[POS_SIM] += pos_sim;
+			sims[SIZ_SIM] += size_sim;
+			sims[BEL_SIM] += bel_sim;
+		}
+		
+		sims[FULL_SIM] = sims[FULL_SIM]/stats1.size();
+		sims[POS_SIM] = sims[POS_SIM]/stats1.size();
+		sims[SIZ_SIM] = sims[SIZ_SIM]/stats1.size();
+		sims[BEL_SIM] = sims[BEL_SIM]/stats1.size();
+			
 	}
 
 	/**
@@ -1013,6 +1206,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * This method modifies the parameters of the simulation during execution.
 	 */
 	protected void set_parameters(){
+		ITERATIONS = (int) CulturalSimulator.sp_iterations.getValue();
+		CHECKPOINT = (int) CulturalSimulator.sp_checkpoints.getValue();
 		ALPHA = (float) CulturalSimulator.sp_influence.getValue();
 		ALPHA_PRIME = (float) CulturalSimulator.sp_loyalty.getValue();
 		MUTATION = (float) CulturalSimulator.sp_mutation.getValue();
@@ -1056,7 +1251,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	}
 	
 	/**
-	 * An event is distributed in a Newman neighborhood of radius
+	 * An event is distributed in a Newmann's neighborhood of radius
 	 * @param radius
 	 */
 	public void newman_event (int r, int c, int radius, Event e){
@@ -1185,25 +1380,53 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Add checkpoints to the interface
 	 */
 	private void update_culture_graphs(){
+
+		int total_features = TOTAL_AGENTS*FEATURES;
+		CulturalSimulator.graph_energy.scores.add((double) energy / total_features);
+		CulturalSimulator.l_energy_foreigners.setText(energy + "");
+		CulturalSimulator.graph_energy.update();
+		
 		CulturalSimulator.graph_cultures.scores.add((double) cultureN / TOTAL_AGENTS);
 		CulturalSimulator.graph_cultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
-		CulturalSimulator.l_cultures.setText(cultureN + "/" + biggest_cluster);
+		CulturalSimulator.graph_cultures.scores3.add(culture_similarity[FULL_SIM]);
+		CulturalSimulator.l_cultures.setText(cultureN + "/" + biggest_cluster + "/" 
+				+ String.format("%.2g", culture_similarity[FULL_SIM]));
 		CulturalSimulator.graph_cultures.update();
 		
-		CulturalSimulator.graph_borderless_cultures.scores.add((double) culture_borderlessN / TOTAL_AGENTS);
-		CulturalSimulator.graph_borderless_cultures.scores2.add((double) biggest_borderless_cluster / TOTAL_AGENTS);
-		CulturalSimulator.l_borderless.setText(culture_borderlessN + "/" + biggest_borderless_cluster);
-		CulturalSimulator.graph_borderless_cultures.update();
+		CulturalSimulator.graph_newmann_cultures.scores.add((double) culture_newmannN / TOTAL_AGENTS);
+		CulturalSimulator.graph_newmann_cultures.scores2.add((double) biggest_newmann_cluster / TOTAL_AGENTS);
+		CulturalSimulator.graph_newmann_cultures.scores3.add(newmann_similarity[FULL_SIM]);
+		CulturalSimulator.l_newmann.setText(culture_newmannN + "/" + biggest_newmann_cluster + "/" 
+				+ String.format("%.2g", newmann_similarity[FULL_SIM]));
+		CulturalSimulator.graph_newmann_cultures.update();
 		
-		CulturalSimulator.graph_energy_foreign_trait.scores.add((double) energy / (TOTAL_AGENTS*FEATURES));
-		CulturalSimulator.graph_energy_foreign_trait.scores2.add((double) foreiners_traits / (TOTAL_AGENTS*FEATURES));
-		CulturalSimulator.l_energy_foreigners.setText(energy + "/" + foreiners_traits);
-		CulturalSimulator.graph_energy_foreign_trait.update();
+		CulturalSimulator.graph_culture_similarity.scores.add(culture_similarity[POS_SIM]);
+		CulturalSimulator.graph_culture_similarity.scores2.add(culture_similarity[SIZ_SIM]);
+		CulturalSimulator.graph_culture_similarity.scores3.add(culture_similarity[BEL_SIM]);
+		CulturalSimulator.l_culture_similarity.setText(String.format("%.2g", culture_similarity[POS_SIM]) + "/"
+				+ String.format("%.2g", culture_similarity[SIZ_SIM]) + "/" 
+				+ String.format("%.2g", culture_similarity[BEL_SIM]));
+		CulturalSimulator.graph_culture_similarity.update();
 		
-		CulturalSimulator.graph_similarity.scores.add((double )similarity / (TOTAL_AGENTS*FEATURES));
-		CulturalSimulator.graph_similarity.scores2.add((double) similarity / (TOTAL_AGENTS*FEATURES));
-		CulturalSimulator.l_similarity.setText("" + similarity);
-		CulturalSimulator.graph_similarity.update();
+		CulturalSimulator.graph_newmann_similarity.scores.add(newmann_similarity[POS_SIM]);
+		CulturalSimulator.graph_newmann_similarity.scores2.add(newmann_similarity[SIZ_SIM]);
+		CulturalSimulator.graph_newmann_similarity.scores3.add(newmann_similarity[BEL_SIM]);
+		CulturalSimulator.l_newmann_similarity.setText(String.format("%.2g", newmann_similarity[POS_SIM]) + "/"
+				+ String.format("%.2g", newmann_similarity[SIZ_SIM]) + "/" 
+				+ String.format("%.2g", newmann_similarity[BEL_SIM]));
+		CulturalSimulator.graph_newmann_similarity.update();
+		
+		CulturalSimulator.graph_institutions.scores.add((double) alife_institutions / TOTAL_AGENTS);
+		CulturalSimulator.graph_institutions.scores2.add((double) biggest_institution / TOTAL_AGENTS);
+		CulturalSimulator.graph_institutions.scores3.add((double) pixel_institution_similarity / (alife_institutions*FEATURES));
+		CulturalSimulator.l_institutions.setText(alife_institutions + "/" + biggest_institution+ "/" + pixel_institution_similarity);
+		CulturalSimulator.graph_institutions.update();
+		
+		CulturalSimulator.graph_pixels.scores.add((double) alife_traits / total_features);
+		CulturalSimulator.graph_pixels.scores2.add((double) foreiners_traits / total_features);
+		CulturalSimulator.graph_pixels.scores3.add((double) pixel_similarity / total_features);
+		CulturalSimulator.l_pixels.setText(alife_traits + "/" + foreiners_traits + "/" + pixel_similarity);
+		CulturalSimulator.graph_pixels.update();	
 		
 	}
 	

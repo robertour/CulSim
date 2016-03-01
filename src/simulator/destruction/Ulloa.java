@@ -27,12 +27,6 @@ public class Ulloa extends Axelrod {
 	 */
 	protected int institutions[][] = null;
 	
-	/**
-	 * Possible cultures
-	 */
-	protected int [][] institution_beliefs = null;
-	protected int [] institutionsN = null;
-
 	
 	/**
 	 * Implements a circular doubled linked list with the members of the 
@@ -665,7 +659,6 @@ public class Ulloa extends Axelrod {
 		return super.results();
 	}
 
-
 	@Override
 	public void remove_partial_institution_content(int institution, double prob){
 		for (int f = 0; f < FEATURES; f++) {
@@ -854,17 +847,8 @@ public class Ulloa extends Axelrod {
 
 	protected void update_gui(){
 		super.update_gui();
-		update_institutions_graph();
 		print_institutional_beliefs_space();
 	}
-
-	protected void update_institutions_graph(){
-		CulturalSimulator.graph_institutions.scores.add((double) alife_institutions / TOTAL_AGENTS);
-		CulturalSimulator.graph_institutions.scores2.add((double) biggest_institution / TOTAL_AGENTS);
-		CulturalSimulator.l_institutions.setText(alife_institutions + "/" + biggest_institution);
-		CulturalSimulator.graph_institutions.update();	
-	}
-
 
 	protected void print_institutional_beliefs_space(){
 		BufferedImage alife_institutional_beliefs_space_image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);

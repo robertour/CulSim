@@ -164,12 +164,15 @@ public class ControllerSingle extends Controller
     	CulturalParameters.sp_mutation.setValue(simulation.MUTATION);
     	CulturalParameters.sp_sel_error.setValue(simulation.SELECTION_ERROR);
     	
+    	CulturalSimulator.sp_iterations.setValue(simulation.ITERATIONS);
+    	CulturalSimulator.sp_checkpoints.setValue(simulation.CHECKPOINT);
     	CulturalSimulator.sp_selection_error.setValue(simulation.SELECTION_ERROR);
     	CulturalSimulator.sp_mutation.setValue(simulation.MUTATION);
     	CulturalSimulator.sp_influence.setValue(simulation.ALPHA);
     	CulturalSimulator.sp_loyalty.setValue(simulation.ALPHA_PRIME);
     	CulturalSimulator.sp_democracy.setValue(simulation.FREQ_DEM);
     	CulturalSimulator.sp_propaganda.setValue(simulation.FREQ_PROP);
+    	CulturalSimulator.set_speed(simulation.CHECKPOINT);
     	
     	CulturalSimulator.l_start_identification.setText("S: " + simulation.get_identification());
     	CulturalSimulator.l_current_identification.setText("C: " + simulation.get_identification());

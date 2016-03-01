@@ -181,8 +181,7 @@ public class BatchMode extends JDialog {
 				jfc_configurations.setFileSelectionMode( JFileChooser.FILES_ONLY );
 				if (jfc_configurations.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 						conf_list.addElement(jfc_configurations.getSelectedFile().getAbsolutePath());
-						file_list.add(jfc_configurations.getSelectedFile().getAbsolutePath());
-						
+						file_list.add(jfc_configurations.getSelectedFile().getAbsolutePath());						
 				}
 			}
 		});
@@ -448,8 +447,8 @@ public class BatchMode extends JDialog {
 				if (jfc_experiment.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					tf_experimental_file.setText(jfc_experiment.getSelectedFile().getAbsolutePath());
 					jfc_results.setCurrentDirectory(jfc_experiment.getCurrentDirectory());
-					tf_results_dir.setText(jfc_experiment.getCurrentDirectory().getAbsolutePath() + "/");
-					tf_results_dir_csv.setText(jfc_experiment.getCurrentDirectory().getAbsolutePath() + "/");
+					tf_results_dir.setText(jfc_experiment.getCurrentDirectory().getAbsolutePath() + "\\");
+					tf_results_dir_csv.setText(jfc_experiment.getCurrentDirectory().getAbsolutePath() + "\\");
 					EXPERIMENTAL_FILE = tf_experimental_file.getText();
 					try {
 						controller.load_tasks(EXPERIMENTAL_FILE);
@@ -534,7 +533,7 @@ public class BatchMode extends JDialog {
 					for( int i = 0; dir.exists(); i++) {
 						dir = new File(tf_results_dir.getText() + relative_dir + i + "/");	
 					}
-					results_dir = dir.getAbsolutePath() + "/";
+					results_dir = dir.getAbsolutePath() + "\\";
 					controller.set_RESULTS_DIR(results_dir);
 					
 			    } else if (tp_batch_mode.getSelectedComponent() == tab_catastrophic) {

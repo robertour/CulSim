@@ -32,7 +32,7 @@ public class Main {
 			dir = new File(result_dir + i + "/");	
 		}
 
-		String results_dir = dir.getAbsolutePath() + "/";
+		String results_dir = dir.getAbsolutePath() + "\\";
 		controller.set_RESULTS_DIR(results_dir);
 		(new File(results_dir + Controller.ITERATIONS_DIR)).mkdirs();
 		 

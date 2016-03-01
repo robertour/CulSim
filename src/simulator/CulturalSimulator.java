@@ -63,6 +63,9 @@ import javax.swing.JTextArea;
 import java.awt.SystemColor;
 import java.awt.FlowLayout;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class CulturalSimulator extends JFrame {
 
@@ -79,13 +82,8 @@ public class CulturalSimulator extends JFrame {
 	private ArrayList<Event> events = new ArrayList<Event>();
 	
 	private OutputArea output_area;
-	private static JLabel belief_space = new JLabel("");
-	private static JLabel alife_institutional_beliefs_space = new JLabel("");
-	private static JLabel alife_institutions = new JLabel("");
-	private static JLabel institutional_beliefs_association = new JLabel("");
 	private final Action action = new SwingAction();
-	public static CulturalParameters parameters_dialog;
-	public static BatchMode batch_mode_dialog;
+
 	private JToggleButton tglbtnPlay;
 	private JToggleButton tglbtnPause;
 	private JToggleButton tglbtnStop;
@@ -110,59 +108,36 @@ public class CulturalSimulator extends JFrame {
 	private JMenu mnSimulation;
 	private JMenuItem mntmClear;
 	private JSplitPane splitPane_1;
-	private JPanel panel_7;
+	private JPanel sidePanel;
 	private JPanel panel_1;
-	private JPanel panel_8;
+	private JPanel tabEvents;
 	private JSplitPane splitPane_2;
-	private JPanel panel_11;
-	private JPanel panel_12;
-	public static GraphPanel graph_cultures;
-	public static JLabel l_start_identification;
-	private JPanel panel_13;
-	private JPanel panel_14;
-	private JPanel panel_15;
+	private JPanel panelGraphs;
+	private JPanel cultures_panel;
+	private JPanel institution_panel;
+	private JPanel newmann_panel;
+	private JPanel energy_panel;
 	private JLabel lblInstitutions;
 	private JLabel lblEnergy;
-	public static GraphPanel graph_institutions;
-	public static GraphPanel graph_borderless_cultures;
-	public static GraphPanel graph_energy_foreign_trait;
 	private JPanel panel_19;
-	public static JLabel l_energy_foreigners;
-	public static  JLabel l_cultures;
-	public static JLabel l_borderless;
-	public static JLabel l_institutions;
-	private JPanel panel_20;
-	public static JLabel l_current_identification;
-	private JPanel panel_21;
-	private JPanel panel_22;
-	private JLabel label;
-	private JLabel label_1;
-	private JSpinner spinner;
-	private JSpinner spinner_1;
+	private JPanel statusBarPanel;
+	private JPanel tabParameters;
 	private JPanel panel_23;
 	private JLabel label_2;
 	private JLabel label_3;
-	public static JSpinner sp_mutation;
-	public static JSpinner sp_selection_error;
 	private JPanel panel_24;
 	private JLabel label_4;
 	private JLabel label_5;
 	private JLabel label_6;
-	public static JSpinner sp_influence;
-	public static JSpinner sp_loyalty;
-	public static JSpinner sp_democracy;
 	private JLabel label_7;
-	public static JSpinner sp_propaganda;
 	private JTabbedPane tabbedPane;
-	private JPanel panel_25;
+	private JPanel tabEventSet;
 	private JPanel panel_27;
 	private JButton button_6;
 	private JTextArea ta_event_set;
-	private JPanel panel_28;
+	private JPanel newmann_similarity_panel;
 	private JPanel panel_29;
-	private JLabel lbl_similarity;
-	public static JLabel l_similarity;
-	public static GraphPanel graph_similarity;
+	private JLabel lbl_newman_similarity;
 	private JButton btnReload;
 	private JMenuItem mntmReload;
 	private JButton btnSave;
@@ -171,14 +146,68 @@ public class CulturalSimulator extends JFrame {
 	private EventPanel instConversionPanel;
 	private EventPanel invasionPanel;
 	private EventPanel genocidePanel;
+	private JPanel panel_10;
+	private JPanel panel_26;
+	private JPanel progressPanel;
+	private JPanel panel_7;
+	private JLabel lblSpeed;
+	private JPanel panel_8;
+	private JLabel lblIteration;
+	private JLabel lblSpeed_1;
+	private JPanel panel_11;
+	private JPanel pixel_panel;
+	private JPanel culture_similarity_panel;
+	private JPanel panel_14;
+	private JLabel lblPixel;
+	private JPanel panel_12;
+	private JLabel lbl_culture_similarity;
+
 	protected DoubleDistributionDialog destructionDialog;
 	protected DoubleDistributionDialog conversionDialog;
 	protected SingleDistributionDialog invasionDialog;
 	protected SingleDistributionDialog genocideDialog;
-	private JPanel panel_10;
-	private JPanel panel_26;
 
+
+	public static CulturalParameters parameters_dialog;
+	public static BatchMode batch_mode_dialog;
+
+	private static JLabel belief_space = new JLabel("");
+	private static JLabel alife_institutional_beliefs_space = new JLabel("");
+	private static JLabel alife_institutions = new JLabel("");
+	private static JLabel institutional_beliefs_association = new JLabel("");
+
+	public static JLabel l_start_identification;
+	public static JLabel l_current_identification;
 	
+	public static GraphPanel graph_cultures;
+	public static GraphPanel graph_institutions;
+	public static GraphPanel graph_newmann_cultures;
+	public static GraphPanel graph_energy;
+	public static GraphPanel graph_newmann_similarity;
+	public static GraphPanel graph_culture_similarity;
+	public static GraphPanel graph_pixels;
+	
+	public static JLabel l_energy_foreigners;
+	public static JLabel l_cultures;
+	public static JLabel l_newmann;
+	public static JLabel l_institutions;
+	public static JLabel l_newmann_similarity;
+	public static JLabel l_pixels;
+	public static JLabel l_culture_similarity;
+
+	public static JSpinner sp_selection_error;
+	public static JSpinner sp_influence;
+	public static JSpinner sp_loyalty;
+	public static JSpinner sp_democracy;
+	public static JSpinner sp_propaganda;
+	public static JSpinner sp_iterations;
+	public static JSpinner sp_checkpoints;
+	public static JSpinner sp_mutation;
+	
+	private static JLabel lblSpeedValue;
+	private static JSlider sliderSpeed;
+	private static int speed;
+
 	/**
 	 * Launch the application.
 	 */
@@ -224,7 +253,7 @@ public class CulturalSimulator extends JFrame {
 	public CulturalSimulator() {
 		setTitle("Cultural Simulator");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 895, 722);
+		setBounds(0, 0, 1024, 722);
 		
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -338,19 +367,43 @@ public class CulturalSimulator extends JFrame {
 		splitPane_2 = new JSplitPane();
 		contentPane.add(splitPane_2, BorderLayout.CENTER);
 		
-		panel_11 = new JPanel();
-		splitPane_2.setRightComponent(panel_11);
-		panel_11.setLayout(new GridLayout(4, 2, 0, 0));
+		panelGraphs = new JPanel();
+		splitPane_2.setRightComponent(panelGraphs);
+		panelGraphs.setLayout(new GridLayout(4, 2, 0, 0));
 		
-		panel_12 = new JPanel();
-		panel_11.add(panel_12);
-		panel_12.setLayout(new BorderLayout(0, 0));
+		panel_11 = new JPanel();
+		panelGraphs.add(panel_11);
+		
+		energy_panel = new JPanel();
+		panelGraphs.add(energy_panel);
+		energy_panel.setLayout(new BorderLayout(0, 0));
+		
+		panel_19 = new JPanel();
+		energy_panel.add(panel_19, BorderLayout.NORTH);
+		panel_19.setLayout(new BorderLayout(0, 0));
+		
+		lblEnergy = new JLabel("Energy:");
+		lblEnergy.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		panel_19.add(lblEnergy, BorderLayout.WEST);
+		lblEnergy.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		l_energy_foreigners = new JLabel("");
+		l_energy_foreigners.setForeground(SystemColor.textHighlight);
+		l_energy_foreigners.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		panel_19.add(l_energy_foreigners, BorderLayout.EAST);
+		
+		graph_energy = new GraphPanel();
+		energy_panel.add(graph_energy, BorderLayout.CENTER);
+		
+		cultures_panel = new JPanel();
+		panelGraphs.add(cultures_panel);
+		cultures_panel.setLayout(new BorderLayout(0, 0));
 		
 		graph_cultures = new GraphPanel();
-		panel_12.add(graph_cultures, BorderLayout.CENTER);
+		cultures_panel.add(graph_cultures, BorderLayout.CENTER);
 		
 		JPanel panel_16 = new JPanel();
-		panel_12.add(panel_16, BorderLayout.NORTH);
+		cultures_panel.add(panel_16, BorderLayout.NORTH);
 		panel_16.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblCultures_1 = new JLabel("Cultures:");
@@ -358,40 +411,84 @@ public class CulturalSimulator extends JFrame {
 		panel_16.add(lblCultures_1, BorderLayout.WEST);
 		
 		l_cultures = new JLabel("");
+		l_cultures.setBorder(null);
 		l_cultures.setForeground(SystemColor.textHighlight);
 		l_cultures.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of immediate neighbors.");
 		panel_16.add(l_cultures, BorderLayout.EAST);
 		
-		panel_14 = new JPanel();
-		panel_11.add(panel_14);
-		panel_14.setLayout(new BorderLayout(0, 0));
+		newmann_panel = new JPanel();
+		panelGraphs.add(newmann_panel);
+		newmann_panel.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_18 = new JPanel();
-		panel_14.add(panel_18, BorderLayout.NORTH);
+		newmann_panel.add(panel_18, BorderLayout.NORTH);
 		panel_18.setLayout(new BorderLayout(0, 0));
 		
-		lblInstitutions = new JLabel("Borderless Cultures:");
+		lblInstitutions = new JLabel("Newmann's:");
 		lblInstitutions.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
 		panel_18.add(lblInstitutions, BorderLayout.WEST);
 		lblInstitutions.setHorizontalAlignment(SwingConstants.LEFT);
 		
-		l_borderless = new JLabel("");
-		l_borderless.setForeground(SystemColor.textHighlight);
-		l_borderless.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
-		panel_18.add(l_borderless, BorderLayout.EAST);
+		l_newmann = new JLabel("");
+		l_newmann.setForeground(SystemColor.textHighlight);
+		l_newmann.setToolTipText("Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
+		panel_18.add(l_newmann, BorderLayout.EAST);
 		
-		graph_borderless_cultures = new GraphPanel();
-		panel_14.add(graph_borderless_cultures, BorderLayout.CENTER);
+		graph_newmann_cultures = new GraphPanel();
+		newmann_panel.add(graph_newmann_cultures, BorderLayout.CENTER);
 		
-		panel_13 = new JPanel();
-		panel_11.add(panel_13);
-		panel_13.setLayout(new BorderLayout(0, 0));
+		culture_similarity_panel = new JPanel();
+		panelGraphs.add(culture_similarity_panel);
+		culture_similarity_panel.setLayout(new BorderLayout(0, 0));
+		
+		graph_culture_similarity = new GraphPanel();
+		culture_similarity_panel.add(graph_culture_similarity, BorderLayout.CENTER);
+		
+		panel_12 = new JPanel();
+		culture_similarity_panel.add(panel_12, BorderLayout.NORTH);
+		panel_12.setLayout(new BorderLayout(0, 0));
+		
+		lbl_culture_similarity = new JLabel("Culture's Sim:");
+		lbl_culture_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		lbl_culture_similarity.setHorizontalAlignment(SwingConstants.LEFT);
+		panel_12.add(lbl_culture_similarity, BorderLayout.WEST);
+		
+		l_culture_similarity = new JLabel("");
+		l_culture_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		l_culture_similarity.setForeground(SystemColor.textHighlight);
+		panel_12.add(l_culture_similarity, BorderLayout.EAST);
+		
+		newmann_similarity_panel = new JPanel();
+		panelGraphs.add(newmann_similarity_panel);
+		newmann_similarity_panel.setPreferredSize(new Dimension(10, 160));
+		newmann_similarity_panel.setLayout(new BorderLayout(0, 0));
+		
+		panel_29 = new JPanel();
+		newmann_similarity_panel.add(panel_29, BorderLayout.NORTH);
+		panel_29.setLayout(new BorderLayout(0, 0));
+		
+		lbl_newman_similarity = new JLabel("Newmann's Sim:");
+		lbl_newman_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		lbl_newman_similarity.setHorizontalAlignment(SwingConstants.LEFT);
+		panel_29.add(lbl_newman_similarity, BorderLayout.WEST);
+		
+		l_newmann_similarity = new JLabel("");
+		l_newmann_similarity.setForeground(SystemColor.textHighlight);
+		l_newmann_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
+		panel_29.add(l_newmann_similarity, BorderLayout.EAST);
+		
+		graph_newmann_similarity = new GraphPanel();
+		newmann_similarity_panel.add(graph_newmann_similarity, BorderLayout.CENTER);
+		
+		institution_panel = new JPanel();
+		panelGraphs.add(institution_panel);
+		institution_panel.setLayout(new BorderLayout(0, 0));
 		
 		graph_institutions = new GraphPanel();
-		panel_13.add(graph_institutions, BorderLayout.CENTER);
+		institution_panel.add(graph_institutions, BorderLayout.CENTER);
 		
 		JPanel panel_17 = new JPanel();
-		panel_13.add(panel_17, BorderLayout.NORTH);
+		institution_panel.add(panel_17, BorderLayout.NORTH);
 		panel_17.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblNewLabel_1 = new JLabel("Institutions:");
@@ -403,26 +500,25 @@ public class CulturalSimulator extends JFrame {
 		l_institutions.setToolTipText("Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
 		panel_17.add(l_institutions, BorderLayout.EAST);
 		
-		panel_15 = new JPanel();
-		panel_11.add(panel_15);
-		panel_15.setLayout(new BorderLayout(0, 0));
+		pixel_panel = new JPanel();
+		panelGraphs.add(pixel_panel);
+		pixel_panel.setLayout(new BorderLayout(0, 0));
 		
-		panel_19 = new JPanel();
-		panel_15.add(panel_19, BorderLayout.NORTH);
-		panel_19.setLayout(new BorderLayout(0, 0));
+		panel_14 = new JPanel();
+		pixel_panel.add(panel_14, BorderLayout.NORTH);
+		panel_14.setLayout(new BorderLayout(0, 0));
 		
-		lblEnergy = new JLabel("Energy:");
-		lblEnergy.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		panel_19.add(lblEnergy, BorderLayout.NORTH);
-		lblEnergy.setHorizontalAlignment(SwingConstants.LEFT);
+		lblPixel = new JLabel("Pixels:");
+		panel_14.add(lblPixel, BorderLayout.WEST);
+		lblPixel.setToolTipText("Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
 		
-		l_energy_foreigners = new JLabel("");
-		l_energy_foreigners.setForeground(SystemColor.textHighlight);
-		l_energy_foreigners.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		panel_19.add(l_energy_foreigners, BorderLayout.EAST);
+		l_pixels = new JLabel("");
+		l_pixels.setToolTipText("Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
+		l_pixels.setForeground(SystemColor.textHighlight);
+		panel_14.add(l_pixels, BorderLayout.EAST);
 		
-		graph_energy_foreign_trait = new GraphPanel();
-		panel_15.add(graph_energy_foreign_trait, BorderLayout.CENTER);
+		graph_pixels = new GraphPanel();
+		pixel_panel.add(graph_pixels, BorderLayout.CENTER);
 		
 		splitPane_1 = new JSplitPane();
 		splitPane_2.setLeftComponent(splitPane_1);
@@ -497,42 +593,89 @@ public class CulturalSimulator extends JFrame {
 		panel_2.setLayout(new BorderLayout(0, 0));
 		
 		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setMinimumSize(new Dimension(23, 200));
 		panel_2.add(scrollPane);
 		
 		output_area = new OutputArea();
+		output_area.setLineWrap(true);
+		output_area.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		output_area.setEditable(false);
 		scrollPane.setViewportView(output_area);
 		splitPane.setDividerLocation(500);
 		
 		controller = new ControllerSingle(output_area);
-		parameters_dialog =  new CulturalParameters(this);
+		parameters_dialog = new CulturalParameters(this);
 		
-		panel_7 = new JPanel();
-		splitPane_1.setLeftComponent(panel_7);
-		panel_7.setLayout(new BorderLayout(0, 0));
+		sidePanel = new JPanel();
+		splitPane_1.setLeftComponent(sidePanel);
+		sidePanel.setLayout(new BorderLayout(0, 0));
 		
 		panel_1 = new JPanel();
 		panel_1.setBorder(new EmptyBorder(0, 0, 0, 0));
-		panel_7.add(panel_1);
-		panel_1.setLayout(new BorderLayout(0, 0));
+		sidePanel.add(panel_1);
+		panel_1.setLayout(new BorderLayout(0, 10));
+		
+		progressPanel = new JPanel();
+		panel_1.add(progressPanel, BorderLayout.NORTH);
+		progressPanel.setLayout(new BorderLayout(0, 0));
+		
+		panel_7 = new JPanel();
+		FlowLayout flowLayout_1 = (FlowLayout) panel_7.getLayout();
+		flowLayout_1.setHgap(0);
+		progressPanel.add(panel_7, BorderLayout.WEST);
+		
+		lblSpeed = new JLabel("Speed: ");
+		panel_7.add(lblSpeed);
+
+		lblSpeedValue = new JLabel("1000");
+		panel_7.add(lblSpeedValue);
+		lblSpeedValue.setPreferredSize(new Dimension(24, 20));
+		lblSpeedValue.setHorizontalTextPosition(SwingConstants.LEFT);
+		lblSpeedValue.setHorizontalAlignment(SwingConstants.LEFT);
+		lblSpeedValue.setForeground(SystemColor.textHighlight);
+		
+		
+		sliderSpeed = new JSlider();
+		sliderSpeed.setMinimum(1);
+		sliderSpeed.setMaximum(30);
+		progressPanel.add(sliderSpeed);
+		
+		set_speed((int) CulturalParameters.sp_checkpoints.getValue());
+		
+		sliderSpeed.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				if (sliderSpeed.getValue() < 10){
+					speed = sliderSpeed.getValue();
+				}
+				else if (sliderSpeed.getValue() < 20){
+					speed = 10*(sliderSpeed.getValue()-9);
+				}
+				else if (sliderSpeed.getValue() < 30){
+					speed = 100*(sliderSpeed.getValue()-19);
+				}
+				lblSpeedValue.setText(speed + "");
+				CulturalSimulator.sp_checkpoints.setValue(speed);
+				controller.setParameters();
+			}
+		});
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBorder(null);
 		tabbedPane.setPreferredSize(new Dimension(5, 375));
 		panel_1.add(tabbedPane, BorderLayout.CENTER);
 		
-		panel_8 = new JPanel();
-		tabbedPane.addTab("Event", null, panel_8, null);
-		panel_8.setPreferredSize(new Dimension(10, 270));
-		panel_8.setBorder(new EmptyBorder(5, 0, 0, 0));
+		tabEvents = new JPanel();
+		tabbedPane.addTab("Event", null, tabEvents, null);
+		tabEvents.setPreferredSize(new Dimension(10, 270));
+		tabEvents.setBorder(new EmptyBorder(5, 0, 0, 0));
 		
 		
-		panel_8.setLayout(new BorderLayout(0, 0));
+		tabEvents.setLayout(new BorderLayout(0, 0));
 		
 		panel_10 = new JPanel();
 		panel_10.setPreferredSize(new Dimension(10, 290));
-		panel_8.add(panel_10, BorderLayout.NORTH);
+		tabEvents.add(panel_10, BorderLayout.NORTH);
 		panel_10.setLayout(new GridLayout(4, 0, 0, 0));
 		
 		destructionDialog = new DoubleDistributionDialog(new Distribution(1.0), new Distribution(1.0), "Structure", "Content", this);
@@ -585,16 +728,16 @@ public class CulturalSimulator extends JFrame {
 		genocideDialog.addNotifiable(genocidePanel);
 		panel_10.add(genocidePanel);
 		
-		panel_25 = new JPanel();
-		panel_25.setPreferredSize(new Dimension(10, 270));
-		panel_25.setBorder(null);
-		tabbedPane.addTab("Event Set", null, panel_25, null);
-		panel_25.setLayout(new BorderLayout(0, 0));
+		tabEventSet = new JPanel();
+		tabEventSet.setPreferredSize(new Dimension(10, 270));
+		tabEventSet.setBorder(null);
+		tabbedPane.addTab("Event Set", null, tabEventSet, null);
+		tabEventSet.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel_9 = new JPanel();
 		panel_9.setBorder(new EmptyBorder(5, 0, 0, 0));
 		panel_9.setPreferredSize(new Dimension(10, 290));
-		panel_25.add(panel_9, BorderLayout.NORTH);
+		tabEventSet.add(panel_9, BorderLayout.NORTH);
 		panel_9.setLayout(new GridLayout(4, 0, 0, 0));
 		
 		EventPanel instituionPanelSet = new EventPanel("Institutions destruction", destructionDialog);
@@ -642,7 +785,7 @@ public class CulturalSimulator extends JFrame {
 		
 		panel_27 = new JPanel();
 		panel_27.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Set", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_25.add(panel_27, BorderLayout.CENTER);
+		tabEventSet.add(panel_27, BorderLayout.CENTER);
 		panel_27.setLayout(new BorderLayout(0, 0));
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
@@ -680,42 +823,16 @@ public class CulturalSimulator extends JFrame {
 			}
 		});
 		
-		panel_21 = new JPanel();
-		tabbedPane.addTab("Parameters", null, panel_21, null);
-		panel_21.setBorder(null);
-		panel_21.setLayout(null);
-		
-		panel_22 = new JPanel();
-		panel_22.setBounds(94, 21, 1, 1);
-		panel_22.setLayout(null);
-		panel_22.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_21.add(panel_22);
-		
-		label = new JLabel("Mutation:");
-		label.setToolTipText("How often a random change in a feature occurs?");
-		label.setBounds(10, 23, 74, 14);
-		panel_22.add(label);
-		
-		label_1 = new JLabel("Selection Error:");
-		label_1.setToolTipText("How often do you want to save results, update graphs, check for Pause/Stop/Resume states?");
-		label_1.setBounds(10, 48, 85, 14);
-		panel_22.add(label_1);
-		
-		spinner = new JSpinner();
-		spinner.setToolTipText("How often a random change in a feature occurs?");
-		spinner.setBounds(94, 20, 70, 20);
-		panel_22.add(spinner);
-		
-		spinner_1 = new JSpinner();
-		spinner_1.setToolTipText("How often an agent confuses the selection of an agent that can be influnce by or not?");
-		spinner_1.setBounds(94, 45, 70, 20);
-		panel_22.add(spinner_1);
+		tabParameters = new JPanel();
+		tabbedPane.addTab("Parameters", null, tabParameters, null);
+		tabParameters.setBorder(null);
+		tabParameters.setLayout(null);
 		
 		panel_23 = new JPanel();
 		panel_23.setLayout(null);
 		panel_23.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_23.setBounds(5, 5, 180, 78);
-		panel_21.add(panel_23);
+		panel_23.setBounds(5, 94, 180, 78);
+		tabParameters.add(panel_23);
 		
 		label_2 = new JLabel("Mutation:");
 		label_2.setToolTipText("How often a random change in a feature occurs?");
@@ -746,8 +863,8 @@ public class CulturalSimulator extends JFrame {
 		panel_24 = new JPanel();
 		panel_24.setLayout(null);
 		panel_24.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Controls4", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Institutions", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_24.setBounds(5, 84, 180, 124);
-		panel_21.add(panel_24);
+		panel_24.setBounds(5, 183, 180, 124);
+		tabParameters.add(panel_24);
 		
 		label_4 = new JLabel("Influence:");
 		label_4.setToolTipText("Institutional influence over the agent");
@@ -801,35 +918,42 @@ public class CulturalSimulator extends JFrame {
 		btnSetParameters.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.setParameters();
+				set_speed((int) sp_checkpoints.getValue());
 			}
 		});
-		btnSetParameters.setBounds(5, 215, 180, 23);
-		panel_21.add(btnSetParameters);
+		btnSetParameters.setBounds(5, 319, 180, 23);
+		tabParameters.add(btnSetParameters);
 		
-		panel_28 = new JPanel();
-		panel_28.setPreferredSize(new Dimension(10, 160));
-		panel_1.add(panel_28, BorderLayout.SOUTH);
-		panel_28.setLayout(new BorderLayout(0, 0));
+		panel_8 = new JPanel();
+		panel_8.setLayout(null);
+		panel_8.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_8.setBounds(5, 5, 180, 78);
+		tabParameters.add(panel_8);
 		
-		panel_29 = new JPanel();
-		panel_28.add(panel_29, BorderLayout.NORTH);
-		panel_29.setLayout(new BorderLayout(0, 0));
+		lblIteration = new JLabel("Iterations:");
+		lblIteration.setToolTipText("How many iterations would you let the simulation run for? ");
+		lblIteration.setBounds(10, 23, 74, 14);
+		panel_8.add(lblIteration);
 		
-		lbl_similarity = new JLabel("Similarity:");
-		lbl_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		lbl_similarity.setHorizontalAlignment(SwingConstants.LEFT);
-		panel_29.add(lbl_similarity, BorderLayout.WEST);
+		lblSpeed_1 = new JLabel("Speed:");
+		lblSpeed_1.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
+		lblSpeed_1.setBounds(10, 48, 74, 14);
+		panel_8.add(lblSpeed_1);
 		
-		l_similarity = new JLabel("");
-		l_similarity.setForeground(SystemColor.textHighlight);
-		l_similarity.setToolTipText("Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		panel_29.add(l_similarity, BorderLayout.EAST);
+		sp_iterations = new JSpinner();
+		sp_iterations.setModel(new SpinnerNumberModel(new Integer(100000), new Integer(100), null, new Integer(1000)));
+		sp_iterations.setToolTipText("How many iterations would you let the simulation run for? ");
+		sp_iterations.setBounds(90, 20, 80, 20);
+		panel_8.add(sp_iterations);
 		
-		graph_similarity = new GraphPanel();
-		panel_28.add(graph_similarity, BorderLayout.CENTER);
+		sp_checkpoints = new JSpinner();
+		sp_checkpoints.setModel(new SpinnerNumberModel(new Integer(100), new Integer(0), null, new Integer(10)));
+		sp_checkpoints.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
+		sp_checkpoints.setBounds(90, 45, 80, 20);
+		panel_8.add(sp_checkpoints);
 		
 		JToolBar toolBar = new JToolBar();
-		panel_7.add(toolBar, BorderLayout.NORTH);
+		sidePanel.add(toolBar, BorderLayout.NORTH);
 		toolBar.setFloatable(false);
 		
 		tglbtnPlay = new JToggleButton("Play");
@@ -864,21 +988,21 @@ public class CulturalSimulator extends JFrame {
 		splitPane_1.setDividerLocation(195);		
 		splitPane_2.setDividerLocation(700);
 		
-		panel_20 = new JPanel();
-		panel_20.setBackground(SystemColor.control);
-		contentPane.add(panel_20, BorderLayout.SOUTH);
-		panel_20.setLayout(new GridLayout(2, 1, 0, 0));
+		statusBarPanel = new JPanel();
+		statusBarPanel.setBackground(SystemColor.control);
+		contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+		statusBarPanel.setLayout(new GridLayout(2, 1, 0, 0));
 		
 			
 		l_start_identification = new JLabel("S:");
 		l_start_identification.setForeground(SystemColor.textHighlight);
 		l_start_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
-		panel_20.add(l_start_identification);
+		statusBarPanel.add(l_start_identification);
 		
 		l_current_identification = new JLabel("C:");
 		l_current_identification.setForeground(SystemColor.textHighlight);
 		l_current_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
-		panel_20.add(l_current_identification);
+		statusBarPanel.add(l_current_identification);
 		
 		
 		batch_mode_dialog = new BatchMode(this);
@@ -931,9 +1055,11 @@ public class CulturalSimulator extends JFrame {
 		alife_institutions.setIcon(null);
 		graph_cultures.clean();
 		graph_institutions.clean();
-		graph_borderless_cultures.clean();
-		graph_energy_foreign_trait.clean();
-		graph_similarity.clean();
+		graph_newmann_cultures.clean();
+		graph_energy.clean();
+		graph_newmann_similarity.clean();
+		graph_culture_similarity.clean();
+		graph_pixels.clean();
 	}
 	
 	public static void set_belief_space(BufferedImage image){
@@ -983,7 +1109,7 @@ public class CulturalSimulator extends JFrame {
 							dir = new File(parameters_dialog.tf_results_dir.getText() + result_dir + i + "/");	
 						}
 			
-						RESULTS_DIR = dir.getAbsolutePath() + "/";
+						RESULTS_DIR = dir.getAbsolutePath() + "\\";
 						(new File(RESULTS_DIR + Controller.ITERATIONS_DIR)).mkdirs();
 						controller.setRESULTS_DIR(RESULTS_DIR);
 
@@ -1117,6 +1243,20 @@ public class CulturalSimulator extends JFrame {
 		public void actionPerformed(ActionEvent arg0) {
 			
 			controller.save_state();
+		}
+	}
+	
+	public static void set_speed(int s){
+		speed = s;
+		lblSpeedValue.setText(speed + "");
+		if (speed < 10){
+			sliderSpeed.setValue(speed);	
+		} else if (speed < 100){
+			sliderSpeed.setValue(9 + (int) Math.round(speed/10.0));
+		} else if (speed < 1000){
+			sliderSpeed.setValue(19 + (int) Math.round(speed/100.0));
+		} else {
+			sliderSpeed.setValue(30);
 		}
 	}
 }
