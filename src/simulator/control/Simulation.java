@@ -20,9 +20,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.math3.distribution.NormalDistribution;
-
 import simulator.CulturalSimulator;
+import simulator.control.events.Distribution;
 import simulator.control.events.Event;
 
 
@@ -50,11 +49,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * ROWS of the world
 	 */
-	public int ROWS = 100;
+	public int ROWS = 32;
 	/**
 	 * COLS of the World
 	 */
-	public int COLS = 100;
+	public int COLS = 32;
 	/**
 	 * Total agents in the world
 	 */
@@ -121,12 +120,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Define the MUTATION error. This is when the agent changes one trait randomly
 	 */
-	public float MUTATION = 0.0001f;
+	public float MUTATION = 0.0f;
 	/**
 	 * Define SELECTION_ERROR. This is when the agent randomly changes its decision to 
 	 * interact or not with an specific agent 
 	 */
-	public float SELECTION_ERROR = 0.0001f;
+	public float SELECTION_ERROR = 0.0f;
 	
 	/**
 	 * Individual belief space
@@ -157,11 +156,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Random number generator
 	 */
 	protected Random rand = new Random();
-	
-	/**
-	 * Internal matrix to store normal probabilities
-	 */
-	private double [][] normal_probability;
 	
 	
 	/**
@@ -194,8 +188,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Size of the current cluster
 	 */
 	private int cluster_size = 0;
-	
-	
 	/**
 	 * Average  row of the present culture in the recursion
 	 */
@@ -204,17 +196,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Average  row of the present culture in the recursion
 	 */
 	private double ave_col = -1;
-	
-
-	// Main simulation outputs
 	/**
 	 * Number of members of the biggest cluster
 	 */
-	protected int biggest_cluster = 0;
+	private int biggest_cluster = 0;
 	/**
 	 * Number of clusters
 	 */
-	protected int cultureN;
+	private int cultureN;
 	/**
 	 * Number of alife institutions
 	 */
@@ -522,7 +511,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		
 		flags = new boolean[ROWS][COLS];
 		cultures = new int[ROWS][COLS];
-		normal_probability = new double[ROWS][COLS];
 		
 		int n = 0;
 		for (int r = 0; r < ROWS; r++) {
@@ -596,7 +584,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		neighboursN = null;
 		flags = null;
 		cultures = null;
-		normal_probability = null;
 		culture_stats = null;
 		newmann_stats  = null;
 		newmann_similarity = null;
@@ -820,6 +807,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @return
 	 */
 	public String get_identification(){
+		if (newmann_similarity == null)
+			newmann_similarity = new double[4];
+		if (culture_similarity == null)
+			culture_similarity = new double[4];
+		// TODO the previous need to be better programmded
 		return TYPE + " " + 
 				ROWS + "x" + COLS + "(" + RADIUS + "): " +
 				"F/T:" + FEATURES + "/" + TRAITS + " | " +
@@ -878,7 +870,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 					
 					if (cluster_size > 2){
 
-						cs = new CultureStatistics(cluster_size, ave_row/cluster_size, ave_col/cluster_size, beliefs[r][c]);
+						cs = new CultureStatistics(cluster_size, ave_row/cluster_size, ave_col/cluster_size, beliefs[r][c],this);
 						culture_stats.add(cs);
 					}
 					
@@ -947,7 +939,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 					}
 					
 					if (cluster_size > 2){
-						cs = new CultureStatistics(cluster_size, ave_row/cluster_size, ave_col/cluster_size, beliefs[r][c]);
+						cs = new CultureStatistics(cluster_size, ave_row/cluster_size, ave_col/cluster_size, beliefs[r][c],this);
 						newmann_stats.add(cs);
 						
 					}
@@ -1061,11 +1053,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			return;
 		}
 		
-		if(stats1.size() < stats2.size()){
-			compare_stats(stats2, stats1, sims);
-			return;
-		}
-		
 		
 		sims[FULL_SIM] = 0.0;
 		sims[POS_SIM] = 0.0;
@@ -1113,10 +1100,45 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			sims[BEL_SIM] += bel_sim;
 		}
 		
-		sims[FULL_SIM] = sims[FULL_SIM]/stats1.size();
-		sims[POS_SIM] = sims[POS_SIM]/stats1.size();
-		sims[SIZ_SIM] = sims[SIZ_SIM]/stats1.size();
-		sims[BEL_SIM] = sims[BEL_SIM]/stats1.size();
+		
+		for (Iterator<CultureStatistics> i1 = stats2.iterator(); i1.hasNext();) {
+			CultureStatistics cs1 = (CultureStatistics) i1.next();
+			full_sim = 0;
+			pos_sim = 0;
+			size_sim = 0;
+			bel_sim = 0;
+			
+			for (Iterator<CultureStatistics> i2 = stats1.iterator(); i2.hasNext();) {
+				CultureStatistics cs2 = (CultureStatistics) i2.next();
+				temp_pos_sim = cs1.compare_positions(cs2);
+				if (pos_sim < temp_pos_sim){
+					pos_sim = temp_pos_sim;
+				}
+				temp_size_sim = cs1.compare_size(cs2);
+				if (size_sim < temp_size_sim){
+					size_sim = temp_size_sim;
+				}
+				temp_bel_sim = cs1.compare_beliefs(cs2);
+				if (bel_sim < temp_bel_sim){
+					bel_sim = temp_bel_sim;
+				}
+				temp_full_sim = temp_pos_sim * temp_size_sim * temp_bel_sim;
+				if (full_sim < temp_full_sim){
+					full_sim = temp_full_sim;
+				}
+			}
+
+			sims[FULL_SIM] += full_sim;
+			sims[POS_SIM] += pos_sim;
+			sims[SIZ_SIM] += size_sim;
+			sims[BEL_SIM] += bel_sim;
+		}
+
+		double size = stats1.size() + stats2.size();
+		sims[FULL_SIM] = sims[FULL_SIM]/size;
+		sims[POS_SIM] = sims[POS_SIM]/size;
+		sims[SIZ_SIM] = sims[SIZ_SIM]/size;
+		sims[BEL_SIM] = sims[BEL_SIM]/size;
 			
 	}
 
@@ -1228,24 +1250,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * 
 	 * @param probability
 	 */
-	public void event_normal(NormalDistribution ndr, NormalDistribution ndc, Event e){
+	public void normal_event(Distribution.NormalProbabilityDensityFuntion nd, 
+							int x, int y, Event e){
 		
-		// acc is a normalization factor
-		double max = 0.00000001f;
-		double rprob = 0;
-		for (int r = 0; r < ROWS; r++) {
-			rprob = ndr.probability(r-.5, r+.5);
-			for (int c = 0; c < COLS; c++) {
-				normal_probability[r][c] = rprob * ndc.probability(c-.5, c+.5);
-				if (normal_probability[r][c] > max){
-					max = normal_probability[r][c];
-				}
-			}			
-		}
-		
+		double max = nd.density(0);
+			
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				e.trigger(r, c, normal_probability[r][c]/max, this);
+				e.trigger(r, c,nd.density(Math.abs(x-r)+Math.abs(y-c))/max, this);
 			}
 		}
 	}

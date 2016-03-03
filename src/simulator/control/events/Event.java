@@ -17,11 +17,12 @@ public abstract class Event implements Serializable{
 		if (distribution.getType() == Distribution.UNIFORM) {
 			simulation.uniform_event(distribution.getProbability(), this);
 		} else if (distribution.getType() == Distribution.NORMAL) {
-			simulation.event_normal(distribution.getRowNormalDistribution(simulation.ROWS, simulation.getRand()),
-					distribution.getColumnNormalDistribution(simulation.COLS, simulation.getRand()),	this);			
+			simulation.normal_event(distribution.getDiagonalNormalDistribution(simulation),
+					distribution.getRow(simulation),
+					distribution.getCol(simulation),this);			
 		} else if (distribution.getType() == Distribution.NEWMANN) {
-			simulation.newman_event(distribution.getRow(simulation.ROWS, simulation.getRand()), 
-									distribution.getCol(simulation.COLS, simulation.getRand()),
+			simulation.newman_event(distribution.getRow(simulation), 
+									distribution.getCol(simulation),
 									distribution.getRadious(), this);			
 		}
 		

@@ -2,7 +2,6 @@ package simulator.control;
 
 import java.io.Serializable;
 
-import org.apache.commons.math3.random.RandomGenerator;
 
 public class CultureStatistics implements Serializable{
 	private static final long serialVersionUID = -7499666293108729939L;
@@ -11,50 +10,37 @@ public class CultureStatistics implements Serializable{
 	private double y = -102;
 	private int size = -103;
 	private int beliefs[] = null;
-	private double radious;
+	private double diagonal;
+	private Simulation sim;
 	
 	
-	public CultureStatistics (int size, double x, double y, int[] beliefs){
-		//this.beliefs = new int[beliefs.length];
-	    //for (int i = 0; i < beliefs.length; i++) {
-	    //	this.beliefs[i] = beliefs[i];	
-		//}
+	public CultureStatistics (int size, double x, double y, int[] beliefs, Simulation sim){
 		this.beliefs =  beliefs;
 		this.size = size;
 		this.x = x;
 		this.y = y;
-		
-		radious = Math.pow(this.size/Math.PI, 0.5);
+		this.sim = sim;
+		diagonal = Math.pow(sim.ROWS*sim.ROWS+sim.COLS*sim.COLS, 0.5);
 		
 	}
 	
 	public double compare_positions(CultureStatistics o){
 		
-		double d = 2*radious;
-		double y_sim = (d - Math.abs(y-o.y))/d;
-		if (y_sim < 0){
-			y_sim = 0;
-		}
-		y_sim = 1/(1+Math.exp(-10*(y_sim-0.5)));
-
-		//this_r = this_r * 2;
-		double x_sim = (d - Math.abs(x-o.x))/d;
-		if (x_sim < 0){
-			x_sim = 0;
-		}
-		x_sim = 1/(1+Math.exp(-10*(x_sim-0.5)));
+		double y_diff = y-o.y;
+		double x_diff = x-o.x;
 		
-		return (x_sim + y_sim)/2;
-		
+		double diff = Math.pow(x_diff*x_diff + y_diff*y_diff, 0.5);
+		if (diff > diagonal){
+			return 0;
+		}else {
+			return 1-diff/diagonal;
+		}
 	}
 	
 	public double compare_size(CultureStatistics o){
-		double o_r = Math.pow(o.size/Math.PI, 0.5);
-		double s_sim = (radious - Math.abs(radious - o_r))/radious;
-		if (s_sim < 0){
-			return 0;
-		}
-		return s_sim;
+		
+		return 1 - Math.abs(size - o.size)/ (double )sim.TOTAL_AGENTS;
+
 	}
 	
 	public double compare_beliefs (CultureStatistics other){

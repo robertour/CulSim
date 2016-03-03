@@ -1,8 +1,6 @@
 package simulator.control.events;
 
-import java.util.Random;
-
-import org.apache.commons.math3.distribution.NormalDistribution;
+import simulator.control.Simulation;
 
 public class Distribution {
 	
@@ -70,18 +68,18 @@ public class Distribution {
 		return probability;
 	}
 	
-	public int getRow(int rows, Random rand){
+	public int getRow(Simulation sim){
 		if (calculated_row_ratio < 0){
-			calculated_row_ratio = rand.nextDouble(); 
+			calculated_row_ratio = sim.getRand().nextDouble(); 
 		} 
-		return (int) Math.round(calculated_row_ratio*rows);
+		return (int) Math.round(calculated_row_ratio*sim.ROWS);
 	}
 	
-	public int getCol(int cols, Random rand){
+	public int getCol(Simulation sim){
 		if (calculated_col_ratio < 0){
-			calculated_col_ratio = rand.nextDouble(); 
+			calculated_col_ratio = sim.getRand().nextDouble(); 
 		} 
-		return (int) Math.round(calculated_col_ratio*cols);
+		return (int) Math.round(calculated_col_ratio*sim.COLS);
 	}
 
 	public double getSd() {
@@ -92,12 +90,8 @@ public class Distribution {
 		return radious;
 	}
 	
-	public NormalDistribution getColumnNormalDistribution(int cols, Random rand){		
-		return new NormalDistribution(getCol(cols,rand), getSd()*cols);
-	}
-	
-	public NormalDistribution getRowNormalDistribution(int rows, Random rand){
-		return new NormalDistribution(getRow(rows, rand), getSd()*rows);
+	public NormalProbabilityDensityFuntion getDiagonalNormalDistribution(Simulation s){
+		return new NormalProbabilityDensityFuntion(getSd()*(Math.pow(s.ROWS*s.ROWS+s.COLS*s.COLS,0.5)/2));
 	}
 	
 	public double getRow_ratio() {
@@ -120,5 +114,25 @@ public class Distribution {
 					getCol_ratio() + " R=" + getRadious();
 		} 
 		return r;
+	}
+
+	/**
+	 * Probability density function for the normal
+	 * @author tico
+	 */
+	public class NormalProbabilityDensityFuntion {
+		private double var;
+		private double coef;
+		
+		
+		public NormalProbabilityDensityFuntion(double sd){
+			this.coef = 1/(sd*Math.pow(2*Math.PI,0.5));
+			this.var = sd*sd;
+			
+		}
+		
+		public double density(double x){
+			return coef*Math.exp(-(x*x)/(2*var));
+		}
 	}
 }

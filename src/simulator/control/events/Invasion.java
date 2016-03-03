@@ -19,8 +19,8 @@ public class Invasion extends Event {
 	}
 
 	public void execute(Simulation simulation) {
-		institution = simulation.pre_invasion(distribution.getRow(simulation.ROWS, simulation.getRand()), 
-											distribution.getRow(simulation.ROWS, simulation.getRand()));
+		institution = simulation.pre_invasion(distribution.getRow(simulation), 
+											distribution.getRow(simulation));
 		super.execute(simulation);
 	}
 	
