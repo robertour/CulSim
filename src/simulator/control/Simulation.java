@@ -21,7 +21,6 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 
 import simulator.CulturalSimulator;
-import simulator.control.events.Distribution;
 import simulator.control.events.Event;
 
 
@@ -37,14 +36,10 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Buffered size to avoid writing each time.
 	 */
 	public int BUFFERED_SIZE = 512;
-	
-	
 	/**
 	 * Identify the current simulation object
 	 */
-	protected int IDENTIFIER = 0;
-	
-	
+	public int IDENTIFIER = 0;
 	// Size of the world
 	/**
 	 * ROWS of the world
@@ -120,12 +115,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Define the MUTATION error. This is when the agent changes one trait randomly
 	 */
-	public float MUTATION = 0.0f;
+	public float MUTATION = 0.001f;
 	/**
 	 * Define SELECTION_ERROR. This is when the agent randomly changes its decision to 
 	 * interact or not with an specific agent 
 	 */
-	public float SELECTION_ERROR = 0.0f;
+	public float SELECTION_ERROR = 0.001f;
 	
 	/**
 	 * Individual belief space
@@ -252,11 +247,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Newmann's culture similarity with the initial state
 	 */
-	private double[] newmann_similarity;
+	private double[] newmann_similarity = new double[4];
 	/**
 	 * Culture similarity with the initial state
 	 */
-	private double[] culture_similarity;
+	private double[] culture_similarity = new double[4];
 	/**
 	 * Average center of the culture, number of people per culture, and beliefs
 	 */
@@ -270,17 +265,26 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Indicates if the thread should be running. If not, it would stop or suspend as 
 	 * soon as it can if not. This is when a checkpoint is finalized.
 	 */
-	protected volatile boolean playing = true;
+	private volatile boolean playing = false;
 	/**
 	 * Indicates if the thread was suspended. It would suspend as soon as it can.
 	 * This is when a checkpoint is finalized.
 	 */
-	protected volatile boolean suspended = false;
+	private volatile boolean suspended = false;
 	/**
 	 * Indicates if the thread was cancelled. It would be cancelled as soon as it can.
 	 * This is when a checkpoint is finalized.
 	 */
-	protected volatile boolean cancelled = false;
+	private volatile boolean stopped = false;
+	/**
+	 * Indicates if the simulation ended completely, without any interruptions.
+	 */
+	private boolean is_finished = false;
+	/**
+	 * Activate this when something went wrong in the simulation
+	 */
+	private boolean failed = false;
+	
 	/**
 	 * Indicates if there are any catastrophic events scheduled
 	 */
@@ -293,16 +297,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected transient Object monitor;
 	
-	/**
-	 * Indicates if the simulation ended completely, without any interruptions.
-	 */
-	public boolean is_finished = false;
-	
-	
-	/**
-	 * Activate this when something went wrong in the simulation
-	 */
-	public boolean failed = false;
+
 	
 
 	
@@ -329,7 +324,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * This will be where the log is printed
 	 */
-	protected transient Printable log = null;
+	public transient Printable log = null;
 	
 	/**
 	 * The results directory
@@ -361,6 +356,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			starter = (Simulation) ois.readObject();
+			
+			epoch++;
+			log.print(IDENTIFIER, "Current state has been saved. A new epoch has started: " + epoch + "+\n");
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -377,7 +375,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		monitor = new Object();
 		playing = true;
 		suspended = false;
-		cancelled = false;
+		stopped = false;
 		is_finished = false;
 		failed = false;
 		BufferedWriter writer = null;
@@ -400,40 +398,41 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		if (generation == 0){
 			try {
 				simulation_setup();
+				log.print(IDENTIFIER, "Simulation setup is ready. \n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print("simulation_setup() failed");
+				log.print(IDENTIFIER, "simulation_setup() failed");
 				failed = true;
 			}
-			log.print("(ID: " + IDENTIFIER +  "): " + "Simulation setup ready. \n");
+
 			try {
 				setup();
+				log.print(IDENTIFIER, TYPE + " setup ready. \n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print("simulation_setup() failed");
+				log.print(IDENTIFIER, "setup() failed");
 				failed = true;
 			}
-			log.print("(ID: " + IDENTIFIER +  "): " + TYPE + " setup ready. \n");
-			save_state();
-			log.print("(ID: " + IDENTIFIER +  "): " + " State Saved. \n");
 			try {
-				log.print("(ID: " + IDENTIFIER +  "): " + " Results not written. \n");
+				save_state();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				log.print(IDENTIFIER, "save_state() failed");
+				failed = true;
+			}
+			
+			try {
 				writer.write(results());
-				log.print("(ID: " + IDENTIFIER +  "): " + " Results written. \n");
+				log.print(IDENTIFIER, "Initial results were written. \n");
 			} catch (IOException e) {
 				e.printStackTrace();
-				log.print("writer.write(results()); failed");
+				log.print(IDENTIFIER, "writer.write(results()); failed");
 				failed = true;
 			}
-		} else {
-			epoch++;
-			save_state();
-			log.print("(ID: " + IDENTIFIER +  "): " + "Reload Simulation. State saved. \n");
 		}
-		
-		
+			
 		String r = "";
-		log.print("(ID: " + IDENTIFIER +  "): " + "Starting the experiment... \n");
+		log.print(IDENTIFIER, "Starting the experiment... \n");
 		startTime = System.currentTimeMillis();
 	    try {
 	    	if (Controller.IS_BATCH){
@@ -443,7 +442,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	    	}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print("run_experiment(); failed");
+			log.print(IDENTIFIER, "run_experiment(); failed");
 			failed = true;
 		}
 	    endTime = System.currentTimeMillis();
@@ -453,16 +452,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print("system.gc(); failed");
+			log.print(IDENTIFIER, "system.gc(); failed");
 			failed = true;
 		}
 		
 	    if (is_finished){
-		    log.print("Finished: " + get_identification() + "\n");
+		    log.print(IDENTIFIER, "Finished: " + get_identification() + "\n");
 	    } else if (failed){
-	    	log.print("Failed: " + get_identification() + "\n");
+	    	log.print(IDENTIFIER, "Failed: " + get_identification() + "\n");
 		} else {
-	    	log.print("Stopped: " + get_identification() + "\n");
+	    	log.print(IDENTIFIER, "Stopped: " + get_identification() + "\n");
 	    }
 	    
 	    /** 
@@ -552,8 +551,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			
 			culture_stats = new ArrayList<CultureStatistics>();
 			newmann_stats  = new ArrayList<CultureStatistics>();
-			newmann_similarity = new double[4];
-			culture_similarity = new double[4];
 			
 		}
 		
@@ -586,8 +583,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		cultures = null;
 		culture_stats = null;
 		newmann_stats  = null;
-		newmann_similarity = null;
-		culture_similarity = null;
 	}
 
 	/**
@@ -596,41 +591,46 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @return
 	 */
 	private String run_experiment_batch(BufferedWriter writer){
-		log.print("(ID: " + IDENTIFIER +  "): " + "Batch Mode (Multi-thread) \n");
+		log.print(IDENTIFIER, "Batch Mode (Multi-thread) \n");
 		String r = "";
-		for (iteration = 0; playing && iteration < ITERATIONS; iteration++) {
-			//output.print("(ID: " + IDENTIFIER +  "): " + iteration + "\n");
+		for (iteration = 0; iteration < ITERATIONS; iteration += CHECKPOINT) {
+
 			run_iteration();
-			iteration += CHECKPOINT;
-			generation += iteration;
+			generation += CHECKPOINT;
 			
 			r = results();
+			
 			// write results of the current checkpoint
 			try {
 				writer.write(r);				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
 			// check if the user hasn't cancelled or suspended the thread
 			if (!playing){
 				if (suspended){
 					set_suspended();
 				} 
-				if (cancelled) { 
-					break; 
+				if (stopped) { 
+					playing = false;
+					return r;
 				} 
 			} // END of !playing
 			
 		} // END of iterations
+		
 		if (iteration == ITERATIONS){
 			is_finished = true;
+			playing = false;
 		}
+		
 		return r;
 	}
 	
 	private String run_experiment_single(BufferedWriter writer){
+		log.print(IDENTIFIER, "Executed in single mode (no multi-thread). \n");
 
-		log.print("(ID: " + IDENTIFIER +  "): " + "Executed in single mode (no multi-thread). \n");
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration += CHECKPOINT) {
 			
@@ -640,6 +640,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			generation += CHECKPOINT;
 					
 			r = results();
+			
 			// write results of the current checkpoint
 			try {
 				writer.write(r);				
@@ -652,14 +653,16 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				if (suspended){
 					set_suspended();
 				} 
-				if (cancelled) { 
-					break; 
+				if (stopped) {
+					playing = false;
+					return r;
 				} 
 			} // END of !playing
 			
 		} // END of iterations
 		if (iteration == ITERATIONS){
 			is_finished = true;
+			playing = false;
 		}
 		
 		return r;
@@ -690,7 +693,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		        	monitor.wait();
 				}
 				catch (InterruptedException e) {                    
-			        log.print("Error while trying to wait" + "\n");
+			        log.print(IDENTIFIER, "Error while trying to wait" + "\n");
 			    } 
 		    }  
 		}
@@ -710,7 +713,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	public void cancel() {          
 	    playing = false;  
-	    cancelled = true;
+	    stopped = true;
 	}
 	
 	/** 
@@ -721,14 +724,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			reset();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print("reset(); failed");
+			log.print(IDENTIFIER, "reset(); failed");
 			failed = true;
 		}
 		try {
 			System.gc();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print("system.gc(); failed");
+			log.print(IDENTIFIER, "system.gc(); failed");
 			failed = true;
 		}
 	}
@@ -773,10 +776,10 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				+ "energy,"
 				+ "cultures,biggest_cluster,full_sim,"
 				+ "pos_sim,siz_sim,bel_sim,"
-				+ "newmann_cultures, biggest_newmann_culture,newman_full_sim"
-				+ "newmann_pos_sim,newmann_siz_sim, newmann_bel_sim"
+				+ "newmann_cultures,biggest_newmann_culture,newman_full_sim,"
+				+ "newmann_pos_sim,newmann_siz_sim,newmann_bel_sim,"
 				+ "institutions,biggest_institution,pixel_institution_similarity,"
-				+ "foreign,alife,pixel_similarity\n";		
+				+ "alife,foreign,pixel_similarity\n";		
 	}
 
 
@@ -807,11 +810,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @return
 	 */
 	public String get_identification(){
-		if (newmann_similarity == null)
-			newmann_similarity = new double[4];
-		if (culture_similarity == null)
-			culture_similarity = new double[4];
-		// TODO the previous need to be better programmded
+//		if (newmann_similarity == null)
+//			newmann_similarity = new double[4];
+//		if (culture_similarity == null)
+//			culture_similarity = new double[4];
+		// TODO the previous need to be better programmed
 		return TYPE + " " + 
 				ROWS + "x" + COLS + "(" + RADIUS + "): " +
 				"F/T:" + FEATURES + "/" + TRAITS + " | " +
@@ -1145,12 +1148,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Check if there is pending events in the list
 	 */
-	public void check_for_events(){
+	private void check_for_events(){
 		if (events.size() > 0){
 			executing_events = true;
 			for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 				Event event = (Event) iterator.next();
-				event.execute(this);				
+				event.execute(this);	
 			}
 			events.clear();
 			executing_events = false;
@@ -1205,11 +1208,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				}
 			}
 		} else {
-			for (Iterator<Event> iterator = es.iterator(); iterator.hasNext();) {
-				Event event = (Event) iterator.next();
-				event.execute(this);
-			}	
-			update_gui();
+			if (generation > 0){
+				for (Iterator<Event> iterator = es.iterator(); iterator.hasNext();) {
+					Event event = (Event) iterator.next();
+					event.execute(this);
+				}
+				update_gui();
+			}
 		}
 	}
 	
@@ -1236,6 +1241,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		SELECTION_ERROR = (float) CulturalSimulator.sp_selection_error.getValue();
 		FREQ_DEM = (int) CulturalSimulator.sp_democracy.getValue();
 		FREQ_PROP = (int) CulturalSimulator.sp_propaganda.getValue();
+		log.print(IDENTIFIER, "Parameters have been set.\n");
 	}
 		
 	protected void destroy_institutions_structure(double prob){}
@@ -1244,68 +1250,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	protected void institutional_trait_conversion(double prob){}
 	
 	
-	
-	/**
-	 * An event is normally distributed in the population
-	 * 
-	 * @param probability
-	 */
-	public void normal_event(Distribution.NormalProbabilityDensityFuntion nd, 
-							int x, int y, Event e){
-		
-		double max = nd.density(0);
-			
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				e.trigger(r, c,nd.density(Math.abs(x-r)+Math.abs(y-c))/max, this);
-			}
-		}
-	}
-	
-	/**
-	 * An event is distributed in a Newmann's neighborhood of radius
-	 * @param radius
-	 */
-	public void newman_event (int r, int c, int radius, Event e){
-		
-		e.trigger(r, c, 1.0, this);
-		
-		for (int i = 0; i <= radius; i++) {
-			for (int j = 0; j <= radius; j++) {
-				if ( j + i + 2 <= radius ) {
-					if ( r + i + 1 < ROWS && c + j + 1 < COLS ) {
-						e.trigger(r + i + 1, c + j + 1, 1.0, this);
-					}
-					if ( r - i - 1 >= 0 && c - j - 1 >= 0 ) {			
-						e.trigger(r - i - 1, c - j - 1, 1.0, this);
-					}
-				}
-				if ( j + i <= radius && ( j != 0 || i != 0 ) ) {
-					if ( r - i >= 0 && c + j < COLS ) {
-						e.trigger(r - i, c + j, 1.0, this);
-					}
-					if ( r + i < ROWS && c - j >= 0 ) {
-						e.trigger(r + i, c - j, 1.0, this);
-					}								
-				}
-			}
-		}
-	}
-	
-	
-	
-	/**
-	 * An event is distributed with uniform probability
-	 * 
-	 * @param probability
-	 */
-	public void uniform_event(double probability, Event e){
-		for (int r = 0; r < ROWS; r++) {
-			for (int c = 0; c < COLS; c++) {
-				e.trigger(r, c, probability, this);
-			}
-		}
-	}
+
 	
 	/**
 	 * Remove partial information of an institution
@@ -1446,29 +1391,44 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Print belief spaces in the screen
 	 */
 	private void print_belief_spaces(){		
-		BufferedImage image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
+		BufferedImage image_belief_space = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
 
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				String ohex = "";
-				for (int f = 0; f < FEATURES; f++) {
-					if (beliefs[r][c][f] == -1){
-						ohex += Integer.toHexString(15);
-					} else if (beliefs[r][c][f] == DEAD_TRAIT){
-						ohex += Integer.toHexString(0);
-					} else {
-						ohex += Integer.toHexString(beliefs[r][c][f]+1);
-					}
+				String belief_space_ohex = "";
+				for (int f = 0; f < Math.min(FEATURES,6); f++) {
+					belief_space_ohex += get_color_for_trait(beliefs[r][c][f]);
 				}
-				ohex = "#" + ohex;
+				belief_space_ohex = "#" + belief_space_ohex;
 				
-				image.setRGB(r, c, Color.decode(ohex).getRGB());
+				image_belief_space.setRGB(r, c, Color.decode(belief_space_ohex).getRGB());
 			}
 		}
 		
-		CulturalSimulator.set_belief_space(image);
+		CulturalSimulator.set_belief_space(image_belief_space);
 		
 	}
+	
+	/**
+	 * Return a color according to a trait
+	 * @param t
+	 * @return
+	 */
+	protected String get_color_for_trait (int t){
+		String color = "0";
+		if (t == TRAITS){
+			color = "f";
+		} else if (t >= 0){
+			if (TRAITS <= 1) {
+				color = "8";
+			} else {
+				color = Integer.toHexString((int) Math.round(14 * t/((double)TRAITS)-1) + 1);
+			}
+		}
+		return color;
+	}
+	
+	
 	
 	/**
 	 * Return the random seeder

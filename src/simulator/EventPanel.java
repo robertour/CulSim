@@ -41,7 +41,7 @@ public class EventPanel extends JPanel implements Notifiable{
 		add(ta_desc, BorderLayout.NORTH);
 		
 		JPanel panel = new JPanel();
-		add(panel, BorderLayout.CENTER);
+		add(panel, BorderLayout.SOUTH);
 		
 		JButton btnNewButton = new JButton("Configure");
 		btnNewButton.addActionListener(new ActionListener() {

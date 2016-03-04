@@ -14,6 +14,8 @@ import simulator.control.events.ConvertInstitutions;
 import simulator.control.events.ConvertTraits;
 import simulator.control.events.DestroyInstitutionsContent;
 import simulator.control.events.DestroyInstitutionsStructure;
+import simulator.control.events.DestroyPartialInstitutionsContent;
+import simulator.control.events.Distribution;
 import simulator.control.events.Event;
 import simulator.control.events.Genocide;
 import simulator.control.events.Invasion;
@@ -97,8 +99,11 @@ public class BatchMode extends JDialog {
 	private EventPanel conversionPanel;
 	private EventPanel invasionPanel;
 	private EventPanel genocidePanel;
+	private TripleDistributionDialog triple_dialog;
 	private DoubleDistributionDialog double_dialog;
 	private SingleDistributionDialog simple_dialog;
+	
+	CulturalSimulator cultural_simulator;
 	
 	/**
 	 * Launch the application.
@@ -395,26 +400,44 @@ public class BatchMode extends JDialog {
 		panel.setLayout(new GridLayout(0, 2, 5, 0));
 		
 		
-	
-		double_dialog = cultural_simulator.destructionDialog;
-		institutionPanel = new EventPanel("Institutions destruction", double_dialog);
+		this.cultural_simulator = cultural_simulator; 
+		triple_dialog = cultural_simulator.destructionDialog;
+		institutionPanel = new EventPanel("Institutions destruction", triple_dialog);
 		institutionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new DestroyInstitutionsStructure(double_dialog.get_distribution1()));
-				events.add(new DestroyInstitutionsContent(double_dialog.get_distribution2()));
-				update_event_set();
+				TripleDistributionDialog triple_dialog = BatchMode.this.cultural_simulator.destructionDialog;
+				if (triple_dialog.get_distribution1() != null){
+					events.add(new DestroyInstitutionsStructure(triple_dialog.get_distribution1()));
+					update_event_set();
+				}
+				if (triple_dialog.get_distribution2() != null){
+					events.add(new DestroyInstitutionsContent(triple_dialog.get_distribution2()));
+					update_event_set();
+				}
+				if (triple_dialog.get_distribution3() != null){
+					events.add(new DestroyPartialInstitutionsContent(triple_dialog.get_distribution3()));
+					update_event_set();
+				}
+				
 			}
 		});
-		double_dialog.addNotifiable(institutionPanel);		
+		triple_dialog.addNotifiable(institutionPanel);		
 		panel.add(institutionPanel);
 		
 		double_dialog = cultural_simulator.conversionDialog;
 		conversionPanel = new EventPanel("Institutional conversion", double_dialog);
 		conversionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new ConvertInstitutions(double_dialog.get_distribution1()));
-				events.add(new ConvertTraits(double_dialog.get_distribution2()));
-				update_event_set();
+				DoubleDistributionDialog double_dialog = BatchMode.this.cultural_simulator.conversionDialog;
+				if (double_dialog.get_distribution1() != null){
+					events.add(new ConvertInstitutions(double_dialog.get_distribution1()));
+					update_event_set();
+				}
+				if (double_dialog.get_distribution2() != null){
+					events.add(new ConvertTraits(double_dialog.get_distribution2()));
+					update_event_set();
+				}
+
 			}
 		});
 		double_dialog.addNotifiable(conversionPanel);
@@ -424,8 +447,11 @@ public class BatchMode extends JDialog {
 		invasionPanel = new EventPanel("Invasion", simple_dialog);
 		invasionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Invasion(simple_dialog.get_distribution()));
-				update_event_set();
+				Distribution d = BatchMode.this.cultural_simulator.invasionDialog.get_distribution();
+				if (d != null){
+					events.add(new Invasion(d));
+					update_event_set();
+				}
 			}
 		});
 		simple_dialog.addNotifiable(invasionPanel);
@@ -435,8 +461,11 @@ public class BatchMode extends JDialog {
 		genocidePanel = new EventPanel("Genocide", simple_dialog);
 		genocidePanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Genocide(simple_dialog.get_distribution()));
-				update_event_set();
+				Distribution d = BatchMode.this.cultural_simulator.genocideDialog.get_distribution();
+				if (d != null){
+					events.add(new Genocide(d));
+					update_event_set();
+				}
 			}
 		});
 		simple_dialog.addNotifiable(genocidePanel);
@@ -542,20 +571,23 @@ public class BatchMode extends JDialog {
 			    	File simulations_dir = new File (tf_scenarios_dir.getText() + 
 			    			ControllerBatch.SIMULATIONS_DIR);
 			    	if (simulations_dir.exists() && simulations_dir.isDirectory()){
-			    	
 						File[] directoryListing = simulations_dir.listFiles();
 						if (directoryListing != null) {
 							for (File child : directoryListing) {
 								sim_list.add(child.getAbsolutePath());
 							}
 						} else {
-							TA_OUTPUT.print("The " + ControllerBatch.SIMULATIONS_DIR + " directory was not found on " +
-										"the provided directory. Please make sure you are providing a directory with " +
+							TA_OUTPUT.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory didn't contain " +
+										"any simulations. Please make sure you are providing a directory with " +
 										"the results of a Batch process (either CSV or Configuration Files).");
 							return;
 						}
+					} else {
+						TA_OUTPUT.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory was not found on " +
+									"the provided directory. Please make sure you are providing a directory with " +
+									"the results of a Batch process (either CSV or Configuration Files).");
+						return;
 					}
-			    	
 			    	controller.load_tasks_with_events(sim_list, events, 1);
 			    	
 			    	// Look for an non-existent directory inside the scenarios to save the results

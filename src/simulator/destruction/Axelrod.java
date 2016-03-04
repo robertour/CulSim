@@ -26,7 +26,7 @@ public class Axelrod extends Simulation {
 	
 	@Override
 	public void setup() {
-		mismatches = new int [TRAITS];		
+		mismatches = new int [FEATURES];		
 		non_death_features = new int [FEATURES];
 	}
 	

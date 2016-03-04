@@ -15,6 +15,7 @@ import simulator.control.events.ConvertInstitutions;
 import simulator.control.events.ConvertTraits;
 import simulator.control.events.DestroyInstitutionsContent;
 import simulator.control.events.DestroyInstitutionsStructure;
+import simulator.control.events.DestroyPartialInstitutionsContent;
 import simulator.control.events.Distribution;
 import simulator.control.events.Event;
 import simulator.control.events.Genocide;
@@ -162,7 +163,7 @@ public class CulturalSimulator extends JFrame {
 	private JPanel panel_12;
 	private JLabel lbl_culture_similarity;
 
-	protected DoubleDistributionDialog destructionDialog;
+	protected TripleDistributionDialog destructionDialog;
 	protected DoubleDistributionDialog conversionDialog;
 	protected SingleDistributionDialog invasionDialog;
 	protected SingleDistributionDialog genocideDialog;
@@ -674,43 +675,57 @@ public class CulturalSimulator extends JFrame {
 		tabEvents.setLayout(new BorderLayout(0, 0));
 		
 		panel_10 = new JPanel();
-		panel_10.setPreferredSize(new Dimension(10, 290));
+		panel_10.setPreferredSize(new Dimension(10, 330));
 		tabEvents.add(panel_10, BorderLayout.NORTH);
 		panel_10.setLayout(new GridLayout(4, 0, 0, 0));
 		
-		destructionDialog = new DoubleDistributionDialog(new Distribution(1.0), new Distribution(1.0), "Structure", "Content", this);
+		destructionDialog = new TripleDistributionDialog(null, new Distribution(1.0),null,
+				"Structure", "Partial Content", "Full Content", this);
 		instDestructionPanel = new EventPanel("Institutions destruction", destructionDialog);
 		instDestructionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
-				events.add(new DestroyInstitutionsStructure(destructionDialog.get_distribution1()));
-				events.add(new DestroyInstitutionsContent(destructionDialog.get_distribution2()));
+				if (destructionDialog.get_distribution1() != null){
+					events.add(new DestroyInstitutionsStructure(destructionDialog.get_distribution1()));
+				}
+				if (destructionDialog.get_distribution2() != null){
+					events.add(new DestroyInstitutionsContent(destructionDialog.get_distribution2()));
+				}
+				if (destructionDialog.get_distribution3() != null){
+					events.add(new DestroyPartialInstitutionsContent(destructionDialog.get_distribution3()));
+				}
 				controller.add_events(events);
 			}
 		});
 		destructionDialog.addNotifiable(instDestructionPanel);		
 		panel_10.add(instDestructionPanel);
 		
-		conversionDialog = new DoubleDistributionDialog(new Distribution(-1.0,-1.0,0.2), new Distribution(-1.0,-1.0,0.2), "Full", "Partial", this);
+		conversionDialog = new DoubleDistributionDialog(null, new Distribution(-1.0,-1.0,0.2), "Full", "Partial", this);
 		instConversionPanel = new EventPanel("Institutional conversion", conversionDialog);
 		instConversionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
-				events.add(new ConvertInstitutions(conversionDialog.get_distribution1()));
-				events.add(new ConvertTraits(conversionDialog.get_distribution2()));
+				if (conversionDialog.get_distribution1() != null) {
+					events.add(new ConvertInstitutions(conversionDialog.get_distribution1()));
+				}
+				if (conversionDialog.get_distribution2() != null) {
+					events.add(new ConvertTraits(conversionDialog.get_distribution2()));
+				}
 				controller.add_events(events);
 			}
 		});
 		conversionDialog.addNotifiable(instConversionPanel);
 		panel_10.add(instConversionPanel);
 		
-		invasionDialog = new SingleDistributionDialog(new Distribution(0.5,0.5,10), "Invasion", this);
+		invasionDialog = new SingleDistributionDialog(new Distribution(-1.0,-1.0,0.2), "Invasion", this);
 		invasionPanel = new EventPanel("Invasion", invasionDialog);
 		invasionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
-				events.add(new Invasion(invasionDialog.get_distribution()));
-				controller.add_events(events);
+				if (invasionDialog.get_distribution() != null){
+					events.add(new Invasion(invasionDialog.get_distribution()));
+					controller.add_events(events);
+				}
 			}
 		});
 		invasionDialog.addNotifiable(invasionPanel);
@@ -721,8 +736,10 @@ public class CulturalSimulator extends JFrame {
 		genocidePanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
-				events.add(new Genocide(genocideDialog.get_distribution()));
-				controller.add_events(events);
+				if (genocideDialog.get_distribution() != null){
+					events.add(new Genocide(genocideDialog.get_distribution()));
+					controller.add_events(events);
+				}
 			}
 		});
 		genocideDialog.addNotifiable(genocidePanel);
@@ -736,15 +753,19 @@ public class CulturalSimulator extends JFrame {
 		
 		JPanel panel_9 = new JPanel();
 		panel_9.setBorder(new EmptyBorder(5, 0, 0, 0));
-		panel_9.setPreferredSize(new Dimension(10, 290));
+		panel_9.setPreferredSize(new Dimension(10, 340));
 		tabEventSet.add(panel_9, BorderLayout.NORTH);
 		panel_9.setLayout(new GridLayout(4, 0, 0, 0));
 		
 		EventPanel instituionPanelSet = new EventPanel("Institutions destruction", destructionDialog);
 		instituionPanelSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new DestroyInstitutionsStructure(destructionDialog.get_distribution1()));
-				events.add(new DestroyInstitutionsContent(destructionDialog.get_distribution2()));
+				if (destructionDialog.get_distribution1() != null){
+					events.add(new DestroyInstitutionsStructure(destructionDialog.get_distribution1()));
+				}
+				if (destructionDialog.get_distribution2() != null){
+					events.add(new DestroyInstitutionsContent(destructionDialog.get_distribution2()));
+				}
 				update_event_set();
 			}
 		});
@@ -755,8 +776,12 @@ public class CulturalSimulator extends JFrame {
 		EventPanel conversionPanelSet = new EventPanel("Institutional conversion", conversionDialog);
 		conversionPanelSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new ConvertInstitutions(conversionDialog.get_distribution1()));
-				events.add(new ConvertTraits(conversionDialog.get_distribution2()));
+				if (conversionDialog.get_distribution1() != null){
+					events.add(new ConvertInstitutions(conversionDialog.get_distribution1()));
+				}
+				if (conversionDialog.get_distribution2() != null) {
+					events.add(new ConvertTraits(conversionDialog.get_distribution2()));
+				}
 				update_event_set();
 			}
 		});
@@ -766,8 +791,10 @@ public class CulturalSimulator extends JFrame {
 		EventPanel invasionPanelSet = new EventPanel("Invasion", invasionDialog);
 		invasionPanelSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Invasion(invasionDialog.get_distribution()));
-				update_event_set();
+				if (invasionDialog.get_distribution() != null){
+					events.add(new Invasion(invasionDialog.get_distribution()));
+					update_event_set();
+				}
 			}
 		});
 		invasionDialog.addNotifiable(invasionPanelSet);
@@ -776,8 +803,10 @@ public class CulturalSimulator extends JFrame {
 		EventPanel genocidePanelSet = new EventPanel("Genocide", genocideDialog);
 		genocidePanelSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				events.add(new Genocide(genocideDialog.get_distribution()));
-				update_event_set();
+				if (genocideDialog.get_distribution() != null){
+					events.add(new Genocide(genocideDialog.get_distribution()));
+					update_event_set();
+				}
 			}
 		});
 		genocideDialog.addNotifiable(genocidePanelSet);
@@ -827,6 +856,34 @@ public class CulturalSimulator extends JFrame {
 		tabbedPane.addTab("Parameters", null, tabParameters, null);
 		tabParameters.setBorder(null);
 		tabParameters.setLayout(null);
+		
+		panel_8 = new JPanel();
+		panel_8.setLayout(null);
+		panel_8.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panel_8.setBounds(5, 5, 180, 78);
+		tabParameters.add(panel_8);
+		
+		lblIteration = new JLabel("Iterations:");
+		lblIteration.setToolTipText("How many iterations would you let the simulation run for? ");
+		lblIteration.setBounds(10, 23, 74, 14);
+		panel_8.add(lblIteration);
+		
+		lblSpeed_1 = new JLabel("Speed:");
+		lblSpeed_1.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
+		lblSpeed_1.setBounds(10, 48, 74, 14);
+		panel_8.add(lblSpeed_1);
+		
+		sp_iterations = new JSpinner();
+		sp_iterations.setModel(new SpinnerNumberModel(new Integer(1000000), new Integer(1000), null, new Integer(1000)));
+		sp_iterations.setToolTipText("How many iterations would you let the simulation run for? ");
+		sp_iterations.setBounds(90, 20, 80, 20);
+		panel_8.add(sp_iterations);
+		
+		sp_checkpoints = new JSpinner();
+		sp_checkpoints.setModel(new SpinnerNumberModel(new Integer(100), new Integer(0), null, new Integer(10)));
+		sp_checkpoints.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
+		sp_checkpoints.setBounds(90, 45, 80, 20);
+		panel_8.add(sp_checkpoints);
 		
 		panel_23 = new JPanel();
 		panel_23.setLayout(null);
@@ -923,34 +980,6 @@ public class CulturalSimulator extends JFrame {
 		});
 		btnSetParameters.setBounds(5, 319, 180, 23);
 		tabParameters.add(btnSetParameters);
-		
-		panel_8 = new JPanel();
-		panel_8.setLayout(null);
-		panel_8.setBorder(new TitledBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Noise", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)), "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_8.setBounds(5, 5, 180, 78);
-		tabParameters.add(panel_8);
-		
-		lblIteration = new JLabel("Iterations:");
-		lblIteration.setToolTipText("How many iterations would you let the simulation run for? ");
-		lblIteration.setBounds(10, 23, 74, 14);
-		panel_8.add(lblIteration);
-		
-		lblSpeed_1 = new JLabel("Speed:");
-		lblSpeed_1.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
-		lblSpeed_1.setBounds(10, 48, 74, 14);
-		panel_8.add(lblSpeed_1);
-		
-		sp_iterations = new JSpinner();
-		sp_iterations.setModel(new SpinnerNumberModel(new Integer(100000), new Integer(100), null, new Integer(1000)));
-		sp_iterations.setToolTipText("How many iterations would you let the simulation run for? ");
-		sp_iterations.setBounds(90, 20, 80, 20);
-		panel_8.add(sp_iterations);
-		
-		sp_checkpoints = new JSpinner();
-		sp_checkpoints.setModel(new SpinnerNumberModel(new Integer(100), new Integer(0), null, new Integer(10)));
-		sp_checkpoints.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
-		sp_checkpoints.setBounds(90, 45, 80, 20);
-		panel_8.add(sp_checkpoints);
 		
 		JToolBar toolBar = new JToolBar();
 		sidePanel.add(toolBar, BorderLayout.NORTH);

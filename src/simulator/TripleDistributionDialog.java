@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
 
-public class DoubleDistributionDialog extends JDialog {
+public class TripleDistributionDialog extends JDialog {
 	
 	private static final long serialVersionUID = -8199562513877809300L;
 	
@@ -26,7 +26,10 @@ public class DoubleDistributionDialog extends JDialog {
 	private DistributionPanel d2_panel;
 	private String title1;
 	private String title2;
+	private String title3;
 	private ArrayList<Notifiable> notifiables = new ArrayList<Notifiable>();
+
+	private DistributionPanel d3_panel;
 
 
 	/**
@@ -36,7 +39,9 @@ public class DoubleDistributionDialog extends JDialog {
 		try {
 			Distribution d1 = new Distribution(0.1);
 			Distribution d2 = new Distribution(0.1);
-			DoubleDistributionDialog dialog = new DoubleDistributionDialog(d1, d2, "Example 1", "Example 2", null);
+			Distribution d3 = new Distribution(0.1);
+			TripleDistributionDialog dialog = new TripleDistributionDialog(d1, d2, d3,
+					"Example 1", "Example 2", "Example 3", null);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -47,27 +52,27 @@ public class DoubleDistributionDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public DoubleDistributionDialog(Distribution d1, Distribution d2, String title1, 
-			String title2, JFrame owner) {
+	public TripleDistributionDialog(Distribution d1, Distribution d2, Distribution d3, 
+			String title1, String title2, String title3, JFrame owner) {
 		super(owner);
 		setTitle("Distribution Dialog");
 		this.title1 = title1;
 		this.title2 = title2;
+		this.title3 = title3;
 		
-		setBounds(100, 100, 396, 410);
+		setBounds(100, 100, 601, 410);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(new GridLayout(0, 2, 0, 10));
-		{
-			d1_panel = new DistributionPanel(d1, title1);
-			
-			contentPanel.add(d1_panel);
-		}
-		{
-			d2_panel = new DistributionPanel(d2, title2);
-			contentPanel.add(d2_panel);
-		}
+		contentPanel.setLayout(new GridLayout(0, 3, 0, 10));
+		
+		d1_panel = new DistributionPanel(d1, title1);
+		contentPanel.add(d1_panel);
+		d2_panel = new DistributionPanel(d2, title2);
+		contentPanel.add(d2_panel);
+		d3_panel = new DistributionPanel(d3, title3);
+		contentPanel.add(d3_panel);
+		
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -80,7 +85,7 @@ public class DoubleDistributionDialog extends JDialog {
 							Notifiable notifiable = (Notifiable) i.next();
 							notifiable.update();
 						}
-						DoubleDistributionDialog.this.setVisible(false);						
+						TripleDistributionDialog.this.setVisible(false);						
 					}
 				});
 				okButton.setActionCommand("OK");
@@ -96,6 +101,10 @@ public class DoubleDistributionDialog extends JDialog {
 	
 	public Distribution get_distribution2() {
 		return d2_panel.get_distribution();
+	
+	}
+	public Distribution get_distribution3() {
+		return d3_panel.get_distribution();
 	}
 	
 	public String toString(){
@@ -103,7 +112,9 @@ public class DoubleDistributionDialog extends JDialog {
 		return title1 + ": " + 
 				((d1_panel.get_distribution()== null)?"None":d1_panel.get_distribution().toString())
 				+ "\n" + title2 + ": " + 
-				((d2_panel.get_distribution()== null)?"None":d2_panel.get_distribution().toString());
+				((d2_panel.get_distribution()== null)?"None":d2_panel.get_distribution().toString())
+				+ "\n" + title3 + ": " + 
+				((d3_panel.get_distribution()== null)?"None":d3_panel.get_distribution().toString());
 	}
 	
 	public void addNotifiable(Notifiable n){

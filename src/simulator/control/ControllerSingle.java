@@ -269,7 +269,7 @@ public class ControllerSingle extends Controller
     	simulation.IDENTIFIER = -999;
     	exec.submit(simulation);
 
-    	log.print("Task submitted\n");
+    	log.print(simulation.IDENTIFIER, "Task submitted\n");
     	
     	exec.shutdown();
     	
@@ -314,7 +314,9 @@ public class ControllerSingle extends Controller
      * @param e
      */
 	public void add_events(ArrayList<Event> events){
-		simulation.events(events);
+		if (events.size() > 0){
+			simulation.events(events);
+		}
 	}
 
 	
@@ -350,12 +352,12 @@ public class ControllerSingle extends Controller
     private class SimulationExecuter extends Thread {
     	
     	public void run (){
-	    	log.print("Simulation Executor Started\n");
+	    	log.print(-1, "Simulation Executor Started\n");
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				log.print("SUCCESS: No Errors Reported!\n");
+				log.print(-1, "No errors reported by the thread execution\n");
 			} catch (InterruptedException e) {
-				log.print("Simulation interrupted\n");
+				log.print(-1, "Simulation interrupted\n");
 			}
 
 	    	try {

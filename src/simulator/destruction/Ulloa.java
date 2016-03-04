@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import simulator.CulturalSimulator;
+import simulator.control.Controller;
 
 /**
  * Based on FlacheExperiment1 this class implements:
@@ -367,6 +368,15 @@ public class Ulloa extends Axelrod {
 										
 									} // END of different institution
 									
+									/**
+									 * In principle institutions just fill their features when they receive a
+									 * new agent and there is no current trait in the institution for a particular 
+									 * feature. This decision has many implications, e.g. some institution might 
+									 * never be "completed" (i.e. some features could stay with -1), institutions
+									 * features are written only once, initial conditions quickly decide the features
+									 * that an institution contains. When democracy is active, this restriction is 
+									 * relaxed, somehow democracy allows institutional change in the new generations. 
+									 */
 									// if there is no trait selected for the selected feature, then make the
 									// selected trait part of the institution
 									if (institution_beliefs[neighbors_institution][selected_feature] == -1) {
@@ -847,7 +857,9 @@ public class Ulloa extends Axelrod {
 
 	protected void update_gui(){
 		super.update_gui();
-		print_institutional_beliefs_space();
+		if (!Controller.IS_BATCH){
+			print_institutional_beliefs_space();
+		}
 	}
 
 	protected void print_institutional_beliefs_space(){
@@ -866,52 +878,31 @@ public class Ulloa extends Axelrod {
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
 				institution = r * COLS + c;
-				
+				// Association of the agent to the institution belief space
+				belonging_institution = institutions[r][c];
 				ohex_alife_institutions_beliefs_space_image = "";
+				institutonal_beliefs_association_ohex = "";
 				alife_institution_ohex = "";
-
 				
-				// Alife institutional Belief Space
-				if (institutionsN[institution] == 0){
-					ohex_alife_institutions_beliefs_space_image = "#000000";
-				} else {
-					for (int f = 0; f < FEATURES; f++) {
-						if (institution_beliefs[institution][f] == -1){
-							ohex_alife_institutions_beliefs_space_image += Integer.toHexString(15);
-						} else {
-							ohex_alife_institutions_beliefs_space_image += Integer.toHexString(institution_beliefs[r*COLS+c][f]+1);	
-						}
-					}
-					ohex_alife_institutions_beliefs_space_image = "#" + ohex_alife_institutions_beliefs_space_image;
+				for (int f = 0; f < Math.min(FEATURES,6); f++) {
+					institutonal_beliefs_association_ohex += get_color_for_trait(institution_beliefs[belonging_institution][f]);
+					ohex_alife_institutions_beliefs_space_image += get_color_for_trait(institution_beliefs[institution][f]);
 				}
+				institutonal_beliefs_association_ohex = "#" + institutonal_beliefs_association_ohex;
+				ohex_alife_institutions_beliefs_space_image = "#" + ohex_alife_institutions_beliefs_space_image;
 				
 				// Alife Institutions
 				if (institutionsN[institution] == 0){
 					alife_institution_ohex = "#000000";
+					ohex_alife_institutions_beliefs_space_image = "#000000";
 				} else {
 					alife_institution_ohex = "#ffffff";
 				}
-				
-				// Assoation of the agent to the instution belief space
-				belonging_institution = institutions[r][c];
-				
-				institutonal_beliefs_association_ohex = "";
-				for (int f = 0; f < FEATURES; f++) {
-					if (institution_beliefs[belonging_institution][f] == -1){
-						institutonal_beliefs_association_ohex += Integer.toHexString(15);
-					} else if (institution_beliefs[belonging_institution][f] == -2){
-						institutonal_beliefs_association_ohex += Integer.toHexString(0);
-					} else {
-						institutonal_beliefs_association_ohex += Integer.toHexString(institution_beliefs[belonging_institution][f]+1);
-					}
-				}
-				institutonal_beliefs_association_ohex = "#" + institutonal_beliefs_association_ohex;
 						
 				alife_insititutions_image.setRGB(r, c, Color.decode(alife_institution_ohex).getRGB());
 				alife_institutional_beliefs_space_image.setRGB(r, c, Color.decode(ohex_alife_institutions_beliefs_space_image).getRGB());
 				institutonal_beliefs_association_image.setRGB(r, c, Color.decode(institutonal_beliefs_association_ohex).getRGB());
 
-			
 			}
 		}
 		
@@ -920,6 +911,7 @@ public class Ulloa extends Axelrod {
 		CulturalSimulator.set_alife_institutional_beliefs_space(alife_institutional_beliefs_space_image);
 	}
 
+	
 	/**
 	 * This looks for a non currently occupied institution  near the given
 	 * coordinates. 

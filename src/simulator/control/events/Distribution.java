@@ -1,8 +1,11 @@
 package simulator.control.events;
 
+import java.io.Serializable;
+
 import simulator.control.Simulation;
 
-public class Distribution {
+public class Distribution implements Serializable{
+	private static final long serialVersionUID = -3545632412211320724L;
 	
 	public static final int UNIFORM = 0;
 	public static final int NORMAL = 1;
@@ -120,7 +123,9 @@ public class Distribution {
 	 * Probability density function for the normal
 	 * @author tico
 	 */
-	public class NormalProbabilityDensityFuntion {
+	public class NormalProbabilityDensityFuntion implements Serializable{
+		private static final long serialVersionUID = -8284063229856075731L;
+		
 		private double var;
 		private double coef;
 		

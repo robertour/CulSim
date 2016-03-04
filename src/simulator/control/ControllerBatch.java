@@ -89,6 +89,7 @@ public class ControllerBatch extends Controller
 	 */
     public void load_tasks_with_events(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) {
     	tasks = new ArrayList<Simulation>();
+    	IS_BATCH = true;
 
     	for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
 			String string = (String) iterator.next();
@@ -197,7 +198,7 @@ public class ControllerBatch extends Controller
     		exec.submit(w);
     	} 
     
-    	log.print("All Tasks Submitted\n");
+    	log.print(-1,"All Tasks Submitted\n");
     	
     	exec.shutdown();
     	
@@ -256,12 +257,12 @@ public class ControllerBatch extends Controller
     private class SimulationExecuter extends Thread {
     	
     	public void run (){
-    		log.print("Simulation Executor Started\n");
+    		log.print(-1, "Simulation Executor Started\n");
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				log.print("The experiments where finished without errors\n");
+				log.print(-1, "The threads were finished and no errors where reported\n");
 			} catch (InterruptedException e) {
-				log.print("Simulation interrupted\n");
+				log.print(-1, "Simulation interrupted\n");
 			}
 	    	
 	    	try {

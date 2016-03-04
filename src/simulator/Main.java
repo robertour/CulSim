@@ -41,8 +41,12 @@ public class Main {
 	}
 	
 	private static class Printer implements  Printable {
-		public void print(String str){
-			System.out.print(str);			
+		public void print(int id, String str){
+			if (id < 0){
+				System.out.print(str);
+			} else {
+				System.out.print("(ID: " + id +  "): " + str);
+			}
 		} 
 	}
 

@@ -47,7 +47,7 @@ public class SingleDistributionDialog extends JDialog {
 
 		setTitle("Distribution Dialog");
 		
-		setBounds(100, 100, 222, 379);
+		setBounds(100, 100, 214, 411);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -88,6 +88,6 @@ public class SingleDistributionDialog extends JDialog {
 	}
 	
 	public String toString(){
-		return d_panel.get_distribution().toString();
+		return ((d_panel.get_distribution()== null)?"None":d_panel.get_distribution().toString());
 	}
 }
