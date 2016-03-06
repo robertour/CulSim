@@ -596,8 +596,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	private String run_experiment_batch(BufferedWriter writer){
 		log.print(IDENTIFIER, "Batch Mode (Multi-thread) \n");
 		String r = "";
+		check_for_events();
 		for (iteration = 0; iteration < ITERATIONS; iteration += CHECKPOINT) {
-
 			run_iteration();
 			generation += CHECKPOINT;
 			
@@ -1172,29 +1172,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}
 	}
 	
-	/**
-	 * Execute an event if it is not running, otherwise add it to the list
-	 * @param e
-	 */
-	public void event(Event e){
-		if (playing) {
-			boolean loop = true;
-			while (loop){
-				if (!executing_events){
-					events.add(e);
-					loop = false;
-				}
-				try {
-				    Thread.sleep(1);
-				} catch(InterruptedException ex) {
-				    Thread.currentThread().interrupt();
-				}
-			}
-		} else {
-			e.execute(this);
-			update_gui();
-		}
-	}
 	
 	
 	/**
@@ -1216,12 +1193,15 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				}
 			}
 		} else {
-			if (generation > 0){
+			if (generation > 0 && !Controller.IS_BATCH){
 				for (Iterator<Event> iterator = es.iterator(); iterator.hasNext();) {
 					Event event = (Event) iterator.next();
 					event.execute(this);
 				}
 				update_gui();
+			} else {
+				log.print(-1, "the events have been added\n");
+				this.events.addAll(es);
 			}
 		}
 	}

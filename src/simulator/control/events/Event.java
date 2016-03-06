@@ -21,7 +21,7 @@ public abstract class Event implements Serializable{
 		} else if (distribution.getType() == Distribution.NEWMANN) {
 			newman_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadious(), s);			
 		}
-		s.log.print(s.IDENTIFIER, "Event executed: " + this + "\n");
+		
 		
 	}
 	

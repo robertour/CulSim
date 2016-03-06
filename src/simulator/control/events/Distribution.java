@@ -98,14 +98,14 @@ public class Distribution implements Serializable{
 		if (calculated_row_ratio < 0){
 			calculated_row_ratio = sim.getRand().nextDouble(); 
 		} 
-		return (int) Math.round(calculated_row_ratio*sim.ROWS);
+		return (int) Math.round(calculated_row_ratio*(sim.ROWS-1));
 	}
 	
 	public int getCol(Simulation sim){
 		if (calculated_col_ratio < 0){
 			calculated_col_ratio = sim.getRand().nextDouble(); 
 		} 
-		return (int) Math.round(calculated_col_ratio*sim.COLS);
+		return (int) Math.round(calculated_col_ratio*(sim.COLS-1));
 	}
 
 	public double getSd() {

@@ -64,7 +64,7 @@ public class Main {
 	    }
 	    
 	    if (events.size() > 0){
-	    	printer.print(-1, "The folling events have been set up for the scenarios: \n");
+	    	printer.print(-1, "The following events have been set up for the scenarios: \n");
 	    	for (Iterator <Event> iterator = events.iterator(); iterator.hasNext();) {
 				printer.print(-1, iterator.next() + "\n");
 			}

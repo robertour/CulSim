@@ -296,13 +296,6 @@ public class ControllerSingle extends Controller
     }
 		
 
-    /**
-     * Add a catastrophic event to the simulation
-     * @param e
-     */
-	public void add_event(Event e){
-		simulation.event(e);
-	}
 	
     /**
      * Add a catastrophic events to the simulation
