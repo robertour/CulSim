@@ -136,6 +136,25 @@ public class Ulloa extends Axelrod {
 				countryman_left_c[r][c] = c;
 			}
 		}
+		
+		if (!RANDOM_INITIALIZATION){
+			nr = ROWS/2;
+			nc = COLS/2;
+
+			int middle_trait = (int) Math.round(TRAITS/2.0 - 0.01);
+			
+			for (int f = 0; f < FEATURES; f++) {
+				institution_beliefs[nr*COLS+ nc][f] = middle_trait;
+			}
+			
+			for (int r = 0; r < ROWS; r++) {
+				for (int c = 0; c < COLS; c++) {
+					move_to_institution(r, c, nr, nc);
+				}
+			}
+			
+			
+		}
 
 
 		votes_flags = new boolean[ROWS][COLS];
@@ -144,6 +163,8 @@ public class Ulloa extends Axelrod {
 		
 		max_traits = new int[FEATURES*TRAITS];
 		max_features = new int[FEATURES*TRAITS];
+		
+		check_circular_list();
 		
 	}
 
@@ -406,6 +427,7 @@ public class Ulloa extends Axelrod {
 			} // END of total agents
 			
 			if (FREQ_DEM > 0 &&(iteration * CHECKPOINT + ic + 1) % FREQ_DEM == 0){
+				//log.print(IDENTIFIER,"Democratic Process");
 				
 				// Democratic Process
 				// traverse rows
@@ -510,6 +532,7 @@ public class Ulloa extends Axelrod {
 			}
 			
 			if (FREQ_PROP > 0  && (iteration * CHECKPOINT + ic + 1) % FREQ_PROP == 0){
+				//log.print(IDENTIFIER,"Prop Process");
 				
 				// Propaganda Process
 				// traverse rows
@@ -623,8 +646,7 @@ public class Ulloa extends Axelrod {
 					/*System.out.print("(" + countryman_left_r[nr][nc] + "," + countryman_left_c[nr][nc] + 
 						" ) <-(" + nr + "," + nc + 
 						") -> (" + countryman_right_r[nr][nc] + "," + countryman_right_c[nr][nc] + ") - ");*/
-					
-					
+							
 					if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
 						System.out.println("Super NEW Circular list Kaput!!! Somebody already voted.");
 						 stop = true;
@@ -723,8 +745,8 @@ public class Ulloa extends Axelrod {
 	 * the representation of the invaders, so they can refer to it
 	 * as they representative.
 	 */
-	public void invade(int r, int c, int institution){
-		move_to_institution(r, c, institution);
+	public void invade(int r, int c, int nr, int nc){
+		move_to_institution(r, c, nr, nc);
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f]=TRAITS;
 		}
@@ -809,14 +831,16 @@ public class Ulloa extends Axelrod {
 	}
 	
 	/**
-	 * Move to another institution.
-	 * 
+	 * Move to neighbors institution 
 	 * @param r
 	 * @param c
+	 * @param nr
+	 * @param nc
 	 * @param neighbors_institution
 	 */
-	private void move_to_institution (int r, int c, int neighbors_institution){
+	private void move_to_institution (int r, int c, int nr, int nc){
 		institution = institutions[r][c];	
+		neighbors_institution = institutions[nr][nc];
 		
 		// its institution lost a citizen
 		institutionsN[institution]--;

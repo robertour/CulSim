@@ -28,7 +28,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -75,7 +74,7 @@ public class CulturalSimulator extends JFrame {
 	private JPanel contentPane;
 	
 	public static String EXPERIMENTAL_FILE = "";
-	public static String RESULTS_DIR = "";
+	public String results_dir = "";
 	
 	private JFileChooser jfc_load = new JFileChooser(Controller.WORKSPACE_DIR + Controller.WORLDS_DIR);
 	
@@ -1130,19 +1129,8 @@ public class CulturalSimulator extends JFrame {
 				if (tglbtnPause.isSelected() || tglbtnStop.isSelected()){
 				
 					if (!tglbtnPause.isSelected() && tglbtnStop.isSelected()){
-							
-						File dir = new File(parameters_dialog.tf_results_dir.getText() + Controller.RESULTS_DIR);
+						controller.run(parameters_dialog.tf_results_dir.getText());
 						
-						String result_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);
-						for( int i = 0; dir.exists(); i++) {
-							dir = new File(parameters_dialog.tf_results_dir.getText() + result_dir + i + "/");	
-						}
-			
-						RESULTS_DIR = dir.getAbsolutePath() + "\\";
-						(new File(RESULTS_DIR + Controller.ITERATIONS_DIR)).mkdirs();
-						controller.setRESULTS_DIR(RESULTS_DIR);
-
-						controller.play();
 					} else {
 						controller.resume();
 					}

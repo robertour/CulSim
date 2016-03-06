@@ -32,6 +32,7 @@ import javax.swing.UIManager;
 import java.awt.Color;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
+import javax.swing.JCheckBox;
 
 
 public class CulturalParameters extends JDialog {
@@ -65,6 +66,8 @@ public class CulturalParameters extends JDialog {
 
 	private JComboBox<String> cb_presets;
 	public JTextField tf_results_dir;
+
+	public static JCheckBox cb_random_initialization;
 
 
 	/**
@@ -218,46 +221,51 @@ public class CulturalParameters extends JDialog {
 			}
 			{
 				JPanel panel_2 = new JPanel();
-				panel_2.setBounds(10, 56, 150, 100);
+				panel_2.setBounds(10, 56, 150, 124);
 				panel_1.add(panel_2);
 				panel_2.setBorder(new TitledBorder(null, "Controls", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 				panel_2.setLayout(null);
 				{
 					JLabel lblNewLabel = new JLabel("Iterations: ");
 					lblNewLabel.setToolTipText("How many iterations would you let the simulation run for? ");
-					lblNewLabel.setBounds(10, 23, 64, 14);
+					lblNewLabel.setBounds(10, 46, 64, 14);
 					panel_2.add(lblNewLabel);
 				}
 				{
 					JLabel lblCheckpoint = new JLabel("Speed:");
 					lblCheckpoint.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
-					lblCheckpoint.setBounds(10, 48, 64, 14);
+					lblCheckpoint.setBounds(10, 71, 64, 14);
 					panel_2.add(lblCheckpoint);
 				}
 				{
 					JLabel lblBufferSize = new JLabel("Buffer Size:");
 					lblBufferSize.setToolTipText("Size of the buffer to send results to hard drive? Small values constantly send to hard drive (slow), high values avoid sending to hard drive often but you could lost all the data if the simulation crashes (Risky)");
-					lblBufferSize.setBounds(10, 73, 64, 14);
+					lblBufferSize.setBounds(10, 96, 64, 14);
 					panel_2.add(lblBufferSize);
 				}
 				
 				sp_iterations = new JSpinner();
 				sp_iterations.setToolTipText("How many iterations would you let the simulation run for? ");
 				sp_iterations.setModel(new SpinnerNumberModel(new Integer(1000000), new Integer(1000), null, new Integer(1000)));
-				sp_iterations.setBounds(67, 20, 73, 20);
+				sp_iterations.setBounds(67, 43, 73, 20);
 				panel_2.add(sp_iterations);
 				
 				sp_checkpoints = new JSpinner();
 				sp_checkpoints.setToolTipText("How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
 				sp_checkpoints.setModel(new SpinnerNumberModel(new Integer(100), null, null, new Integer(1)));
-				sp_checkpoints.setBounds(84, 45, 56, 20);
+				sp_checkpoints.setBounds(84, 68, 56, 20);
 				panel_2.add(sp_checkpoints);
 				
 				sp_buffer = new JSpinner();
 				sp_buffer.setToolTipText("Size of the buffer to send results to hard drive? Small values constantly send to hard drive (slow), high values avoid sending to hard drive often but you could lost all the data if the simulation crashes (Risky)");
 				sp_buffer.setModel(new SpinnerNumberModel(new Integer(512), null, null, new Integer(1)));
-				sp_buffer.setBounds(84, 70, 56, 20);
+				sp_buffer.setBounds(84, 93, 56, 20);
 				panel_2.add(sp_buffer);
+				
+				cb_random_initialization = new JCheckBox("Random Initialization");
+				cb_random_initialization.setSelected(true);
+				cb_random_initialization.setBounds(6, 16, 134, 23);
+				panel_2.add(cb_random_initialization);
 			}
 			{
 				JPanel panel_1_1 = new JPanel();

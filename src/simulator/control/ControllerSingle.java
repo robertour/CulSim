@@ -35,11 +35,6 @@ public class ControllerSingle extends Controller
 	protected static Printable log = null;
 	
 	/**
-	 * Directory to write results
-	 */
-	protected static String RESULTS_DIR = null;
-	
-	/**
 	 * References the Executor service that handles the threads
 	 */
 	private ExecutorService exec = null;
@@ -62,9 +57,6 @@ public class ControllerSingle extends Controller
 		log = output;
 	}
 		
-	public void setRESULTS_DIR(String results_dir) {
-		RESULTS_DIR = results_dir;
-	}
 	
 	public int get_iteration(){
 		return simulation.iteration;
@@ -149,6 +141,7 @@ public class ControllerSingle extends Controller
 	public void restore_parameters_to_interface(){
 		String the_class = simulation.getClass().getSimpleName()+ " (" + simulation.getClass().getPackage().getName()+")";
 		CulturalParameters.classSelector.setSelectedItem(the_class);
+		CulturalParameters.cb_random_initialization.setSelected(simulation.RANDOM_INITIALIZATION);
 		CulturalParameters.sp_iterations.setValue(simulation.ITERATIONS);
     	CulturalParameters.sp_checkpoints.setValue(simulation.CHECKPOINT);
     	CulturalParameters.sp_buffer.setValue(simulation.BUFFERED_SIZE);
@@ -230,6 +223,7 @@ public class ControllerSingle extends Controller
 		try {
 
 			simulation = (Simulation) CulturalParameters.classes.get(ind).newInstance();
+			simulation.RANDOM_INITIALIZATION = CulturalParameters.cb_random_initialization.isSelected();
 			simulation.ITERATIONS = (int) CulturalParameters.sp_iterations.getValue();
 	    	simulation.CHECKPOINT = (int) CulturalParameters.sp_checkpoints.getValue();
 	    	simulation.BUFFERED_SIZE = (int) CulturalParameters.sp_buffer.getValue();
@@ -256,8 +250,7 @@ public class ControllerSingle extends Controller
 	/**
 	 * 
 	 */
-    public void play() 
-    {
+    public void play() {
 
     	// Load static variables that the simulation is going to access
     	IS_BATCH = false;
@@ -267,6 +260,8 @@ public class ControllerSingle extends Controller
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
     	simulation.IDENTIFIER = -999;
+    	simulation.log = log;
+    	simulation.results_dir = results_dir;
     	exec.submit(simulation);
 
     	log.print(simulation.IDENTIFIER, "Task submitted\n");
@@ -335,7 +330,7 @@ public class ControllerSingle extends Controller
     public void write_results() throws IOException {
     	// Write the results to the file
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream(RESULTS_DIR + "results.csv"), "utf-8"));
+              new FileOutputStream(results_dir + "results.csv"), "utf-8"));
     	// TODO this is weird
         writer.write(Simulation.header());
        	writer.write(simulation.get_results());

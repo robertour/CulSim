@@ -36,20 +36,12 @@ public class ControllerBatch extends Controller
 	 */
 	protected static Printable log = null;
 	
-	/**
-	 * Directory to write results
-	 */
-	protected static String RESULTS_DIR = null;
-	
+
 	// Keep the tasks in a list. Don't start until the entire file is read.
 	protected ArrayList<Simulation> tasks = null;
 	
 	public ControllerBatch(Printable output) {
 		log = output;
-	}
-
-	public void set_RESULTS_DIR(String results_dir) {
-		RESULTS_DIR = results_dir;
 	}
 
 	/** 
@@ -87,7 +79,7 @@ public class ControllerBatch extends Controller
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
-    public void load_tasks_with_events(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) {
+    public void load_simulations_from_directory(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) {
     	tasks = new ArrayList<Simulation>();
     	IS_BATCH = true;
 
@@ -95,6 +87,7 @@ public class ControllerBatch extends Controller
 			String string = (String) iterator.next();
 			for (int j = 0; j < repetitions; j++) {
 				Simulation s = this.load_simulation(string);
+				s.log = log;
 				s.events(events);
     			tasks.add(s);	
 			}	
@@ -105,7 +98,7 @@ public class ControllerBatch extends Controller
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
-    public void load_tasks(String csv_file) throws FileNotFoundException {
+    public void load_simulations_from_file(String csv_file, ArrayList<Event> events) throws FileNotFoundException {
     	
     	// This is used to randomize the experiment.
     	Random rand = new Random();
@@ -132,6 +125,7 @@ public class ControllerBatch extends Controller
         			case "FLACHE1":	simulation = new Axelrod();	break;
         			case "FLACHE2":	simulation = new Flache2();	break;
         		}
+		    	simulation.RANDOM_INITIALIZATION = Boolean.parseBoolean(scanner.next());
 	        	simulation.ITERATIONS = Integer.parseInt(scanner.next());
 	        	simulation.CHECKPOINT = Integer.parseInt(scanner.next());
 	        	simulation.BUFFERED_SIZE = Integer.parseInt(scanner.next());
@@ -146,11 +140,18 @@ public class ControllerBatch extends Controller
 	        	simulation.FREQ_PROP =  Integer.parseInt(scanner.next());
 	        	simulation.MUTATION = Float.parseFloat(scanner.next());
 	        	simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
-	        	tasks.add(rand.nextInt(tasks.size()+1), simulation);
+				simulation.log = log;
+
 	        	
 	        	// Generate tasks per repetitions
-	        	for (int r = 1; r < repetitions; r++) {
-		        	tasks.add( rand.nextInt(tasks.size()+1), simulation.clone());
+	        	Simulation clone;
+	        	for (int r = 0; r < repetitions; r++) {
+	        		clone = simulation.clone();
+
+	        		if (events.size() > 0) {
+	        			clone.events(events);
+	        		}
+		        	tasks.add( rand.nextInt(tasks.size()+1), clone);
 	        	}
 	        	
 	        	if (scanner.hasNextLine()) {
@@ -170,7 +171,7 @@ public class ControllerBatch extends Controller
     public void write_results() throws IOException {
     	// Write the results to the file
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream(RESULTS_DIR + "results.csv"), "utf-8"));
+              new FileOutputStream(results_dir + "results.csv"), "utf-8"));
         writer.write(Simulation.header());
         for(Simulation w : tasks) {
 			writer.write(w.get_results());
@@ -182,8 +183,8 @@ public class ControllerBatch extends Controller
      * Load the file and starts the simulation
      * @throws FileNotFoundException
      */
-    public void start() 
-    {
+    protected void play(){
+    	
     	/**
     	 * Load static variables that the simulation is going to access
     	 */
@@ -195,6 +196,8 @@ public class ControllerBatch extends Controller
     	int id = 0;
     	for(Simulation w : tasks) {
     		w.IDENTIFIER = id++;
+    		w.log = log;
+    		w.results_dir = results_dir;
     		exec.submit(w);
     	} 
     

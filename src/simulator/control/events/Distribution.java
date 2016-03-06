@@ -28,9 +28,12 @@ public class Distribution implements Serializable{
 	 * Creates a uniform distribution
 	 * @param probability
 	 */
-	public Distribution(double probability){
+	public Distribution(double probability) throws IllegalArgumentException {
+		if (probability < 0 && probability > 1){
+			throw new IllegalArgumentException("Invalid argument in Uniform Distribution: probability has to be between 0 and 1.");
+		}
 		this.type = UNIFORM;
-		this.probability = probability;		
+		this.probability = probability;	
 	}
 	
 	/**
@@ -39,7 +42,18 @@ public class Distribution implements Serializable{
 	 * @param col_ratio
 	 * @param sd
 	 */
-	public Distribution(double row_ratio, double col_ratio, double sd){
+	public Distribution(double row_ratio, double col_ratio, double sd) throws IllegalArgumentException{
+		if (row_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: x cannot be bigger than 1.");
+		}
+		if (col_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: y cannot be bigger than 1.");
+		}
+		if (sd < 0 ){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: sd cannot be negative.");
+		}
+		
+		
 		this.type = NORMAL;
 		this.row_ratio = this.calculated_row_ratio = row_ratio;
 		this.col_ratio = this.calculated_col_ratio = col_ratio;
@@ -52,7 +66,16 @@ public class Distribution implements Serializable{
 	 * @param col_ratio
 	 * @param r
 	 */
-	public Distribution(double row_ratio, double col_ratio, int r){
+	public Distribution(double row_ratio, double col_ratio, int r) throws IllegalArgumentException{
+		if (row_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: x cannot be bigger than 1.");
+		}
+		if (col_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: y cannot be bigger than 1.");
+		}
+		if (r < 0 ){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: r cannot be negative.");
+		}
 		this.type = NEWMANN;
 		this.row_ratio = this.calculated_row_ratio = row_ratio;
 		this.col_ratio = this.calculated_col_ratio = col_ratio;
@@ -138,6 +161,44 @@ public class Distribution implements Serializable{
 		
 		public double density(double x){
 			return coef*Math.exp(-(x*x)/(2*var));
+		}
+	}
+	
+	/**
+	 * Creates a distribution based on a string that represents it
+	 * @param s in the form of (U,p), (W,x,y,radius) or (N,x,y,sd)
+	 * @return
+	 */
+	public static Distribution parseDistribution(String s){
+		if (s.charAt(0) != '('){
+			throw new IllegalArgumentException("'(' missing at the begining of the distribution: " + s);
+		} else if (s.charAt(s.length()-1) != ')'){
+			throw new IllegalArgumentException("')' missing at the end of the distribution: " + s);
+		}
+		
+
+		String[] params = s.substring(1, s.length()-1).split(",");
+		if (params[0].length() != 1){
+			throw new IllegalArgumentException(params[0] + " is not a valid distribution in " + s);
+		}
+		switch (params[0].charAt(0)){
+		case 'U':
+			if (params.length > 2){
+				throw new IllegalArgumentException("Uniform distribution only accepts one parameter after the 'U' in " + s);
+			}
+			return new Distribution(Double.parseDouble(params[1]));
+		case 'W':
+			if (params.length > 4){
+				throw new IllegalArgumentException("Newmann's distribution only accepts 3 parameters after the 'W' in " + s);
+			}
+			return new Distribution(Double.parseDouble(params[1]),Double.parseDouble(params[2]),Integer.parseInt(params[3]));
+		case 'N':
+			if (params.length > 4){
+				throw new IllegalArgumentException("Normal distribution only accepts 3 parameters after the 'N' in " + s);
+			}
+			return new Distribution(Double.parseDouble(params[1]),Double.parseDouble(params[2]),Double.parseDouble(params[3]));
+		default:
+			throw new IllegalArgumentException("Invalid distribution: " + s + ". Options are (U,p), (W,x,y,radious), and N(x,y,center)");
 		}
 	}
 }

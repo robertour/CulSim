@@ -40,7 +40,10 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Identify the current simulation object
 	 */
 	public int IDENTIFIER = 0;
-	// Size of the world
+	/**
+	 * Indicate if the initialization is meant to be random or uniform
+	 */
+	public boolean RANDOM_INITIALIZATION = true;	
 	/**
 	 * ROWS of the world
 	 */
@@ -358,7 +361,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			starter = (Simulation) ois.readObject();
 			
 			epoch++;
-			log.print(IDENTIFIER, "Current state has been saved. A new epoch has started: " + epoch + "+\n");
+			if (log != null){
+				log.print(IDENTIFIER, "Current state has been saved. A new epoch has started: " + epoch + "+\n");
+			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -379,14 +384,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		is_finished = false;
 		failed = false;
 		BufferedWriter writer = null;
-		
-		if (Controller.IS_BATCH){
-			log = ControllerBatch.log;
-			results_dir = ControllerBatch.RESULTS_DIR;
-		} else {		
-			log = ControllerSingle.log;
-			results_dir = ControllerSingle.RESULTS_DIR;
-		}
 		
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
@@ -511,11 +508,17 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		flags = new boolean[ROWS][COLS];
 		cultures = new int[ROWS][COLS];
 		
+		int middle_trait = (int) Math.round(TRAITS/2.0 - 0.01);
+		
 		int n = 0;
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
 				for (int f = 0; f < FEATURES; f++) {
-					beliefs[r][c][f] = rand.nextInt(TRAITS);
+					if (RANDOM_INITIALIZATION){
+						beliefs[r][c][f] = rand.nextInt(TRAITS);
+					} else {
+						beliefs[r][c][f] = middle_trait;
+					}
 				}
 				n = 0;
 				for (int i = 0; i <= RADIUS; i++) {
@@ -744,6 +747,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		Simulation clone = null;
 		try {
 			clone = this.getClass().newInstance();
+			clone.RANDOM_INITIALIZATION = this.RANDOM_INITIALIZATION;
 			clone.ITERATIONS = this.ITERATIONS;
 			clone.CHECKPOINT = this.CHECKPOINT; 
 			clone.TYPE = this.TYPE;
@@ -757,7 +761,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			clone.FREQ_DEM = this.FREQ_DEM;
 			clone.FREQ_PROP = this.FREQ_PROP;
 			clone.MUTATION = this.MUTATION;
-			clone.SELECTION_ERROR = this.SELECTION_ERROR;			
+			clone.SELECTION_ERROR = this.SELECTION_ERROR;	
+			clone.log = this.log;
+			clone.results_dir = this.results_dir;
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -770,7 +776,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	public static String header() {
 		return "id,timestamp,duration,iterations,checkpoint,"
-				+ "type,rows,cols,features,traits,radius,"
+				+ "type,initialization,"
+				+ "rows,cols,features,traits,radius,"
 				+ "alpha,alpha_prime,freq_dem,freq_prop,mutation,selection_error,"
 				+ "epoch,generation,iteration,"
 				+ "energy,"
@@ -792,7 +799,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				new java.sql.Timestamp(startTime) + "," +
 				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
 				ITERATIONS + "," + CHECKPOINT + "," + 
-				TYPE + "," + ROWS + "," + COLS + "," + FEATURES + "," +	TRAITS + "," + RADIUS + "," +
+				TYPE + "," + (RANDOM_INITIALIZATION?"Random":"Static") + "," + 
+				ROWS + "," + COLS + "," + FEATURES + "," +	TRAITS + "," + RADIUS + "," +
 				ALPHA + "," + ALPHA_PRIME + "," + FREQ_DEM + "," + FREQ_PROP + "," + MUTATION + "," + SELECTION_ERROR + "," +
 				epoch + "," + generation + "," + iteration + "," +				
 				energy + "," + 
@@ -815,7 +823,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 //		if (culture_similarity == null)
 //			culture_similarity = new double[4];
 		// TODO the previous need to be better programmed
-		return TYPE + " " + 
+		return TYPE + "(" + (RANDOM_INITIALIZATION?"R":"S") + ") " +
 				ROWS + "x" + COLS + "(" + RADIUS + "): " +
 				"F/T:" + FEATURES + "/" + TRAITS + " | " +
 				"M/S:" + MUTATION + "/" + SELECTION_ERROR + " | " +
@@ -1303,7 +1311,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param r
 	 * @param c
 	 */
-	public void invade(int r, int c, int institution){
+	public void invade(int r, int c, int nr, int nc){
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f]=TRAITS;
 		}

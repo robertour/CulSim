@@ -1,5 +1,6 @@
 package simulator.control;
 
+import java.io.File;
 import java.util.concurrent.ExecutorService;
 
 
@@ -40,6 +41,12 @@ public abstract class Controller {
 	public static final String RESULTS_DIR = "results/";
 	
 	/**
+	 * Directory to write results
+	 */
+	protected String results_dir = RESULTS_DIR;
+	
+	
+	/**
 	 * Directory to save the CSV results of the simulations
 	 */
 	public static final String ITERATIONS_DIR = "iterations/";
@@ -62,5 +69,25 @@ public abstract class Controller {
 	 */
 	public static boolean IS_BATCH;
 
+	/**
+	 * 
+	 * @param controller
+	 * @param ws_dir
+	 */
+	public void run (String ws_dir){
+		// Look for a non existent results directory
+		File dir = new File(ws_dir + Controller.RESULTS_DIR);
+		String result_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);
+		for( int i = 0; dir.exists(); i++) {
+			dir = new File(ws_dir + result_dir + i + "\\");	
+		}
+
+		results_dir = dir.getAbsolutePath() + "\\";
+		(new File(results_dir + Controller.ITERATIONS_DIR)).mkdirs();
+		(new File(results_dir + Controller.SIMULATIONS_DIR)).mkdirs();
 		
+		play();
+	}
+	
+	protected abstract void play ();
 }

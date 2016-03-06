@@ -59,7 +59,6 @@ public class BatchMode extends JDialog {
 	public JTextField tf_results_dir;
 	public JTextField tf_experimental_file;
 	private String EXPERIMENTAL_FILE = "";
-	private String results_dir = "./";
 	
 	private JFileChooser jfc_experiment = new JFileChooser(Controller.WORKSPACE_DIR + "sample.csv");
 	private JFileChooser jfc_results = new JFileChooser(Controller.WORKSPACE_DIR);
@@ -480,7 +479,7 @@ public class BatchMode extends JDialog {
 					tf_results_dir_csv.setText(jfc_experiment.getCurrentDirectory().getAbsolutePath() + "\\");
 					EXPERIMENTAL_FILE = tf_experimental_file.getText();
 					try {
-						controller.load_tasks(EXPERIMENTAL_FILE);
+						controller.load_simulations_from_file(EXPERIMENTAL_FILE, new ArrayList<Event>());
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					}
@@ -539,6 +538,13 @@ public class BatchMode extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.clean_all();
 				
+				btn_start.setEnabled(false);
+				btn_pause.setEnabled(true);
+				btn_resume.setEnabled(false);
+				btn_stop.setEnabled(true);
+				btn_open_experiment.setEnabled(false);
+				btn_open_file.setEnabled(false);
+				
 				if (tp_batch_mode.getSelectedComponent() == tab_conf_file || 
 						tp_batch_mode.getSelectedComponent() == tab_csv ) {
 					
@@ -548,7 +554,7 @@ public class BatchMode extends JDialog {
 						EXPERIMENTAL_FILE = tf_experimental_file.getText();
 						
 						try {
-							controller.load_tasks(EXPERIMENTAL_FILE);
+							controller.load_simulations_from_file(EXPERIMENTAL_FILE, new ArrayList<Event>());
 							btn_start.setEnabled(true);
 						} catch (FileNotFoundException e) {
 							System.out.println("WARNING: Sample experimental file not found (" + EXPERIMENTAL_FILE + ")");
@@ -556,17 +562,10 @@ public class BatchMode extends JDialog {
 						}
 					}
 					
-					// Look for an non-existent directory to save the results
-					File dir = new File(tf_results_dir.getText() + Controller.RESULTS_DIR);
-					String relative_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);
-					for( int i = 0; dir.exists(); i++) {
-						dir = new File(tf_results_dir.getText() + relative_dir + i + "/");	
-					}
-					results_dir = dir.getAbsolutePath() + "\\";
-					controller.set_RESULTS_DIR(results_dir);
+					controller.run( tf_results_dir.getText());
 					
 			    } else if (tp_batch_mode.getSelectedComponent() == tab_catastrophic) {
-			    	ArrayList<String> sim_list = new ArrayList<String>();  			    	
+			    	ArrayList<String> sim_list = new ArrayList<String>();		    	
 			    	
 			    	File simulations_dir = new File (tf_scenarios_dir.getText() + 
 			    			ControllerBatch.SIMULATIONS_DIR);
@@ -579,40 +578,19 @@ public class BatchMode extends JDialog {
 						} else {
 							TA_OUTPUT.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory didn't contain " +
 										"any simulations. Please make sure you are providing a directory with " +
-										"the results of a Batch process (either CSV or Configuration Files).");
+										"the results of a Batch process.");
 							return;
 						}
 					} else {
 						TA_OUTPUT.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory was not found on " +
 									"the provided directory. Please make sure you are providing a directory with " +
-									"the results of a Batch process (either CSV or Configuration Files).");
+									"the results of a Batch process.");
 						return;
 					}
-			    	controller.load_tasks_with_events(sim_list, events, 1);
-			    	
-			    	// Look for an non-existent directory inside the scenarios to save the results
-			    	File dir = new File(tf_scenarios_dir.getText() + Controller.RESULTS_DIR);
-			    	String relative_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);			    	
-					for( int i = 0; dir.exists(); i++) {
-						dir = new File(tf_scenarios_dir.getText() + relative_dir + i + "/");	
-					}
-					results_dir = dir.getAbsolutePath() + "/";
-					controller.set_RESULTS_DIR(results_dir);
+			    	controller.load_simulations_from_directory(sim_list, events, 1);
+			    						
+					controller.run(tf_scenarios_dir.getText() );
 			    }
-			
-				// Create the  subdirectories for the results inside the corresponding results directory
-				(new File(results_dir + Controller.ITERATIONS_DIR)).mkdirs();
-				(new File(results_dir + Controller.SIMULATIONS_DIR)).mkdirs();
-				
-				btn_start.setEnabled(false);
-				btn_pause.setEnabled(true);
-				btn_resume.setEnabled(false);
-				btn_stop.setEnabled(true);
-				btn_open_experiment.setEnabled(false);
-				btn_open_file.setEnabled(false);
-				
-				controller.start();
-				
 			}
 		});
 

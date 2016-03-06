@@ -93,5 +93,48 @@ public abstract class Event implements Serializable{
 			}
 		}
 	}
+	
+	/**
+	 * Parse a string and return an event
+	 * @param s
+	 * @return
+	 */
+	public static Event parseEvent(String s) throws IllegalArgumentException {
+		switch (s.charAt(0)){
+		case 'D':
+			switch (s.charAt(1)){
+			case 'S':
+				return new DestroyInstitutionsStructure(Distribution.parseDistribution(s.substring(2)));
+			case 'P':
+				return new DestroyPartialInstitutionsContent(Distribution.parseDistribution(s.substring(2)));
+			case 'F':
+				return new DestroyInstitutionsContent(Distribution.parseDistribution(s.substring(2)));
+			default:
+				throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' after '" + s.charAt(0) + " in " + s + ". Options are S (Structure), P (Partial) and F (Full).");
+			}
+		case 'C':
+			switch (s.charAt(1)){
+			case 'P':
+				return new ConvertTraits(Distribution.parseDistribution(s.substring(2)));
+			case 'F':
+				return new ConvertInstitutions(Distribution.parseDistribution(s.substring(2)));
+			default:
+				throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' after '" + s.charAt(0) + " in " + s + ". Options are P (Partial) and F (Full).");
+			}
+		case 'I':
+			return new Invasion(Distribution.parseDistribution(s.substring(1)));
+		case 'G':
+			return new Genocide(Distribution.parseDistribution(s.substring(1)));
+		default:
+			throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' in " + s + 
+					". Options are DP (Partial Destruction), DF (Full Destruction), DS (Structural Destruction)."
+					+ "CP (Partial Conversion), CF (Full Conversion), I (Invasion) and G (Genocide), followed by "
+					+ "a distribution: e.g G(U, 0.1), genocided in which all agents have a probability of dying "
+					+ "of 0.1, I(W,0.5,0.5,6), invasion in which all agents in a Newmann's radious of 6 from the "
+					+ "center (0.5*ROWS, 0.5*COLS) will be the invadors, or CP(N,-1,-1,0.2), partial conversion "
+					+ "in which the probability of the institutional trais being converted is distributed normally "
+					+ "from a randomly selected center (-1,-1) which has probility of 1.0.");
+		}
+	}
 
 }
