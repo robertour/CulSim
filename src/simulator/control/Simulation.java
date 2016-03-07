@@ -360,9 +360,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			ObjectInputStream ois = new ObjectInputStream(bais);
 			starter = (Simulation) ois.readObject();
 			
-			epoch++;
 			if (log != null){
-				log.print(IDENTIFIER, "Current state has been saved. A new epoch has started: " + epoch + "+\n");
+				log.print(IDENTIFIER, "Current state has been saved.\n");
 			}
 
 		} catch (IOException e) {
@@ -426,6 +425,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				log.print(IDENTIFIER, "writer.write(results()); failed");
 				failed = true;
 			}
+		} else {
+			epoch++;
 		}
 			
 		String r = "";
@@ -799,7 +800,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				new java.sql.Timestamp(startTime) + "," +
 				((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," +
 				ITERATIONS + "," + CHECKPOINT + "," + 
-				TYPE + "," + (RANDOM_INITIALIZATION?"Random":"Static") + "," + 
+				TYPE + "," + RANDOM_INITIALIZATION + "," + 
 				ROWS + "," + COLS + "," + FEATURES + "," +	TRAITS + "," + RADIUS + "," +
 				ALPHA + "," + ALPHA_PRIME + "," + FREQ_DEM + "," + FREQ_PROP + "," + MUTATION + "," + SELECTION_ERROR + "," +
 				epoch + "," + generation + "," + iteration + "," +				
@@ -1200,7 +1201,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				}
 				update_gui();
 			} else {
-				log.print(-1, "the events have been added\n");
 				this.events.addAll(es);
 			}
 		}
