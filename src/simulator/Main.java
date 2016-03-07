@@ -84,7 +84,7 @@ public class Main {
 		ArrayList<String> sim_list = new ArrayList<String>();
 		
 		File rdf = new File(rd);
-		File simulations_dir = new File (rdf.getAbsolutePath() + "\\" + ControllerBatch.SIMULATIONS_DIR);
+		File simulations_dir = new File (rdf.getAbsolutePath() + "/" + ControllerBatch.SIMULATIONS_DIR);
     	if (simulations_dir.exists() && simulations_dir.isDirectory()){
 			File[] directoryListing = simulations_dir.listFiles();
 			if (directoryListing != null) {
@@ -103,7 +103,7 @@ public class Main {
 		}
     	controller.load_simulations_from_directory(sim_list, events, 1);
     	
-		controller.run( rd + "\\");
+		controller.run( rd + "/");
 	
 	}
 

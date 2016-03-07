@@ -79,10 +79,10 @@ public abstract class Controller {
 		File dir = new File(ws_dir + Controller.RESULTS_DIR);
 		String result_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);
 		for( int i = 0; dir.exists(); i++) {
-			dir = new File(ws_dir + result_dir + i + "\\");	
+			dir = new File(ws_dir + result_dir + i + "/");	
 		}
 
-		results_dir = dir.getAbsolutePath() + "\\";
+		results_dir = dir.getAbsolutePath() + "/";
 		(new File(results_dir + Controller.ITERATIONS_DIR)).mkdirs();
 		(new File(results_dir + Controller.SIMULATIONS_DIR)).mkdirs();
 		
