@@ -532,7 +532,9 @@ public class CulturalParameters extends JDialog {
 
         File directory = new File(directoryName);
 
-        //get all the files from a directory
+        if (!directory.exists()){
+        	directory.mkdirs();
+        }
 
         File[] fList = directory.listFiles();
         

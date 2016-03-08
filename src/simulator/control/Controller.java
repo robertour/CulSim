@@ -38,12 +38,17 @@ public abstract class Controller {
 	 * in the destination folder then another folder called RESULTS_DIR#
 	 * is created, where # increases automatically
 	 */
-	public static final String RESULTS_DIR = "results/";
+	public static final String RESULTSET_DIR = "resultset/";
 	
 	/**
 	 * Directory to write results
 	 */
-	protected String results_dir = RESULTS_DIR;
+	protected String results_dir = "results/";
+	
+	/**
+	 * Directory to write results
+	 */
+	protected String identifier = "results";
 	
 	
 	/**
@@ -74,17 +79,23 @@ public abstract class Controller {
 	 * @param controller
 	 * @param ws_dir
 	 */
-	public void run (String ws_dir){
+	public void run (String ws_dir, String id){
+		identifier = id;
 		// Look for a non existent results directory
-		File dir = new File(ws_dir + Controller.RESULTS_DIR);
-		String result_dir = Controller.RESULTS_DIR.substring(0, Controller.RESULTS_DIR.length() - 1);
+		File dir = new File(ws_dir + identifier + "/");
+		String result_dir = identifier;
 		for( int i = 0; dir.exists(); i++) {
 			dir = new File(ws_dir + result_dir + i + "/");	
 		}
 
 		results_dir = dir.getAbsolutePath() + "/";
-		(new File(results_dir + Controller.ITERATIONS_DIR)).mkdirs();
-		(new File(results_dir + Controller.SIMULATIONS_DIR)).mkdirs();
+		(new File(results_dir + ITERATIONS_DIR)).mkdirs();
+		(new File(results_dir + SIMULATIONS_DIR)).mkdirs();
+		
+		File resultset_dir = new File((new File(results_dir)).getParent() + "/" + RESULTSET_DIR);
+		if (!resultset_dir.exists()){
+			resultset_dir.mkdirs();
+		}
 		
 		play();
 	}

@@ -231,6 +231,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected int alife_traits = 0;
 	/**
+	 * Number of individuals that has been killed
+	 */
+	protected int casualties = 0;
+	/**
+	 * Number of invaders that have been introduced to the system
+	 */
+	protected int invaders = 0;
+	/**
 	 * Pixel similarity with the initial state
 	 */
 	protected int pixel_similarity;
@@ -787,7 +795,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				+ "newmann_cultures,biggest_newmann_culture,newman_full_sim,"
 				+ "newmann_pos_sim,newmann_siz_sim,newmann_bel_sim,"
 				+ "institutions,biggest_institution,pixel_institution_similarity,"
-				+ "alife,foreign,pixel_similarity\n";		
+				+ "alife,foreign,pixel_similarity,"
+				+ "invaders,casulaties\n";		
 	}
 
 
@@ -810,7 +819,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				culture_newmannN + "," + biggest_newmann_cluster + "," + newmann_similarity[FULL_SIM] + "," +
 				newmann_similarity[POS_SIM] + "," + newmann_similarity[SIZ_SIM] + "," + newmann_similarity[BEL_SIM] + "," +				
 				alife_institutions + "," + biggest_institution + "," + pixel_institution_similarity + "," + 
-				alife_traits + "," + foreiners_traits + "," + pixel_similarity + "\n";			
+				alife_traits + "," + foreiners_traits + "," + pixel_similarity + "," +
+				invaders + "," + casualties + "\n";			
 	}
 	
 	
@@ -1303,6 +1313,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param c
 	 */
 	public void kill_individual(int r, int c){
+		this.casualties++;
 		for (int f = 0; f < FEATURES; f++) {
 			beliefs[r][c][f] = DEAD_TRAIT;
 		}

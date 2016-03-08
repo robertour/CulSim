@@ -746,6 +746,7 @@ public class Ulloa extends Axelrod {
 	 * as they representative.
 	 */
 	public void invade(int r, int c, int nr, int nc){
+		this.invaders++;
 		move_to_institution(r, c, nr, nc);
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f]=TRAITS;
@@ -775,6 +776,7 @@ public class Ulloa extends Axelrod {
 	 * @param probability
 	 */
 	public void kill_individual(int r, int c){
+		this.casualties++;
 		int institution = institutions[r][c];
 
 		if (institutionsN[institution] > 1){
@@ -794,6 +796,7 @@ public class Ulloa extends Axelrod {
 			beliefs[r][c][f] = DEAD_TRAIT;
 			institution_beliefs[institution][f] = INACTIVE_TRAIT;						
 		}
+		
 	}
 
 	

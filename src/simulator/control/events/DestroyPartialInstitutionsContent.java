@@ -21,7 +21,7 @@ public class DestroyPartialInstitutionsContent extends Event {
 	}
 	
 	public String toString() {
-		return "Full Content: " + super.toString();
+		return "Partial Content: " + super.toString();
 	}
 
 

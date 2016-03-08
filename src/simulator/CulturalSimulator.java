@@ -680,7 +680,7 @@ public class CulturalSimulator extends JFrame {
 		
 		destructionDialog = new TripleDistributionDialog(null, new Distribution(1.0),null,
 				"Structure", "Partial Content", "Full Content", this);
-		instDestructionPanel = new EventPanel("Institutions destruction", destructionDialog);
+		instDestructionPanel = new EventPanel("Institutional destruction", destructionDialog);
 		instDestructionPanel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
@@ -756,14 +756,17 @@ public class CulturalSimulator extends JFrame {
 		tabEventSet.add(panel_9, BorderLayout.NORTH);
 		panel_9.setLayout(new GridLayout(4, 0, 0, 0));
 		
-		EventPanel instituionPanelSet = new EventPanel("Institutions destruction", destructionDialog);
+		EventPanel instituionPanelSet = new EventPanel("Institutional destruction", destructionDialog);
 		instituionPanelSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (destructionDialog.get_distribution1() != null){
 					events.add(new DestroyInstitutionsStructure(destructionDialog.get_distribution1()));
 				}
 				if (destructionDialog.get_distribution2() != null){
-					events.add(new DestroyInstitutionsContent(destructionDialog.get_distribution2()));
+					events.add(new DestroyPartialInstitutionsContent(destructionDialog.get_distribution2()));
+				}
+				if (destructionDialog.get_distribution3() != null){
+					events.add(new DestroyInstitutionsContent(destructionDialog.get_distribution3()));
 				}
 				update_event_set();
 			}
@@ -1129,7 +1132,7 @@ public class CulturalSimulator extends JFrame {
 				if (tglbtnPause.isSelected() || tglbtnStop.isSelected()){
 				
 					if (!tglbtnPause.isSelected() && tglbtnStop.isSelected()){
-						controller.run(parameters_dialog.tf_results_dir.getText());
+						controller.run(parameters_dialog.tf_results_dir.getText(), "results");
 						
 					} else {
 						controller.resume();

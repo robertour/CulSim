@@ -562,7 +562,7 @@ public class BatchMode extends JDialog {
 						}
 					}
 					
-					controller.run( tf_results_dir.getText());
+					controller.run( tf_results_dir.getText(), "results");
 					
 			    } else if (tp_batch_mode.getSelectedComponent() == tab_catastrophic) {
 			    	ArrayList<String> sim_list = new ArrayList<String>();		    	
@@ -587,9 +587,9 @@ public class BatchMode extends JDialog {
 									"the results of a Batch process.");
 						return;
 					}
-			    	controller.load_simulations_from_directory(sim_list, events, 1);
+			    	controller.load_simulations_from_directory(sim_list, events, 1, -1);
 			    						
-					controller.run(tf_scenarios_dir.getText() );
+					controller.run(tf_scenarios_dir.getText(), "results" );
 			    }
 			}
 		});

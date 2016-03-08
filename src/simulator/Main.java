@@ -18,6 +18,8 @@ public class Main {
 	public static void main(String[] args) {
 		String experimental_file = null;
 		String results_directory = null;
+		String identifier = "results";
+		int iter = -1;
 		boolean collecting_events_args = false;
 		ArrayList<Event> events = new ArrayList<Event>();
 		
@@ -37,6 +39,17 @@ public class Main {
 	                } else if (argu.equals("rd")){
 	                	results_directory = args[i+1];
 	                	i++;
+	                } else if (argu.equals("id")){
+	                	identifier = args[i+1];
+	                	i++;
+	                } else if (argu.equals("i")){
+	                	try {
+	                		iter = Integer.parseInt(args[i+1]);
+	                		i++;
+	                	} catch (Exception e){
+	                		throw new IllegalArgumentException("Invalid argument for -i: " + args[i+1]);
+	                	}
+	                	
 	                } else if (argu.equals("evs")){
 	                	collecting_events_args = true;
 	                } else {
@@ -71,15 +84,18 @@ public class Main {
 	    }
 	    
 	    if (results_directory != null){
-	    	run_from_directory(results_directory, events);
+	    	run_from_directory(results_directory, events, identifier, iter);
 	    	
 	    } else if (experimental_file != null){
-	    	run_from_file(experimental_file, events);
-	    	
+	    	if (iter != -1){
+	    		throw new IllegalArgumentException("The number of iterations are take from the csv file. Parameter -i is ambiguos when a csv is specified.");
+	    	}
+	    	run_from_file(experimental_file, events, identifier);
 	    }
+
 	}
 	
-	private static void run_from_directory(String rd, ArrayList<Event> events){
+	private static ControllerBatch run_from_directory(String rd, ArrayList<Event> events, String id, int iter){
 		ControllerBatch controller = new ControllerBatch(printer);
 		ArrayList<String> sim_list = new ArrayList<String>();
 		
@@ -101,13 +117,14 @@ public class Main {
 					" directory didn't contain any simulations. Please make sure you are "
 					+ "providing a directory with the results of a Batch process.");
 		}
-    	controller.load_simulations_from_directory(sim_list, events, 1);
+    	controller.load_simulations_from_directory(sim_list, events, 1, iter);
     	
-		controller.run( rd + "/");
+		controller.run( rd + "/", id);
+		return controller;
 	
 	}
 
-	private static void run_from_file(String ef, ArrayList<Event> events){
+	private static ControllerBatch run_from_file(String ef, ArrayList<Event> events, String id){
 		ControllerBatch controller = new ControllerBatch(printer);
 		
 		try {
@@ -117,7 +134,9 @@ public class Main {
 			throw new IllegalArgumentException("File not found: "+ ef);
 		}
 
-		controller.run(Controller.WORKSPACE_DIR);
+		controller.run(Controller.WORKSPACE_DIR, id);
+		
+		return controller;
 	}
 		
 	private static class Printer implements  Printable {

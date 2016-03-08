@@ -323,8 +323,7 @@ public class ControllerSingle extends Controller
     public void write_results() throws IOException {
     	// Write the results to the file
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream(results_dir + "results.csv"), "utf-8"));
-    	// TODO this is weird
+              new FileOutputStream(results_dir + identifier + ".csv"), "utf-8"));
         writer.write(Simulation.header());
        	writer.write(simulation.get_results());
         writer.close();    	

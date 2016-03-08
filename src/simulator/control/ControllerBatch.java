@@ -36,6 +36,11 @@ public class ControllerBatch extends Controller
 	 */
 	protected static Printable log = null;
 	
+	/**
+	 * Keep a reference to the events that are going to be executed
+	 */
+	protected ArrayList<Event> events = null;
+	
 
 	// Keep the tasks in a list. Don't start until the entire file is read.
 	protected ArrayList<Simulation> tasks = null;
@@ -79,9 +84,10 @@ public class ControllerBatch extends Controller
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
-    public void load_simulations_from_directory(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) {
+    public void load_simulations_from_directory(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions, int iter) {
     	tasks = new ArrayList<Simulation>();
     	IS_BATCH = true;
+    	this.events = events;
 
     	for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
 			String string = (String) iterator.next();
@@ -89,6 +95,9 @@ public class ControllerBatch extends Controller
 				Simulation s = this.load_simulation(string);
 				s.log = log;
 				s.events(events);
+				if (iter > 0) {
+					s.ITERATIONS = iter;
+				}
     			tasks.add(s);	
 			}	
 		}
@@ -99,6 +108,8 @@ public class ControllerBatch extends Controller
 	 * @throws FileNotFoundException
 	 */
     public void load_simulations_from_file(String csv_file, ArrayList<Event> events) throws FileNotFoundException {
+    	
+    	this.events = events;
     	
     	// This is used to randomize the experiment.
     	Random rand = new Random();
@@ -169,13 +180,39 @@ public class ControllerBatch extends Controller
      * @throws IOException
      */
     public void write_results() throws IOException {
-    	// Write the results to the file
+    	
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream(results_dir + "results.csv"), "utf-8"));
+              new FileOutputStream(results_dir + identifier + ".csv"), "utf-8"));
+    	BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream((new File(results_dir)).getParent() + "/" + RESULTSET_DIR + 
+                		(new File(results_dir)).getName() + "-" + identifier + ".csv"), "utf-8"));
         writer.write(Simulation.header());
+        writer2.write(Simulation.header());
         for(Simulation w : tasks) {
 			writer.write(w.get_results());
+			writer2.write(w.get_results());
+			
         }
+        writer.close();    	
+        writer2.close();
+    }
+    
+    /**
+     * Write the events that this experiment was subject to
+     * @throws IOException
+     */
+    protected void write_events() throws IOException {
+    	// Write the results to the file
+    	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+              new FileOutputStream(results_dir + "events.txt"), "utf-8"));
+    	if (events.size() > 0){
+    		writer.write("The following events have been set up for the scenarios: \n");
+	    	for (Iterator <Event> iterator = events.iterator(); iterator.hasNext();) {
+				writer.write(iterator.next() + "\n");
+			}
+	    } else {
+	    	writer.write("No events were set up for the present scenario. \n");
+	    }
         writer.close();    	
     }
     
@@ -185,11 +222,8 @@ public class ControllerBatch extends Controller
      */
     protected void play(){
     	
-    	/**
-    	 * Load static variables that the simulation is going to access
-    	 */
     	IS_BATCH = true;
-    	
+   	
     	// This is a pool of threads of the size of the cores of the computer
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
@@ -261,19 +295,26 @@ public class ControllerBatch extends Controller
     	
     	public void run (){
     		log.print(-1, "Simulation Executor Started\n");
+    		
+        	try {
+    			write_events();
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    			
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 				log.print(-1, "The threads were finished and no errors where reported\n");
 			} catch (InterruptedException e) {
 				log.print(-1, "Simulation interrupted\n");
 			}
-	    	
-	    	try {
-				write_results();
+    		
+    		try {
+		    	write_results();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+
     	}
     }
    
