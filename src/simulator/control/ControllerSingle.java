@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import simulator.CulturalParameters;
 import simulator.CulturalSimulator;
+import simulator.ParametersDialog;
 import simulator.control.events.Event;
 import simulator.destruction.Ulloa;
 
@@ -157,14 +158,14 @@ public class ControllerSingle extends Controller
     	CulturalParameters.sp_mutation.setValue(simulation.MUTATION);
     	CulturalParameters.sp_sel_error.setValue(simulation.SELECTION_ERROR);
     	
-    	CulturalSimulator.sp_iterations.setValue(simulation.ITERATIONS);
-    	CulturalSimulator.sp_checkpoints.setValue(simulation.CHECKPOINT);
-    	CulturalSimulator.sp_selection_error.setValue(simulation.SELECTION_ERROR);
-    	CulturalSimulator.sp_mutation.setValue(simulation.MUTATION);
-    	CulturalSimulator.sp_influence.setValue(simulation.ALPHA);
-    	CulturalSimulator.sp_loyalty.setValue(simulation.ALPHA_PRIME);
-    	CulturalSimulator.sp_democracy.setValue(simulation.FREQ_DEM);
-    	CulturalSimulator.sp_propaganda.setValue(simulation.FREQ_PROP);
+    	ParametersDialog.iterations = simulation.ITERATIONS;
+    	ParametersDialog.checkpoints = simulation.CHECKPOINT;
+    	ParametersDialog.selection_error = simulation.SELECTION_ERROR;
+    	ParametersDialog.mutation = simulation.MUTATION;
+    	ParametersDialog.influence = simulation.ALPHA;
+    	ParametersDialog.loyalty = simulation.ALPHA_PRIME;
+    	ParametersDialog.democracy = simulation.FREQ_DEM;
+    	ParametersDialog.propaganda = simulation.FREQ_PROP;
     	CulturalSimulator.set_speed(simulation.CHECKPOINT);
     	
     	CulturalSimulator.l_start_identification.setText("S: " + simulation.get_identification());
@@ -306,14 +307,6 @@ public class ControllerSingle extends Controller
 			simulation.events(events);
 		}
 	}
-
-	
-	/**
-	 * Set the new parameters
-	 */
-    public void setParameters(){
-    	simulation.setParameters();
-    }
 
     
     /**

@@ -8,17 +8,17 @@ import simulator.control.Simulation;
  * @author tico
  *
  */
-public class DestroyInstitutionsStructure extends Event {
+public class DestroyInstitutions extends Event {
 	private static final long serialVersionUID = -9186276200796543594L;
 
-	public DestroyInstitutionsStructure(Distribution d) {
+	public DestroyInstitutions(Distribution d) {
 		super(d);
 	}
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
 		if (simulation.getRand().nextDouble() < p){
-			simulation.forget_institution(r, c);
+			simulation.destoy_institution(r*simulation.ROWS + c);
 		}
 	}
 	

@@ -12,9 +12,9 @@ import simulator.control.Controller;
 import simulator.control.ControllerBatch;
 import simulator.control.events.ConvertInstitutions;
 import simulator.control.events.ConvertTraits;
-import simulator.control.events.DestroyInstitutionsContent;
-import simulator.control.events.DestroyInstitutionsStructure;
-import simulator.control.events.DestroyPartialInstitutionsContent;
+import simulator.control.events.RemoveInstitutionsContent;
+import simulator.control.events.DestroyInstitutions;
+import simulator.control.events.RemoveInstitutionsPartialContent;
 import simulator.control.events.Distribution;
 import simulator.control.events.Event;
 import simulator.control.events.Genocide;
@@ -98,7 +98,6 @@ public class BatchMode extends JDialog {
 	private EventPanel conversionPanel;
 	private EventPanel invasionPanel;
 	private EventPanel genocidePanel;
-	private TripleDistributionDialog triple_dialog;
 	private DoubleDistributionDialog double_dialog;
 	private SingleDistributionDialog simple_dialog;
 	
@@ -400,32 +399,28 @@ public class BatchMode extends JDialog {
 		
 		
 		this.cultural_simulator = cultural_simulator; 
-		triple_dialog = cultural_simulator.destructionDialog;
-		institutionPanel = new EventPanel("Institutions destruction", triple_dialog);
-		institutionPanel.addActionListener(new ActionListener() {
+		double_dialog = cultural_simulator.contentDialog;
+		institutionPanel = new EventPanel("Institutions destruction", double_dialog);
+		institutionPanel.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TripleDistributionDialog triple_dialog = BatchMode.this.cultural_simulator.destructionDialog;
+				DoubleDistributionDialog triple_dialog = BatchMode.this.cultural_simulator.contentDialog;
 				if (triple_dialog.get_distribution1() != null){
-					events.add(new DestroyInstitutionsStructure(triple_dialog.get_distribution1()));
+					events.add(new DestroyInstitutions(triple_dialog.get_distribution1()));
 					update_event_set();
 				}
 				if (triple_dialog.get_distribution2() != null){
-					events.add(new DestroyInstitutionsContent(triple_dialog.get_distribution2()));
-					update_event_set();
-				}
-				if (triple_dialog.get_distribution3() != null){
-					events.add(new DestroyPartialInstitutionsContent(triple_dialog.get_distribution3()));
+					events.add(new RemoveInstitutionsContent(triple_dialog.get_distribution2()));
 					update_event_set();
 				}
 				
 			}
 		});
-		triple_dialog.addNotifiable(institutionPanel);		
+		double_dialog.addNotifiable(institutionPanel);		
 		panel.add(institutionPanel);
 		
 		double_dialog = cultural_simulator.conversionDialog;
 		conversionPanel = new EventPanel("Institutional conversion", double_dialog);
-		conversionPanel.addActionListener(new ActionListener() {
+		conversionPanel.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				DoubleDistributionDialog double_dialog = BatchMode.this.cultural_simulator.conversionDialog;
 				if (double_dialog.get_distribution1() != null){
@@ -444,7 +439,7 @@ public class BatchMode extends JDialog {
 		
 		simple_dialog = cultural_simulator.invasionDialog;
 		invasionPanel = new EventPanel("Invasion", simple_dialog);
-		invasionPanel.addActionListener(new ActionListener() {
+		invasionPanel.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Distribution d = BatchMode.this.cultural_simulator.invasionDialog.get_distribution();
 				if (d != null){
@@ -458,7 +453,7 @@ public class BatchMode extends JDialog {
 		
 		simple_dialog = cultural_simulator.genocideDialog;
 		genocidePanel = new EventPanel("Genocide", simple_dialog);
-		genocidePanel.addActionListener(new ActionListener() {
+		genocidePanel.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Distribution d = BatchMode.this.cultural_simulator.genocideDialog.get_distribution();
 				if (d != null){

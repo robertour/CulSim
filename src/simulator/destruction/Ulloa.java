@@ -693,48 +693,99 @@ public class Ulloa extends Axelrod {
 
 	@Override
 	public void remove_partial_institution_content(int institution, double prob){
-		for (int f = 0; f < FEATURES; f++) {
-			if (Math.random() < prob) {
-				institution_beliefs[institution][f] = -1;
+		if (institutionsN[institution] > 0){
+			for (int f = 0; f < FEATURES; f++) {
+				if (Math.random() < prob) {
+					this.removed_traits++;
+					institution_beliefs[institution][f] = -1;
+				}
 			}
-		}		
-	}
-	
-	@Override
-	public void remove_institution_content(int institution){
-		for (int f = 0; f < FEATURES; f++) {
-			institution_beliefs[institution][f] = -1;
-		}		
-	}
-	
-	@Override
-	public void forget_institution(int r, int c){
-		abandon_institution(r, c);
-		institution = search_free_institution(r, c);
-		institutions[r][c] = institution;
-		institutionsN[institution] = 1;
-		
-		countryman_right_r[r][c] = r;
-		countryman_right_c[r][c] = c;
-		countryman_left_r[r][c] = r;
-		countryman_left_c[r][c] = c;
-		
-		for (int f = 0; f < FEATURES; f++) {
-			institution_beliefs[institution][f] = -1;
 		}
 	}
 	
 	@Override
-	public int pre_invasion(int r, int c) {
-		int institution = search_free_institution(r, c);
-		// found its  own institution in free space
+	public void remove_full_institution_content(int institution){
+		if (institutionsN[institution] > 0){
+			this.removed_institutions++;
+			for (int f = 0; f < FEATURES; f++) {
+				institution_beliefs[institution][f] = -1;
+			}
+		}
+	}
+	
+	@Override
+	public void destoy_institution(int institution){
+		if (institutionsN[institution] > 0){
+			this.destoyed_institutions++;
+			int[] member = search_member(institution);
+			int r = member[0];
+			int c = member[1];
+			
+			if (institutionsN[institution] == 1){
+				this.apostates++;
+				abandon_institution(r, c);
+			} else {
+				while (institutionsN[institution] > 1){
+					int nr = countryman_right_r[r][c];
+					int nc = countryman_right_c[r][c];
+					this.stateless++;
+					abandon_institution(r, c);
+					r = nr;
+					c = nc;
+				}
+			}
+		}
+	}
+	
+	
+	private int[] search_member(int institution){
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				if (institutions[r][c] == institution){
+					return new int [] {r , c};					
+				}
+			}
+		}
+		
+		return new int [] {-555, -555};
+	}
+
+	@Override
+	public void apostasy(int r, int c){
+		this.apostates++;
 		abandon_institution(r, c);
-		institutions[r][c] = institution;
-		institutionsN[institution] = 1;
+	}
+	
+	@Override
+	public void convert_full_institution(int institution){
+		if (institutionsN[institution] > 0){
+			this.converted_institutions++;
+			for (int f = 0; f < FEATURES; f++) {
+				institution_beliefs[institution][f] = TRAITS;
+			}
+		}
+	}
+
+	
+	@Override
+	public void convert_partial_institution(int institution, double prob){
+		if (institutionsN[institution] > 0){
+			for (int f = 0; f < FEATURES; f++) {
+				if (Math.random() < prob) {
+					this.converted_traits++;
+					institution_beliefs[institution][f] = TRAITS;
+				}
+			}
+		}
+	}		
+
+	
+	@Override
+	public int pre_invasion(int r, int c) {
+		int institution = abandon_institution(r, c);
 		
 		for (int f=0; f < FEATURES; f++){
 			beliefs[r][c][f] = TRAITS;
-			institution_beliefs[institution][f] = TRAITS;
 		}
 		
 		return institution;
@@ -752,23 +803,7 @@ public class Ulloa extends Axelrod {
 			beliefs[r][c][f]=TRAITS;
 		}
 	}
-	
-	@Override
-	public void convert_institution(int r, int c){
-		for (int f = 0; f < FEATURES; f++) {
-			institution_beliefs[r*ROWS+c][f] = TRAITS;
-		}
-	}
 
-	
-	@Override
-	public void convert_institution_trait(int r, int c, double prob){
-		for (int f = 0; f < FEATURES; f++) {
-			if (Math.random() < prob) {
-				institution_beliefs[r*ROWS+c][f] = TRAITS;
-			}
-		}
-	}	
 
 	/**
 	 * A genocide would indicate traits as dead.
@@ -777,24 +812,11 @@ public class Ulloa extends Axelrod {
 	 */
 	public void kill_individual(int r, int c){
 		this.casualties++;
-		int institution = institutions[r][c];
 
-		if (institutionsN[institution] > 1){
-			abandon_institution(r, c);
-			institution = search_free_institution(r,c);
-			
-			institutions[r][c] = institution;
-			institutionsN[institution] = 1;
-			
-			countryman_right_r[r][c] = r;
-			countryman_right_c[r][c] = c;
-			countryman_left_r[r][c] = r;
-			countryman_left_c[r][c] = c;
-		}
+		abandon_institution(r, c);
 		
 		for (int f = 0; f < FEATURES; f++) {
 			beliefs[r][c][f] = DEAD_TRAIT;
-			institution_beliefs[institution][f] = INACTIVE_TRAIT;						
 		}
 		
 	}
@@ -806,31 +828,48 @@ public class Ulloa extends Axelrod {
 	 * @param c
 	 * @param institution
 	 */
-	private void abandon_institution (int r, int c){
-		// its institution lost a citizen
-		institutionsN[institutions[r][c]]--;
-		institutions[r][c] = -1;
+	private int abandon_institution (int r, int c){
+
 		
-		// temporal variables of the agent
-		rr = countryman_right_r[r][c];
-		rc = countryman_right_c[r][c];
-		lr = countryman_left_r[r][c];
-		lc = countryman_left_c[r][c];
+		if (institutionsN[institutions[r][c]] > 1){
+			// Search for a new institution to belong to
+			institution = search_free_institution(r, c);
+			
+			// its institution lost a citizen
+			institutionsN[institutions[r][c]]--;
+			institutions[r][c] = -1;
+			
+			// temporal variables of the agent
+			rr = countryman_right_r[r][c];
+			rc = countryman_right_c[r][c];
+			lr = countryman_left_r[r][c];
+			lc = countryman_left_c[r][c];
+			
+			// Remove the agent from the current culture asking my country men
+			// to grab each other
+			countryman_left_r[rr][rc] = lr;
+			countryman_left_c[rr][rc] = lc;
+			countryman_right_r[lr][lc] = rr;
+			countryman_right_c[lr][lc] = rc;
+			
+			// Grab myself since I don't have any institution associated and
+			// I am by myself
+			countryman_right_r[r][c] = r;
+			countryman_right_c[r][c] = c;
+			countryman_left_r[r][c] = r;
+			countryman_left_c[r][c] = c;
+			
+			// add the agent to the new institution
+			institutions[r][c] = institution;
+			institutionsN[institution] = 1;
+		}
 		
-		// Remove the agent from the current culture asking my country men
-		// to grab each other
-		countryman_left_r[rr][rc] = lr;
-		countryman_left_c[rr][rc] = lc;
-		countryman_right_r[lr][lc] = rr;
-		countryman_right_c[lr][lc] = rc;
+		// Remove the traits of the new (empty) institution
+		for (int f = 0; f < FEATURES; f++) {
+			institution_beliefs[institution][f] = INACTIVE_TRAIT;
+		}
 		
-		// Grab myself since I don't have any institution associated and
-		// I am by myself
-		countryman_right_r[r][c] = r;
-		countryman_right_c[r][c] = c;
-		countryman_left_r[r][c] = r;
-		countryman_left_c[r][c] = c;
-		
+		return institution;
 	}
 	
 	/**

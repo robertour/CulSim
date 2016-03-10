@@ -19,7 +19,7 @@ public class ConvertInstitutions extends Event {
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
 		if (simulation.getRand().nextDouble() < p){
-			simulation.convert_institution(r, c);
+			simulation.convert_full_institution(r*simulation.ROWS+c);
 		}
 	}
 

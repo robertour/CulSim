@@ -14,7 +14,9 @@ public abstract class Event implements Serializable{
 	}
 
 	public void execute(Simulation s) {
-		if (distribution.getType() == Distribution.UNIFORM) {
+		if (distribution == null){
+			trigger(-1,-1,-1,s);
+		}else if (distribution.getType() == Distribution.UNIFORM) {
 			uniform_event(distribution.getProbability(), s);
 		} else if (distribution.getType() == Distribution.NORMAL) {
 			normal_event(distribution.getDiagonalNormalDistribution(s),	distribution.getRow(s),distribution.getCol(s),s);			
@@ -101,14 +103,16 @@ public abstract class Event implements Serializable{
 	 */
 	public static Event parseEvent(String s) throws IllegalArgumentException {
 		switch (s.charAt(0)){
+		case 'A':
+			return new Apostasy(Distribution.parseDistribution(s.substring(1)));
 		case 'D':
+			return new DestroyInstitutions(Distribution.parseDistribution(s.substring(1)));
+		case 'R':
 			switch (s.charAt(1)){
-			case 'S':
-				return new DestroyInstitutionsStructure(Distribution.parseDistribution(s.substring(2)));
 			case 'P':
-				return new DestroyPartialInstitutionsContent(Distribution.parseDistribution(s.substring(2)));
+				return new RemoveInstitutionsPartialContent(Distribution.parseDistribution(s.substring(2)));
 			case 'F':
-				return new DestroyInstitutionsContent(Distribution.parseDistribution(s.substring(2)));
+				return new RemoveInstitutionsContent(Distribution.parseDistribution(s.substring(2)));
 			default:
 				throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' after '" + s.charAt(0) + " in " + s + ". Options are S (Structure), P (Partial) and F (Full).");
 			}
@@ -125,6 +129,8 @@ public abstract class Event implements Serializable{
 			return new Invasion(Distribution.parseDistribution(s.substring(1)));
 		case 'G':
 			return new Genocide(Distribution.parseDistribution(s.substring(1)));
+		case 'P':
+			return ParameterChange.parseParameterChange(s.substring(1));
 		default:
 			throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' in " + s + 
 					". Options are DP (Partial Destruction), DF (Full Destruction), DS (Structural Destruction)."

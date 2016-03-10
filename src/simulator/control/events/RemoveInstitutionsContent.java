@@ -8,20 +8,22 @@ import simulator.control.Simulation;
  * @author tico
  *
  */
-public class DestroyPartialInstitutionsContent extends Event {
+public class RemoveInstitutionsContent extends Event {
 	private static final long serialVersionUID = 6865761072879604679L;
 
-	public DestroyPartialInstitutionsContent(Distribution d) {
+	public RemoveInstitutionsContent(Distribution d) {
 		super(d);
 	}
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		simulation.remove_partial_institution_content(r * simulation.COLS + c, p);
+		if (simulation.getRand().nextDouble() < p){
+			simulation.remove_full_institution_content(r * simulation.COLS + c);
+		}
 	}
 	
 	public String toString() {
-		return "Partial Content: " + super.toString();
+		return "Full Content: " + super.toString();
 	}
 
 

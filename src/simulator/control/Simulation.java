@@ -231,6 +231,35 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected int alife_traits = 0;
 	/**
+	 * Number of destroyed institutions
+	 */
+	protected int destoyed_institutions = 0;
+	/**
+	 * Number of agents who went into stateless state because
+	 * their institution was destroyed
+	 */
+	protected int stateless = 0;	
+	/**
+	 * Number of agents that abandoned the institutions
+	 */
+	protected int apostates = 0;
+	/**
+	 * Number of removed institutions (full content)
+	 */
+	protected int removed_institutions = 0;
+	 /**
+	 * Number of removed traits (partial content)
+	 */
+	protected int removed_traits = 0;
+	/**
+	 * Number of converted institutions (full conversion)
+	 */
+	protected int converted_institutions = 0;	
+	/**
+	 * Number of converted traits (partial conversion)
+	 */
+	protected int converted_traits = 0;
+	/**
 	 * Number of individuals that has been killed
 	 */
 	protected int casualties = 0;
@@ -238,6 +267,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * Number of invaders that have been introduced to the system
 	 */
 	protected int invaders = 0;
+
+
 	/**
 	 * Pixel similarity with the initial state
 	 */
@@ -301,17 +332,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	protected volatile ArrayList<Event> events = new ArrayList<Event>();
 	protected volatile boolean executing_events = false;
-	private volatile boolean set_parameters = false;
 	
 	/**
 	 * This object is necessary in order to suspend the thread
 	 */
-	protected transient Object monitor;
-	
-
-	
-
-	
+	protected transient Object monitor;	
 	/**
 	 * Register the time when the experiment started
 	 */
@@ -603,7 +628,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @return
 	 */
 	private String run_experiment_batch(BufferedWriter writer){
-		log.print(IDENTIFIER, "Batch Mode (Multi-thread) \n");
 		String r = "";
 		check_for_events();
 		for (iteration = 0; iteration < ITERATIONS; iteration += CHECKPOINT) {
@@ -796,7 +820,12 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				+ "newmann_pos_sim,newmann_siz_sim,newmann_bel_sim,"
 				+ "institutions,biggest_institution,pixel_institution_similarity,"
 				+ "alife,foreign,pixel_similarity,"
-				+ "invaders,casulaties\n";		
+				+ "destroyed_institutions,stateless,apostates"
+				+ "removed_institutions,removed_traits"
+				+ "converted_institutions,converted_traits,"
+				+ "invaders,casualties,"				
+				+ "\n";
+		
 	}
 
 
@@ -820,6 +849,9 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				newmann_similarity[POS_SIM] + "," + newmann_similarity[SIZ_SIM] + "," + newmann_similarity[BEL_SIM] + "," +				
 				alife_institutions + "," + biggest_institution + "," + pixel_institution_similarity + "," + 
 				alife_traits + "," + foreiners_traits + "," + pixel_similarity + "," +
+				destoyed_institutions + "," + stateless + "," + apostates + "," +
+				removed_institutions + "," + removed_traits + "," +
+				converted_institutions  + "," + converted_traits + "," +				
 				invaders + "," + casualties + "\n";			
 	}
 	
@@ -1177,10 +1209,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			events.clear();
 			executing_events = false;
 		}
-		if (set_parameters){
-			set_parameters();
-			set_parameters = false;
-		}
 	}
 	
 	
@@ -1216,38 +1244,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		}
 	}
 	
-	/**
-	 * Set the parameters if it is not running, otherwise rise a flag to check for parameter modifications.
-	 */
-	public void setParameters() {
-		if (playing){
-			this.set_parameters = true;
-		} else {
-			set_parameters();
-		}
-	}
-
-	/**
-	 * This method modifies the parameters of the simulation during execution.
-	 */
-	protected void set_parameters(){
-		ITERATIONS = (int) CulturalSimulator.sp_iterations.getValue();
-		CHECKPOINT = (int) CulturalSimulator.sp_checkpoints.getValue();
-		ALPHA = (float) CulturalSimulator.sp_influence.getValue();
-		ALPHA_PRIME = (float) CulturalSimulator.sp_loyalty.getValue();
-		MUTATION = (float) CulturalSimulator.sp_mutation.getValue();
-		SELECTION_ERROR = (float) CulturalSimulator.sp_selection_error.getValue();
-		FREQ_DEM = (int) CulturalSimulator.sp_democracy.getValue();
-		FREQ_PROP = (int) CulturalSimulator.sp_propaganda.getValue();
-		log.print(IDENTIFIER, "Parameters have been set.\n");
-	}
-		
-	protected void destroy_institutions_structure(double prob){}
-	protected void destroy_institutions_content(double prob){}
-	protected void institutional_conversion(double prob){}
-	protected void institutional_trait_conversion(double prob){}
-	
-	
 
 	
 	/**
@@ -1263,21 +1259,21 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param r
 	 * @param c
 	 */
-	public void remove_institution_content(int institution){}
+	public void remove_full_institution_content(int institution){}
 	
 	/**
 	 * Forget the institution I belong to
 	 * @param r
 	 * @param c
 	 */
-	public void forget_institution(int r, int c){}
+	public void apostasy(int r, int c){}
 	
 	/**
 	 * Convert an institution towards the invader TRAITS
 	 * @param r
 	 * @param c
 	 */
-	public void convert_institution(int r, int c){}
+	public void convert_full_institution(int institution){}
 	
 	/**
 	 * Convert a percentage of traits towards the invader TRAITS
@@ -1285,7 +1281,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param c
 	 * @param prob
 	 */
-	public void convert_institution_trait(int r, int c, double prob){}
+	public void convert_partial_institution(int institution, double prob){}
+	
+	/**
+	 * Destroy an institution, all agents become stateless
+	 * @param institution
+	 */
+	public void destoy_institution(int institution){};
 	
 	/**
 	 * Prepare elements before an invasion. In this case, it would

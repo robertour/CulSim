@@ -63,7 +63,7 @@ public class Main {
 		        		throw new IllegalArgumentException("Unexpected argument: "+args[i]);
 		        	}
 	        }
-	    }
+	    } 
 	    
 	    printer = new Main.Printer();
 	    

@@ -17,7 +17,7 @@ public class ConvertTraits extends Event {
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		simulation.convert_institution_trait(r, c, p);
+		simulation.convert_partial_institution(r*simulation.ROWS+c, p);
 	}
 	
 	public String toString() {
