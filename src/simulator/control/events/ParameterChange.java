@@ -49,17 +49,18 @@ public class ParameterChange extends Event {
 	public String toString() {
 		String s = "";
 		
-		s += (iterations < 0)?"":"Iterations(" + iterations + ") +";
-		s += (checkpoints < 0)?"":"Speed(" + checkpoints + ") +";
-		s += (mutation < 0)?"":"Mutation(" + String.format("%.2g", mutation) + ") +";
-		s += (selection_error < 0)?"Selection error":"(" + String.format("%.2g", selection_error) + ") +";
-		s += (influence < 0)?"":"Influence(" + String.format("%.2g", influence) + ") +";
-		s += (loyalty < 0)?"":"Loyalty(" + String.format("%.2g", loyalty) + ") +";
-		s += (democracy < 0)?"":"Democracy(" + democracy + ") +";
-		s += (propaganda < 0)?"":"Propaganda(" + propaganda + ") +";
+
+		s += (iterations < 0)?"":"Iter(" + iterations + ")+";
+		s += (checkpoints < 0)?"":"Speed(" + checkpoints + ")+";
+		s += (mutation < 0)?"":"Mut(" + String.format("%.2g", mutation) + ")+";
+		s += (selection_error < 0)?"":"Sel(" + String.format("%.2g", selection_error) + ")+";
+		s += (influence < 0)?"":"Inf(" + String.format("%.2g", influence) + ")+";
+		s += (loyalty < 0)?"":"Loy(" + String.format("%.2g", loyalty) + ")+";
+		s += (democracy < 0)?"":"Dem(" + democracy + ")+";
+		s += (propaganda < 0)?"":"Prop(" + propaganda + ")+";
 		
 		if (s.length() > 0){
-			s = s.substring(0, s.length() - 2);
+			s = s.substring(0, s.length() - 1);
 		}
 		
 		return s;

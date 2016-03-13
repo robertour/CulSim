@@ -143,7 +143,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	/**
 	 * Number of ITERATIONS of the checkpoints
 	 */
-	public int ITERATIONS = 1000000;
+	public int ITERATIONS = 100000;
 	/**
 	 * Save results and check thread status each 1000 iterations
 	 */
@@ -504,7 +504,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	    	clean();
 	    }
 
-		return r;			
+		return r;
 	}
 
 	
@@ -672,7 +672,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 			
 			check_for_events();
 			update_gui();
-			run_iteration();			
+			run_iteration();
 			generation += CHECKPOINT;
 					
 			r = results();
@@ -691,15 +691,18 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				} 
 				if (stopped) {
 					playing = false;
-					return r;
+					break;
 				} 
 			} // END of !playing
 			
 		} // END of iterations
+		
 		if (iteration == ITERATIONS){
 			is_finished = true;
 			playing = false;
 		}
+		
+		update_gui();
 		
 		return r;
 	}		
@@ -820,8 +823,8 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 				+ "newmann_pos_sim,newmann_siz_sim,newmann_bel_sim,"
 				+ "institutions,biggest_institution,pixel_institution_similarity,"
 				+ "alife,foreign,pixel_similarity,"
-				+ "destroyed_institutions,stateless,apostates"
-				+ "removed_institutions,removed_traits"
+				+ "destroyed_institutions,stateless,apostates,"
+				+ "removed_institutions,removed_traits,"
 				+ "converted_institutions,converted_traits,"
 				+ "invaders,casualties,"				
 				+ "\n";
@@ -1438,4 +1441,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	public Random getRand(){
 		return rand;
 	}
+	
+		
 }

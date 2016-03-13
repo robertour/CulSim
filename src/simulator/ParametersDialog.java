@@ -9,7 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import simulator.control.events.Distribution;
 import simulator.control.events.ParameterChange;
 
 import java.awt.event.ActionListener;
@@ -65,9 +64,8 @@ public class ParametersDialog extends JDialog {
 	 */
 	public static void main(String[] args) {
 		try {
-			Distribution d = new Distribution(0.1);
 			
-			ParametersDialog dialog = new ParametersDialog(d, "Example", null);
+			ParametersDialog dialog = new ParametersDialog("Example", null);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -78,7 +76,7 @@ public class ParametersDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public ParametersDialog(Distribution d, String title, JFrame owner) {
+	public ParametersDialog(String title, JFrame owner) {
 		super(owner);
 
 		setTitle("Parameters Event");
@@ -213,10 +211,7 @@ public class ParametersDialog extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						for (Iterator<Notifiable> i = notifiables.iterator(); i.hasNext();) {
-							Notifiable notifiable = (Notifiable) i.next();
-							notifiable.update();
-						}
+						update_notifiables();
 						ParametersDialog.this.setVisible(false);						
 					}
 				});
@@ -254,5 +249,24 @@ public class ParametersDialog extends JDialog {
 	
 	public String toString(){
 		return get_parameter_change_event().toString();
+	}
+	
+	private void update_notifiables(){
+		for (Iterator<Notifiable> i = notifiables.iterator(); i.hasNext();) {
+			Notifiable notifiable = (Notifiable) i.next();
+			notifiable.update();
+		}
+	}
+	
+	public void refresh_dialog(){
+		sp_iterations.setValue(iterations);
+		sp_checkpoints.setValue(checkpoints);
+		sp_mutation.setValue(mutation);
+		sp_selection_error.setValue(selection_error);
+		sp_influence.setValue(influence);
+		sp_loyalty.setValue(loyalty);
+		sp_democracy.setValue(democracy);
+		sp_propaganda.setValue(propaganda);
+		update_notifiables();
 	}
 }

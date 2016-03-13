@@ -31,6 +31,11 @@ public class DistributionPanel extends JPanel {
 	private JSpinner sp_col_newman;
 	private JLabel lblWithRadious;
 	private JSpinner sp_radious;
+	private JRadioButton rdbtnRectangular;
+	private JSpinner sp_row1_rect;
+	private JSpinner sp_col1_rect;
+	private JSpinner sp_row2_rect;
+	private JSpinner sp_col2_rect;
 
 	/**
 	 * Create the panel.
@@ -59,11 +64,16 @@ public class DistributionPanel extends JPanel {
 		rdbtnNone.setBounds(6, 18, 157, 23);
 		add(rdbtnNone);
 		
+		rdbtnRectangular = new JRadioButton("Rectangular (non probabilistic):");
+		rdbtnRectangular.setToolTipText("The event always occur to the agents in the neighborhood of the specified row and column. Use -1 to specify random selection of rows and columns.");
+		rdbtnRectangular.setBounds(6, 326, 169, 23);
+		add(rdbtnRectangular);
 	
 		ButtonGroup group = new ButtonGroup();
 		group.add(rdbtnUniformDistribution);
 		group.add(rdbtnAproxNormalDistribution);
 		group.add(rdbtnNewmannonProbabilistic);
+		group.add(rdbtnRectangular);
 		group.add(rdbtnNone);
 		
 		if (d == null) {
@@ -75,6 +85,8 @@ public class DistributionPanel extends JPanel {
 			rdbtnAproxNormalDistribution.setSelected(true);
 		else if (d.getType() == Distribution.NEWMANN)
 			rdbtnNewmannonProbabilistic.setSelected(true);
+		else if (d.getType() == Distribution.RECTANGULAR)
+			rdbtnRectangular.setSelected(true);
 		
 		JLabel lblNewLabel = new JLabel("Probability:");
 		lblNewLabel.setToolTipText("The probability of the event occuring to any agent or feature given.");
@@ -163,7 +175,53 @@ public class DistributionPanel extends JPanel {
 		
 		
 		
+		JLabel lblRow = new JLabel("Row 1:");
+		lblRow.setToolTipText("Row where the aproximate normal distribution is centered, given as a ration of the existent rows");
+		lblRow.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblRow.setBounds(16, 359, 99, 14);
+		add(lblRow);
 		
+		sp_row1_rect = new JSpinner();
+		sp_row1_rect.setModel(new SpinnerNumberModel(new Double(d.getRow_ratio()), new Double(-1.0), new Double(1.0), new Double(0.1)));
+		sp_row1_rect.setToolTipText("First row of the rectangle, given as a ratio of the existent rows");
+		sp_row1_rect.setBounds(123, 356, 52, 20);
+		add(sp_row1_rect);
+		
+		JLabel lblColumn = new JLabel("Column 1:");
+		lblColumn.setToolTipText("Column where the aproximate normal distribution is centered, given as a ratio of the existent columns");
+		lblColumn.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblColumn.setBounds(26, 384, 88, 14);
+		add(lblColumn);
+		
+		sp_col1_rect = new JSpinner();
+		sp_col1_rect.setModel(new SpinnerNumberModel(new Double(d.getCol_ratio()), new Double(-1.0), new Double(1.0), new Double(0.1)));
+		sp_col1_rect.setToolTipText("Column where the aproximate normal distribution is centered, given as a ratio of the existent columns");
+		sp_col1_rect.setBounds(123, 381, 52, 20);
+		add(sp_col1_rect);
+		
+		JLabel lblRow_1 = new JLabel("Row 2:");
+		lblRow_1.setToolTipText("The radio (of the Newman's neighborhood) of the attack");
+		lblRow_1.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblRow_1.setBounds(16, 409, 98, 14);
+		add(lblRow_1);
+		
+		sp_row2_rect = new JSpinner();
+		sp_row2_rect.setModel(new SpinnerNumberModel(new Double(d.getRow2_ratio()), new Double(-1.0), new Double(1.0), new Double(0.1)));
+		sp_row2_rect.setToolTipText("The radio (of the Newman's neighborhood) of the attack");
+		sp_row2_rect.setBounds(123, 406, 52, 20);
+		add(sp_row2_rect);
+		
+		JLabel lblCol = new JLabel("Column 2:");
+		lblCol.setToolTipText("The radio (of the Newman's neighborhood) of the attack");
+		lblCol.setHorizontalAlignment(SwingConstants.TRAILING);
+		lblCol.setBounds(17, 434, 98, 14);
+		add(lblCol);
+		
+		sp_col2_rect = new JSpinner();
+		sp_col2_rect.setModel(new SpinnerNumberModel(new Double(d.getCol2_ratio()), new Double(-1.0), new Double(1.0), new Double(0.1)));
+		sp_col2_rect.setToolTipText("The radio (of the Newman's neighborhood) of the attack");
+		sp_col2_rect.setBounds(123, 431, 52, 20);
+		add(sp_col2_rect);
 		
 	}
 	
@@ -175,6 +233,8 @@ public class DistributionPanel extends JPanel {
 			d = new Distribution((double) sp_row.getValue(), (double) sp_col.getValue(), (double) sp_sd.getValue() );
 		}else if (rdbtnNewmannonProbabilistic.isSelected()){
 			d = new Distribution((double) sp_row_newman.getValue(), (double) sp_col_newman.getValue(), (int) sp_radious.getValue() );
+		}else if (rdbtnRectangular.isSelected()){
+			d = new Distribution((double) sp_row1_rect.getValue(), (double) sp_col1_rect.getValue(), (double) sp_row2_rect.getValue(), (double) sp_col2_rect.getValue());
 		}
 		return d;
 	}

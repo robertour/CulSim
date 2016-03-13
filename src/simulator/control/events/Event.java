@@ -22,8 +22,10 @@ public abstract class Event implements Serializable{
 			normal_event(distribution.getDiagonalNormalDistribution(s),	distribution.getRow(s),distribution.getCol(s),s);			
 		} else if (distribution.getType() == Distribution.NEWMANN) {
 			newman_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadious(), s);			
+		}else if (distribution.getType() == Distribution.RECTANGULAR) {
+			rectangular_event(distribution.getRow(s), distribution.getCol(s), 
+					distribution.getRow2(s), distribution.getCol2(s), s);			
 		}
-		
 		
 	}
 	
@@ -94,6 +96,24 @@ public abstract class Event implements Serializable{
 				trigger(r, c, probability, s);
 			}
 		}
+	}
+	
+	/**
+	 * An event is distributed in a rectangular shape according to coordinates
+	 * @param r1
+	 * @param c1
+	 * @param r2
+	 * @param c2
+	 * @param s
+	 */
+	private void rectangular_event (int r1, int c1, int r2, int c2, Simulation s){
+				
+		for (int r = Math.min(r1, r2); r <= Math.min(Math.max(r1, r2), s.ROWS-1); r++){
+			for (int c = Math.min(c1, c2); c <= Math.min(Math.max(c1, c2), s.COLS-1); c++){
+				trigger(r, c, 1.0, s);
+			}			
+		}
+		
 	}
 	
 	/**

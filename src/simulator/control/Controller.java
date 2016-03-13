@@ -15,7 +15,7 @@ public abstract class Controller {
 	/**
 	 * Default directory containing saved disasters (combination of catastrophic events)
 	 */
-	public static final String DISASTERS_DIR = "disasters/";
+	public static final String EVENTS_DIR = "events/";
 	
 	/**
 	 * Default directory containing simulation configurations (combination of parameters

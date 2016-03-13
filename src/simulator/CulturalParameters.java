@@ -33,6 +33,7 @@ import java.awt.Color;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
+import javax.swing.ImageIcon;
 
 
 public class CulturalParameters extends JDialog {
@@ -364,11 +365,15 @@ public class CulturalParameters extends JDialog {
 					cb_presets.setModel(new DefaultComboBoxModel<String>(listFiles("./" + Controller.PRESETS_DIR)));
 				}
 				{
-					JButton btnNewButton = new JButton("Save To File");
+					JButton btnNewButton = new JButton("Save");
+					btnNewButton.setToolTipText("Save configuration to file");
+					btnNewButton.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-save.png")));
 					btnNewButton.setBounds(431, 221, 101, 23);
 					panel_1.add(btnNewButton);
 					{
-						JButton btnNewButton_1 = new JButton("Load from File");
+						JButton btnNewButton_1 = new JButton("Load");
+						btnNewButton_1.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-open.png")));
+						btnNewButton_1.setToolTipText("Load configuration from file");
 						btnNewButton_1.setBounds(542, 221, 101, 23);
 						panel_1.add(btnNewButton_1);
 						{
@@ -379,12 +384,13 @@ public class CulturalParameters extends JDialog {
 						
 						tf_results_dir = new JTextField();
 						tf_results_dir.setEditable(false);
-						tf_results_dir.setBounds(109, 278, 453, 20);
+						tf_results_dir.setBounds(109, 278, 434, 20);
 						contentPanel.add(tf_results_dir);
 						tf_results_dir.setColumns(10);
 						tf_results_dir.setText(jfc_results.getCurrentDirectory().getAbsolutePath() + "\\");
 						
 						JButton btnBrowse = new JButton("Browse");
+						btnBrowse.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-open-folder.png")));
 						btnBrowse.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
 								if (jfc_results.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
@@ -392,7 +398,7 @@ public class CulturalParameters extends JDialog {
 								}
 							}
 						});
-						btnBrowse.setBounds(572, 277, 89, 23);
+						btnBrowse.setBounds(553, 277, 108, 23);
 						contentPanel.add(btnBrowse);
 						btnNewButton_1.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {

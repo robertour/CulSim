@@ -30,7 +30,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -76,6 +81,7 @@ public class CulturalSimulator extends JFrame {
 	public String results_dir = "";
 	
 	private JFileChooser jfc_load = new JFileChooser(Controller.WORKSPACE_DIR + Controller.WORLDS_DIR);
+	private JFileChooser jfc_disasters = new JFileChooser(Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);
 	
 	public static ControllerSingle controller;
 	private ArrayList<Event> events = new ArrayList<Event>();
@@ -181,6 +187,8 @@ public class CulturalSimulator extends JFrame {
 	private static int speed;
 	private EventPanel parameterEventPanel;
 	private JPanel panel_8;
+	private JButton button;
+	private JButton button_1;
 
 	/**
 	 * Launch the application.
@@ -248,6 +256,7 @@ public class CulturalSimulator extends JFrame {
 		menuBar.add(mnFile);
 		
 		mntmSafeWorldState = new JMenuItem("Safe World State");
+		mntmSafeWorldState.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-save.png")));
 		mntmSafeWorldState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_load.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
@@ -261,6 +270,7 @@ public class CulturalSimulator extends JFrame {
 		mnFile.add(mntmSafeWorldState);
 		
 		mntmLoadWorldState = new JMenuItem("Load World State");
+		mntmLoadWorldState.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-open.png")));
 		mntmLoadWorldState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_load.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
@@ -278,6 +288,7 @@ public class CulturalSimulator extends JFrame {
 		mnFile.add(mntmLoadWorldState);
 		mnFile.addSeparator();
 		mntmExit = new JMenuItem("Exit");
+		mntmExit.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/system-shutdown.png")));
 		mntmExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -293,25 +304,31 @@ public class CulturalSimulator extends JFrame {
 		menuBar.add(mnControls);
 		
 		mntmPlay = new JMenuItem("Play");
+		mntmPlay.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-start.png")));
 		mntmPlay.addActionListener(new PlayAL());
 		mnControls.add(mntmPlay);
 		
 		mntmPause = new JMenuItem("Pause");
+		mntmPause.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-pause.png")));
 		mntmPause.addActionListener(new PauseAL());
 		mnControls.add(mntmPause);
 		
 		mntmStop = new JMenuItem("Stop");
+		mntmStop.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-stop.png")));
 		mntmStop.addActionListener(new StopAL());
 		mnControls.add(mntmStop);
 		
 		mntmClear = new JMenuItem("Clear");
+		mntmClear.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-skip-backward.png")));
 		mntmClear.addActionListener(new ClearAL());
 		mnControls.add(mntmClear);
 		
 		mntmReload = new JMenuItem("Reload");
+		mntmReload.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/edit-undo.png")));
 		mntmReload.addActionListener(new ReloadAL());
 		
 		mntmSave = new JMenuItem("Save");
+		mntmSave.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/flag-yellow.png")));
 		mntmSave.addActionListener(new SaveAL());
 		mnControls.add(mntmSave);
 		mnControls.add(mntmReload);
@@ -320,11 +337,14 @@ public class CulturalSimulator extends JFrame {
 		menuBar.add(mnSimulation);
 		
 		JMenuItem mntmDefineParameters = new JMenuItem("Parameters");
+		
 		mntmDefineParameters.setAction(action);
+		mntmDefineParameters.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/run-build-configure.png")));
 		mnSimulation.add(mntmDefineParameters);
 		mnSimulation.addSeparator();
 		
 		mntmBatchMode = new JMenuItem("Batch Mode");
+		mntmBatchMode.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/view-calendar-tasks.png")));
 		mntmBatchMode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				batch_mode_dialog.setVisible(true);
@@ -589,30 +609,43 @@ public class CulturalSimulator extends JFrame {
 		sidePanel.add(toolBar, BorderLayout.NORTH);
 		toolBar.setFloatable(false);
 		
-		tglbtnPlay = new JToggleButton("Play");
+		tglbtnPlay = new JToggleButton("");
+		tglbtnPlay.setToolTipText("Play the simulation");
+		tglbtnPlay.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-start.png")));
 		tglbtnPlay.addActionListener(new PlayAL());
 		toolBar.add(tglbtnPlay);
 		
-		tglbtnPause = new JToggleButton("Pause");
+		tglbtnPause = new JToggleButton("");
+		tglbtnPause.setToolTipText("Pause the simulation");
+		tglbtnPause.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-pause.png")));
 		tglbtnPause.addActionListener(new PauseAL());
 		tglbtnPause.setEnabled(false);
 		toolBar.add(tglbtnPause);
 		
-		tglbtnStop = new JToggleButton("Stop");
+		tglbtnStop = new JToggleButton("");
+		tglbtnStop.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-stop.png")));
+		tglbtnStop.setToolTipText("Stop the simulation");
 		tglbtnStop.addActionListener(new StopAL());
 		tglbtnStop.setEnabled(false);
 		tglbtnStop.setSelected(true);
 		toolBar.add(tglbtnStop);
 		
-		btnClear = new JButton("Clear");
+		btnClear = new JButton("");
+		btnClear.setToolTipText("Restart the simulation");
+		btnClear.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-skip-backward.png")));
 		btnClear.addActionListener(new ClearAL());
 		toolBar.add(btnClear);
+		toolBar.addSeparator();
 		
-		btnReload = new JButton("Reload");
+		btnReload = new JButton("");
+		btnReload.setToolTipText("Reload saved simulation");
+		btnReload.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/edit-undo.png")));
 		btnReload.setEnabled(false);
 		btnReload.addActionListener(new ReloadAL());		
 		
-		btnSave = new JButton("Save");
+		btnSave = new JButton("");
+		btnSave.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/flag-yellow.png")));
+		btnSave.setToolTipText("Save current state of the simulation");
 		btnSave.addActionListener(new SaveAL());
 		btnSave.setEnabled(false);
 		toolBar.add(btnSave);
@@ -652,10 +685,6 @@ public class CulturalSimulator extends JFrame {
 		
 		set_speed((int) CulturalParameters.sp_checkpoints.getValue());
 
-
-		
-		
-		
 		tabEventSet = new JPanel();
 		panel_8.add(tabEventSet, BorderLayout.CENTER);
 		tabEventSet.setPreferredSize(new Dimension(10, 270));
@@ -664,10 +693,10 @@ public class CulturalSimulator extends JFrame {
 		
 		structureDialog = new DoubleDistributionDialog(null, new Distribution(0.5,0.5,0.2),"Apostasy", "Destroy", this);
 		contentDialog = new DoubleDistributionDialog(new Distribution(1.0),null, "Partial", "Full", this);
-		conversionDialog = new DoubleDistributionDialog(null, new Distribution(-1.0,-1.0,0.2), "Partial", "Full", this);
-		invasionDialog = new SingleDistributionDialog(new Distribution(-1.0,-1.0,0.2), "Invasion", this);
-		genocideDialog = new SingleDistributionDialog(new Distribution(-1.0,-1.0,0.2), "Genocide", this);
-		parametersDialog = new ParametersDialog(new Distribution(-1.0,-1.0,0.2), "Parameter Change Event", this);
+		conversionDialog = new DoubleDistributionDialog(null, new Distribution(0.5,0.5,0.2), "Partial", "Full", this);
+		invasionDialog = new SingleDistributionDialog(new Distribution(0.5,0.5,0.2), "Invasion", this);
+		genocideDialog = new SingleDistributionDialog(new Distribution(0.5,0.5,0.2), "Genocide", this);
+		parametersDialog = new ParametersDialog("Parameter Change Event", this);
 
 		
 		JPanel eventpanels = new JPanel();
@@ -811,6 +840,14 @@ public class CulturalSimulator extends JFrame {
 				controller.add_events(events);
 			}
 		});
+		parametersDialog.addWindowListener(
+				new WindowAdapter() {
+					@Override
+		            public void windowActivated(WindowEvent e) {
+						controller.restore_parameters_to_interface();
+						parametersDialog.refresh_dialog();
+		            }
+				});
 		parametersDialog.addNotifiable(parameterEventPanel);
 		eventpanels.add(parameterEventPanel);
 		
@@ -831,10 +868,67 @@ public class CulturalSimulator extends JFrame {
 		
 		panel_26 = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel_26.getLayout();
+		flowLayout.setVgap(1);
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		panel_27.add(panel_26, BorderLayout.CENTER);
 		
-		button_6 = new JButton("Clear");
+		button_1 = new JButton("");
+		button_1.setToolTipText("Open events");
+		button_1.addActionListener(new ActionListener() {
+			@SuppressWarnings("unchecked")
+			public void actionPerformed(ActionEvent e) {
+				if (jfc_disasters.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
+					String dis_file = jfc_disasters.getSelectedFile().getAbsolutePath();
+					try {
+						ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(dis_file));
+						events = (ArrayList<Event>) inFile.readObject();
+						inFile.close();
+						update_event_set();
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+					} catch (ClassNotFoundException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+			
+		});
+		button_1.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-open.png")));
+		button_1.setSize(new Dimension(33, 9));
+		button_1.setMargin(new Insets(2, 2, 2, 2));
+		panel_26.add(button_1);
+		
+		button = new JButton("");
+		button.setToolTipText("Save events");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (jfc_disasters.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
+					String dis_file = jfc_disasters.getSelectedFile().getAbsolutePath();
+					try {
+						ObjectOutputStream write = new ObjectOutputStream (new FileOutputStream(dis_file));				
+						write.writeObject(events);
+						write.close();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+
+				}
+				
+			}
+			
+		});
+		button.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-save.png")));
+		button.setSize(new Dimension(33, 9));
+		button.setMargin(new Insets(2, 2, 2, 2));
+		panel_26.add(button);
+		
+		button_6 = new JButton("");
+		button_6.setToolTipText("Clear events");
+		button_6.setSize(new Dimension(33, 9));
+		button_6.setMargin(new Insets(2, 2, 2, 2));
+		button_6.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/edit-clear-list.png")));
 		panel_26.add(button_6);
 		button_6.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -843,7 +937,10 @@ public class CulturalSimulator extends JFrame {
 			}
 		});
 		
-		JButton btnClear_1 = new JButton("Go");
+		JButton btnClear_1 = new JButton("");
+		btnClear_1.setToolTipText("Apply events");
+		btnClear_1.setMargin(new Insets(2, 2, 2, 2));
+		btnClear_1.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/go-jump-locationbar.png")));
 		panel_26.add(btnClear_1);
 		btnClear_1.addActionListener(new ActionListener() {
 			
@@ -900,6 +997,7 @@ public class CulturalSimulator extends JFrame {
 		
 		try {
 			controller.load_simulation("./simulation.parameters");
+			parametersDialog.refresh_dialog();
 		} catch (IOException e1) {
 			controller.initialize_simulation();
 			controller.save_simulation("./simulation.parameters");
@@ -1039,7 +1137,7 @@ public class CulturalSimulator extends JFrame {
 			if (tglbtnStop.isEnabled() && mntmStop.isEnabled()){
 						
 				controller.cancel();
-					
+				
 				
 				tglbtnPlay.setEnabled(true);
 				tglbtnPlay.setSelected(false);
@@ -1055,16 +1153,9 @@ public class CulturalSimulator extends JFrame {
 				btnSave.setEnabled(true);
 				mntmSave.setEnabled(true);
 			
-				
 				mntmSafeWorldState.setEnabled(true);
 				mntmLoadWorldState.setEnabled(true);
 				mnSimulation.setEnabled(true);
-				
-				
-//				btnCollapse.setEnabled(true);
-//				btnInvasion.setEnabled(true);
-//				btnGenocide.setEnabled(true);
-				
 			} 
 
 		}

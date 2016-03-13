@@ -144,11 +144,11 @@ public class Ulloa extends Axelrod {
 			int middle_trait = (int) Math.round(TRAITS/2.0 - 0.01);
 			
 			for (int f = 0; f < FEATURES; f++) {
-				institution_beliefs[nr*COLS+ nc][f] = middle_trait;
+				institution_beliefs[institutions[nr][nc]][f] = middle_trait;
 			}
 			
 			for (int r = 0; r < ROWS; r++) {
-				for (int c = 0; c < COLS; c++) {
+				for (int c = 0; c < COLS; c++) {					
 					move_to_institution(r, c, nr, nc);
 				}
 			}
@@ -715,6 +715,7 @@ public class Ulloa extends Axelrod {
 	
 	@Override
 	public void destoy_institution(int institution){
+
 		if (institutionsN[institution] > 0){
 			this.destoyed_institutions++;
 			int[] member = search_member(institution);
@@ -830,7 +831,7 @@ public class Ulloa extends Axelrod {
 	 */
 	private int abandon_institution (int r, int c){
 
-		
+
 		if (institutionsN[institutions[r][c]] > 1){
 			// Search for a new institution to belong to
 			institution = search_free_institution(r, c);
@@ -866,7 +867,7 @@ public class Ulloa extends Axelrod {
 		
 		// Remove the traits of the new (empty) institution
 		for (int f = 0; f < FEATURES; f++) {
-			institution_beliefs[institution][f] = INACTIVE_TRAIT;
+			institution_beliefs[institutions[r][c]][f] = INACTIVE_TRAIT;
 		}
 		
 		return institution;
@@ -881,43 +882,45 @@ public class Ulloa extends Axelrod {
 	 * @param neighbors_institution
 	 */
 	private void move_to_institution (int r, int c, int nr, int nc){
-		institution = institutions[r][c];	
-		neighbors_institution = institutions[nr][nc];
-		
-		// its institution lost a citizen
-		institutionsN[institution]--;
-		institutions[r][c] = neighbors_institution;
-		institutionsN[neighbors_institution]++;	
-		
-		// temporal variables of the agent
-		rr = countryman_right_r[r][c];
-		rc = countryman_right_c[r][c];
-		lr = countryman_left_r[r][c];
-		lc = countryman_left_c[r][c];
-		
-		// Remove the agent from the current culture asking my country men
-		// to grab each other
-		countryman_left_r[rr][rc] = lr;
-		countryman_left_c[rr][rc] = lc;
-		countryman_right_r[lr][lc] = rr;
-		countryman_right_c[lr][lc] = rc;
-		
-		// temporal variables of the neighbor
-		nrr = countryman_right_r[nr][nc];
-		nrc = countryman_right_c[nr][nc];
-		
-		// The agent grab the neighbor with the left and the right's neighbor 
-		// country man with the right
-		countryman_right_r[r][c] = nrr;
-		countryman_right_c[r][c] = nrc;
-		countryman_left_r[r][c] = nr;
-		countryman_left_c[r][c] = nc;
-		
-		// The neighbor and its right countryman grab the agent 
-		countryman_right_r[nr][nc] = r;
-		countryman_right_c[nr][nc] = c;
-		countryman_left_r[nrr][nrc] = r;
-		countryman_left_c[nrr][nrc] = c;
+		if (!(r == nr && c == nc)){
+			institution = institutions[r][c];	
+			neighbors_institution = institutions[nr][nc];
+			
+			// its institution lost a citizen
+			institutionsN[institution]--;
+			institutions[r][c] = neighbors_institution;
+			institutionsN[neighbors_institution]++;	
+			
+			// temporal variables of the agent
+			rr = countryman_right_r[r][c];
+			rc = countryman_right_c[r][c];
+			lr = countryman_left_r[r][c];
+			lc = countryman_left_c[r][c];
+			
+			// Remove the agent from the current culture asking my country men
+			// to grab each other
+			countryman_left_r[rr][rc] = lr;
+			countryman_left_c[rr][rc] = lc;
+			countryman_right_r[lr][lc] = rr;
+			countryman_right_c[lr][lc] = rc;
+			
+			// temporal variables of the neighbor
+			nrr = countryman_right_r[nr][nc];
+			nrc = countryman_right_c[nr][nc];
+			
+			// The agent grab the neighbor with the left and the right's neighbor 
+			// country man with the right
+			countryman_right_r[r][c] = nrr;
+			countryman_right_c[r][c] = nrc;
+			countryman_left_r[r][c] = nr;
+			countryman_left_c[r][c] = nc;
+			
+			// The neighbor and its right countryman grab the agent 
+			countryman_right_r[nr][nc] = r;
+			countryman_right_c[nr][nc] = c;
+			countryman_left_r[nrr][nrc] = r;
+			countryman_left_c[nrr][nrc] = c;
+		}
 		
 	}
 

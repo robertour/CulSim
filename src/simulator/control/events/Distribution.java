@@ -10,19 +10,26 @@ public class Distribution implements Serializable{
 	public static final int UNIFORM = 0;
 	public static final int NORMAL = 1;
 	public static final int NEWMANN = 2;
+	public static final int RECTANGULAR = 3;
 	
 	private int type = -1;
 	private double probability = 0.1;
 	
-	private double row_ratio = -1;
-	private double col_ratio = -1;
+	private double row_ratio = 0.5;
+	private double col_ratio = 0.5;
+	private double row2_ratio = 0.9;
+	private double col2_ratio = 0.5;
+
 	
 	private double calculated_row_ratio = -1;
 	private double calculated_col_ratio = -1;
+	private double calculated_row2_ratio = -1;
+	private double calculated_col2_ratio = -1;
 	
 	private double sd = 0.1;
 	
 	private int radious = 6;
+
 	
 	/**
 	 * Creates a uniform distribution
@@ -35,6 +42,36 @@ public class Distribution implements Serializable{
 		this.type = UNIFORM;
 		this.probability = probability;	
 	}
+
+	/**
+	 * Creates a rectangular distribution
+	 * @param row_ratio
+	 * @param col_ratio
+	 * @param row2_ratio
+	 * @param col2_ratio
+	 */
+	public Distribution(double row_ratio, double col_ratio, double row2_ratio, double col2_ratio) throws IllegalArgumentException{
+		if (row_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: x cannot be bigger than 1.");
+		}
+		if (col_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: y cannot be bigger than 1.");
+		}
+		if (row2_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: x2 cannot be bigger than 1.");
+		}
+		if (col2_ratio > 1){
+			throw new IllegalArgumentException("Invalid argument in normal distribution: y2 cannot be bigger than 1.");
+		}
+		
+		this.type = RECTANGULAR;
+		this.row_ratio = this.calculated_row_ratio = row_ratio;
+		this.col_ratio = this.calculated_col_ratio = col_ratio;
+		this.row2_ratio = this.calculated_row2_ratio = row2_ratio;
+		this.col2_ratio = this.calculated_col2_ratio = col2_ratio;
+
+    }
+	
 	
 	/**
 	 * Creates a normal distribution
@@ -107,6 +144,22 @@ public class Distribution implements Serializable{
 		} 
 		return (int) Math.round(calculated_col_ratio*(sim.COLS-1));
 	}
+	
+	public int getRow2(Simulation sim){
+		if (calculated_row2_ratio < 0){
+			calculated_row2_ratio = sim.getRand().nextDouble(); 
+		} 
+		return (int) Math.round(calculated_row2_ratio*(sim.ROWS-1));
+	}
+	
+	public int getCol2(Simulation sim){
+		if (calculated_col2_ratio < 0){
+			calculated_col2_ratio = sim.getRand().nextDouble(); 
+		} 
+		return (int) Math.round(calculated_col2_ratio*(sim.COLS-1));
+	}
+	
+	
 
 	public double getSd() {
 		return sd;
@@ -127,6 +180,13 @@ public class Distribution implements Serializable{
 	public double getCol_ratio() {
 		return col_ratio;
 	}
+	public double getRow2_ratio() {
+		return row2_ratio;
+	}
+
+	public double getCol2_ratio() {
+		return col2_ratio;
+	}
 	
 	public String toString(){
 		String r = "";
@@ -138,6 +198,10 @@ public class Distribution implements Serializable{
 		} else if (getType() == NEWMANN) {
 			r += "Newmann: C=" + getRow_ratio() + "," + 
 					getCol_ratio() + " R=" + getRadious();
+		} else if (getType() == RECTANGULAR) {
+			r += "Rect: p1=" + getRow_ratio() + "," + 
+					getCol_ratio() + " p2=" + getRow2_ratio() + "," + 
+					getCol2_ratio();
 		} 
 		return r;
 	}
@@ -183,22 +247,27 @@ public class Distribution implements Serializable{
 		}
 		switch (params[0].charAt(0)){
 		case 'U':
-			if (params.length > 2){
-				throw new IllegalArgumentException("Uniform distribution only accepts one parameter after the 'U' in " + s);
+			if (params.length != 2){
+				throw new IllegalArgumentException("Uniform distribution accepts exactly one parameter after the 'U' in " + s);
 			}
 			return new Distribution(Double.parseDouble(params[1]));
 		case 'W':
-			if (params.length > 4){
-				throw new IllegalArgumentException("Newmann's distribution only accepts 3 parameters after the 'W' in " + s);
+			if (params.length != 4){
+				throw new IllegalArgumentException("Newmann's distribution accepts exactly 3 parameters after the 'W' in " + s);
 			}
 			return new Distribution(Double.parseDouble(params[1]),Double.parseDouble(params[2]),Integer.parseInt(params[3]));
 		case 'N':
-			if (params.length > 4){
-				throw new IllegalArgumentException("Normal distribution only accepts 3 parameters after the 'N' in " + s);
+			if (params.length != 4){
+				throw new IllegalArgumentException("Normal distribution accepts exactly 3 parameters after the 'N' in " + s);
+			}
+			return new Distribution(Double.parseDouble(params[1]),Double.parseDouble(params[2]),Double.parseDouble(params[3]));
+		case 'R':
+			if (params.length != 5){
+				throw new IllegalArgumentException("Rectangular distribution accepts exactly 4 parameters after the 'R' in " + s);
 			}
 			return new Distribution(Double.parseDouble(params[1]),Double.parseDouble(params[2]),Double.parseDouble(params[3]));
 		default:
-			throw new IllegalArgumentException("Invalid distribution: " + s + ". Options are (U,p), (W,x,y,radious), and N(x,y,center)");
+			throw new IllegalArgumentException("Invalid distribution: " + s + ". Options are (U,p), (W,x,y,radious), N(x,y,center), and R(x1,y1,x2,y2)");
 		}
 	}
 }

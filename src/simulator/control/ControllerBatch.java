@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import simulator.destruction.Flache;
+import simulator.Notifiable;
 import simulator.control.events.Event;
 import simulator.destruction.Axelrod;
 import simulator.destruction.Flache2;
@@ -39,14 +40,19 @@ public class ControllerBatch extends Controller
 	/**
 	 * Keep a reference to the events that are going to be executed
 	 */
-	protected ArrayList<Event> events = null;
+	protected ArrayList<Event> events = new ArrayList<Event>();
 	
 
-	// Keep the tasks in a list. Don't start until the entire file is read.
+	/**
+	 * List of simulations taht need to be run
+	 */
 	protected ArrayList<Simulation> tasks = null;
 	
-	public ControllerBatch(Printable output) {
+	private Notifiable notifiable = null;
+	
+	public ControllerBatch(Printable output, Notifiable n) {
 		log = output;
+		this.notifiable = n;
 	}
 
 	/** 
@@ -84,7 +90,7 @@ public class ControllerBatch extends Controller
 	 * Open the files and creates the tasks for the experiments
 	 * @throws FileNotFoundException
 	 */
-    public void load_simulations_from_directory(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions, int iter) {
+    public void load_simulations_from_directory(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) {
     	tasks = new ArrayList<Simulation>();
     	IS_BATCH = true;
     	this.events = events;
@@ -95,9 +101,6 @@ public class ControllerBatch extends Controller
 				Simulation s = this.load_simulation(string);
 				s.log = log;
 				s.events(events);
-				if (iter > 0) {
-					s.ITERATIONS = iter;
-				}
     			tasks.add(s);	
 			}	
 		}
@@ -314,6 +317,10 @@ public class ControllerBatch extends Controller
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+    		
+    		if (notifiable != null){
+    			notifiable.update();
+    		}    		
 
     	}
     }

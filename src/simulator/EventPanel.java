@@ -34,14 +34,15 @@ public class EventPanel extends JPanel implements Notifiable{
 		this.confDialog = confDialog;
 		
 		ta_desc = new JTextArea();
+		ta_desc.setLineWrap(true);
+		add(ta_desc, BorderLayout.NORTH);
 		ta_desc.setForeground(SystemColor.textHighlight);
 		ta_desc.setBackground(SystemColor.control);
 		ta_desc.setEditable(false);
 		
-		ta_desc.setRows(2);
+		//ta_desc.setRows(2);
 		ta_desc.setFont(new Font("Tahoma", Font.PLAIN, 9));
 		ta_desc.setText(confDialog.toString());
-		add(ta_desc, BorderLayout.NORTH);
 		
 		JPanel panel = new JPanel();
 		add(panel, BorderLayout.SOUTH);
