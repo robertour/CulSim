@@ -63,10 +63,10 @@ public class CulturalParameters extends JDialog {
 	private String [] packs = {"simulator.previous", "simulator.destruction"};
 	
 	private JFileChooser jfc_load = new JFileChooser(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
-	private JFileChooser jfc_results = new JFileChooser(Controller.WORKSPACE_DIR);
+	private JFileChooser jfc_workspace = new JFileChooser(Controller.WORKSPACE_DIR);
 
 	private JComboBox<String> cb_presets;
-	public JTextField tf_results_dir;
+	public JTextField tf_workspace_dir;
 
 	public static JCheckBox cb_random_initialization;
 
@@ -99,9 +99,9 @@ public class CulturalParameters extends JDialog {
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
 		
-		jfc_results.setDialogTitle("Select a Results Folder");
-		jfc_results.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		jfc_results.setAcceptAllFileFilterUsed(false);
+		jfc_workspace.setDialogTitle("Select a Results Folder");
+		jfc_workspace.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		jfc_workspace.setAcceptAllFileFilterUsed(false);
 		
 
 		{
@@ -365,42 +365,47 @@ public class CulturalParameters extends JDialog {
 					cb_presets.setModel(new DefaultComboBoxModel<String>(listFiles("./" + Controller.PRESETS_DIR)));
 				}
 				{
-					JButton btnNewButton = new JButton("Save");
-					btnNewButton.setToolTipText("Save configuration to file");
-					btnNewButton.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-save.png")));
-					btnNewButton.setBounds(431, 221, 101, 23);
-					panel_1.add(btnNewButton);
+					JButton btn_save = new JButton("Save");
+					btn_save.setToolTipText("Save configuration to file");
+					btn_save.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-save.png")));
+					btn_save.setBounds(431, 221, 101, 23);
+					panel_1.add(btn_save);
 					{
-						JButton btnNewButton_1 = new JButton("Load");
-						btnNewButton_1.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-open.png")));
-						btnNewButton_1.setToolTipText("Load configuration from file");
-						btnNewButton_1.setBounds(542, 221, 101, 23);
-						panel_1.add(btnNewButton_1);
+						File conf_dir = new File( Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
+						if (!conf_dir.exists()){
+							conf_dir.mkdirs();
+				        }
+						jfc_load.setCurrentDirectory(new File(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR));
+						JButton btn_load = new JButton("Load");
+						btn_load.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-open.png")));
+						btn_load.setToolTipText("Load configuration from file");
+						btn_load.setBounds(542, 221, 101, 23);
+						panel_1.add(btn_load);
 						{
 							JLabel lblResultsDirectory = new JLabel("Results Directory:");
 							lblResultsDirectory.setBounds(10, 278, 104, 20);
 							contentPanel.add(lblResultsDirectory);
 						}
 						
-						tf_results_dir = new JTextField();
-						tf_results_dir.setEditable(false);
-						tf_results_dir.setBounds(109, 278, 434, 20);
-						contentPanel.add(tf_results_dir);
-						tf_results_dir.setColumns(10);
-						tf_results_dir.setText(jfc_results.getCurrentDirectory().getAbsolutePath() + "\\");
+						tf_workspace_dir = new JTextField();
+						tf_workspace_dir.setEditable(false);
+						tf_workspace_dir.setBounds(109, 278, 434, 20);
+						contentPanel.add(tf_workspace_dir);
+						tf_workspace_dir.setColumns(10);
+						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + "\\");
 						
 						JButton btnBrowse = new JButton("Browse");
 						btnBrowse.setIcon(new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-open-folder.png")));
 						btnBrowse.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
-								if (jfc_results.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
-									tf_results_dir.setText(jfc_results.getSelectedFile().getAbsolutePath() + "\\");
+								if (jfc_workspace.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
+									tf_workspace_dir.setText(jfc_workspace.getSelectedFile().getAbsolutePath() + "\\");
 								}
 							}
 						});
 						btnBrowse.setBounds(553, 277, 108, 23);
 						contentPanel.add(btnBrowse);
-						btnNewButton_1.addActionListener(new ActionListener() {
+						btn_load.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
 								if (jfc_load.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
 									if (CulturalSimulator.want_to_continue(jfc_load)){
@@ -413,7 +418,7 @@ public class CulturalParameters extends JDialog {
 							}
 						});
 					}
-					btnNewButton.addActionListener(new ActionListener() {
+					btn_save.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
 							if (jfc_load.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
 								if (CulturalSimulator.want_to_continue(jfc_load)){
@@ -426,7 +431,6 @@ public class CulturalParameters extends JDialog {
 					});
 				}
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -537,7 +541,6 @@ public class CulturalParameters extends JDialog {
     	ArrayList<String> filenames = new ArrayList<String>();
 
         File directory = new File(directoryName);
-
         if (!directory.exists()){
         	directory.mkdirs();
         }

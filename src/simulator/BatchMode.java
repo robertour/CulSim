@@ -145,6 +145,13 @@ public class BatchMode extends JDialog implements Notifiable{
 		conf_list = new DefaultListModel<String>();
 		file_list = new ArrayList<String>();
 		
+		
+		File conf_dir = new File( Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
+		if (!conf_dir.exists()){
+			conf_dir.mkdirs();
+        }
+		jfc_configurations.setCurrentDirectory(conf_dir);
+		
 		File[] directoryListing = jfc_configurations.getCurrentDirectory().listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {

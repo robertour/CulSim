@@ -20,7 +20,7 @@ public abstract class Controller {
 	/**
 	 * Workspace Directory
 	 */
-	public static final String WORKSPACE_DIR = "./";
+	public static String WORKSPACE_DIR = "./workspace/";
 	
 	/**
 	 * Default directory containing saved disasters (combination of catastrophic events)
@@ -98,11 +98,12 @@ public abstract class Controller {
 	}
 
 	/**
+	 * 
 	 * It creates the directories for the simulation to start. After that it
 	 * start the simulations.
 	 *   
-	 * @param controller
-	 * @param ws_dir
+	 * @param ws_dir directory where the results are to be stored
+	 * @param id identifier of the simulation, used for creating respective files/directories
 	 */
 	public void start (String ws_dir, String id){
 		identifier = id;

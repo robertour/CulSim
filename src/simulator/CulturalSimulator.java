@@ -30,6 +30,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -80,8 +81,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	public static String EXPERIMENTAL_FILE = "";
 	public String results_dir = "";
 	
-	private JFileChooser jfc_load = new JFileChooser(Controller.WORKSPACE_DIR + Controller.WORLDS_DIR);
-	private JFileChooser jfc_disasters = new JFileChooser(Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);
+	private JFileChooser jfc_load = new JFileChooser();
+	private JFileChooser jfc_events = new JFileChooser();
 	
 	public static ControllerSingle controller;
 	private ArrayList<Event> events = new ArrayList<Event>();
@@ -255,6 +256,11 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		mnFile.setHorizontalAlignment(SwingConstants.LEFT);
 		menuBar.add(mnFile);
 		
+		File world_dir = new File( Controller.WORKSPACE_DIR + Controller.WORLDS_DIR);;
+		if (!world_dir.exists()){
+			world_dir.mkdirs();
+        }
+		jfc_load.setCurrentDirectory(world_dir);
 		mntmSafeWorldState = new JMenuItem("Safe World State");
 		mntmSafeWorldState.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-save.png")));
 		mntmSafeWorldState.addActionListener(new ActionListener() {
@@ -874,11 +880,18 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		
 		button_1 = new JButton("");
 		button_1.setToolTipText("Open events");
+		
+		File eve_dir = new File( Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);;
+		if (!eve_dir.exists()){
+			eve_dir.mkdirs();
+        }
+		jfc_events.setCurrentDirectory(eve_dir);
+		
 		button_1.addActionListener(new ActionListener() {
 			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent e) {
-				if (jfc_disasters.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					String dis_file = jfc_disasters.getSelectedFile().getAbsolutePath();
+				if (jfc_events.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
+					String dis_file = jfc_events.getSelectedFile().getAbsolutePath();
 					try {
 						ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(dis_file));
 						events = (ArrayList<Event>) inFile.readObject();
@@ -904,8 +917,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		button.setToolTipText("Save events");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (jfc_disasters.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					String dis_file = jfc_disasters.getSelectedFile().getAbsolutePath();
+				if (jfc_events.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
+					String dis_file = jfc_events.getSelectedFile().getAbsolutePath();
 					try {
 						ObjectOutputStream write = new ObjectOutputStream (new FileOutputStream(dis_file));				
 						write.writeObject(events);
@@ -1018,7 +1031,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	}
 	
 	public static boolean want_to_continue(Component c){
-		return (controller.is_saved() && 
+		return (controller.is_saved() || 
 				JOptionPane.showConfirmDialog(c, 
 						"There is a non-saved simulation running.\nAre you sure you want to "
 						+ "continue and discard the current simulation?", 
@@ -1088,7 +1101,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				if (tglbtnPause.isSelected() || tglbtnStop.isSelected()){
 				
 					if (!tglbtnPause.isSelected() && tglbtnStop.isSelected()){
-						controller.start(parameters_dialog.tf_results_dir.getText(), "results");
+						controller.start(parameters_dialog.tf_workspace_dir.getText(), "results");
 						
 					} else {
 						controller.resume();

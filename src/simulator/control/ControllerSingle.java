@@ -65,7 +65,7 @@ public class ControllerSingle extends Controller
 	 */
 	public void initialize_simulation(){
 		if (simulation != null){
-			simulation.clean(); // clean the memory
+			simulation.clean();
 		}
 		simulation = new Ulloa();
 		is_saved = true;
