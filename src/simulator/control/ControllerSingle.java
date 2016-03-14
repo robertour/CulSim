@@ -9,23 +9,25 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import simulator.CulturalParameters;
 import simulator.CulturalSimulator;
+import simulator.Notifiable;
 import simulator.ParametersDialog;
 import simulator.control.events.Event;
 import simulator.destruction.Ulloa;
 
  
 /**
- * The controller of the simulations handles the simulation. It creates the tasks
- * and provide an interface for the user to interrupt, suspend or resume the 
- * simulation.
+ * The controller of the simulations handles the simulation. It creates the thread
+ * for the simulation, and provide methods to start, stop, suspend or resume the 
+ * simulation, load and save states of the simulation, update to and from the GUI
+ * and add events to the simulation
  * 
- * @author tico
+ * @author Roberto Ulloa
+ * @version 1.0, March 2016
  */
 public class ControllerSingle extends Controller
 {
@@ -36,11 +38,6 @@ public class ControllerSingle extends Controller
 	protected static Printable log = null;
 	
 	/**
-	 * References the Executor service that handles the threads
-	 */
-	private ExecutorService exec = null;
-	
-	/**
 	 * Instance to the current simulation when is in single mode
 	 */
 	private Simulation simulation = null;
@@ -48,31 +45,43 @@ public class ControllerSingle extends Controller
 	/**
 	 * Indicate if the simulation have been saved
 	 */
-	public boolean is_saved = true;
+	private boolean is_saved = true;
 	
 	/**
-	 * Constructor
-	 * @param ta_output
+	 * Constructor of the controller that handles one simulation (thread) and the user 
+	 * interface (CulturalParameters).
+	 * @param printable the object which will be in charge of displaying the messages 
+	 * from the simulation and the controller
+	 * @param notifiable the object that will be notified when the simulation is finished
 	 */
-	public ControllerSingle(Printable output) {
-		log = output;
+	public ControllerSingle(Printable printable, Notifiable notifiable) {
+		super (notifiable);
+		log = printable;
 	}
+	
 		
-	
-	public int get_iteration(){
-		return simulation.iteration;
-	}
-	
 	/** 
-	 * Call when there is no simulation assigned.
+	 * Initialize a new simulation. 
 	 */
 	public void initialize_simulation(){
+		if (simulation != null){
+			simulation.clean(); // clean the memory
+		}
 		simulation = new Ulloa();
+		is_saved = true;
+		CulturalSimulator.clean_belief_spaces();
+		if (simulation.iteration > 0){
+			simulation.save_state();
+			simulation.results();
+			simulation.update_gui();
+		}
+		restore_parameters_to_interface();
 	}
 	
 	
-	/** 
-	 * Save the simulation object
+	/**
+	 * Save the simulation in a file
+	 * @param simfile the file to save the simulation on
 	 */
 	public void save_simulation(String simfile){
 		if (simulation != null){
@@ -87,9 +96,18 @@ public class ControllerSingle extends Controller
 		}
 	}
 	
-	/** 
-	 * Load a simulation object
-	 * @throws IOException 
+	/**
+	 * Return if the simulation has been saved in a file.
+	 * @return is_saved whether the simulation has been saved or not
+	 */
+	public boolean is_saved() {
+		return is_saved;
+	}
+	
+	/**
+	 * Load a simulation from a file
+	 * @param simfile the file where the simulation is saved
+	 * @throws IOException
 	 */
 	public void load_simulation(String simfile) throws IOException{
 		if (simulation != null){
@@ -113,8 +131,10 @@ public class ControllerSingle extends Controller
 	}
 	
 	
-	/** 
-	 * Load a parameters of a simulation object
+	/**
+	 * Load parameters of a simulation file, it just reads the parameters
+	 * of the simulation stored in the file but not the state (see @link #load_simulation)
+	 * @param simfile the file that contains the simulation
 	 */
 	public void load_parameters(String simfile){
 		if (simulation != null){
@@ -136,6 +156,47 @@ public class ControllerSingle extends Controller
 		restore_parameters_to_interface();
 	}
 	
+	
+	/**
+	 * Restart the simulation removing references so the garbage collector
+	 * pick up the objects
+	 */
+	public void restart_simulation(){
+		if (simulation != null){
+			simulation.starter.clean();
+			simulation.clean();
+			simulation = simulation.clone();
+			CulturalSimulator.clean_belief_spaces();
+			is_saved = true;
+		}
+	}
+	
+	/**
+	 * Save the current state of the simulation to reload from it
+	 */
+	public void save_state(){
+		if (simulation != null){
+			simulation.save_state();
+			simulation.results();
+			simulation.update_gui();
+		}
+	}
+	
+	/**
+	 * Restart the simulation removing references so the garbage collector
+	 * pick up the objects
+	 */
+	public void reload_state(){
+		if (simulation != null){
+			simulation.clean();
+			simulation = simulation.starter;
+			simulation.save_state();
+			CulturalSimulator.clean_belief_spaces();
+			simulation.results();
+			simulation.update_gui();
+		}
+	}
+
 	/**
 	 * Restore the parameters of the simulation to the interface
 	 */
@@ -173,46 +234,6 @@ public class ControllerSingle extends Controller
 	}
 	
 	/**
-	 * Restart the simulation leaving no garbage behind
-	 */
-	public void restart_simulation(){
-		if (simulation != null){
-			simulation.starter.clean();
-			simulation.clean();
-			simulation = simulation.clone();
-			CulturalSimulator.clean_belief_spaces();
-		}
-	}
-	
-	/**
-	 * Restart the simulation leaving no garbage behind
-	 */
-	public void reload_state(){
-		if (simulation != null){
-			simulation.clean();
-			simulation = simulation.starter;
-			simulation.save_state();
-			CulturalSimulator.clean_belief_spaces();
-			simulation.results();
-			simulation.update_gui();
-		}
-	}
-	
-	/**
-	 * Save the current state of the simulation to reload from it
-	 */
-	public void save_state(){
-		if (simulation != null){
-			simulation.save_state();
-			simulation.results();
-			//CulturalSimulator.clean_belief_spaces();
-			simulation.update_gui();
-		}
-	}
-	
-	
-	
-	/**
 	 * Load the parameters from the interface
 	 */
 	public void load_parameters_from_interface(){
@@ -246,11 +267,9 @@ public class ControllerSingle extends Controller
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		
 	}
-	/**
-	 * 
-	 */
+	
+	@Override
     public void play() {
 
     	// Load static variables that the simulation is going to access
@@ -270,49 +289,34 @@ public class ControllerSingle extends Controller
     	exec.shutdown();
     	
     	(new SimulationExecuter()).start();
-        
     }
     
-    /** 
-     * Cancel the active thread (visualization mode)
-     * @throws IOException
-     */
+	@Override
     public void cancel() {
     	simulation.cancel();
-    	
     }
     
-    /**
-     * Suspend/Pause the active thread (visualization mode)
-     */
+    @Override
     public void suspend() {
     	simulation.suspend();
     }
     
-    /**
-     * Resume the active thread (visualization mode)
-     */
+    @Override
     public void resume(){
     	simulation.resume();
     }
-		
-
 	
     /**
-     * Add a catastrophic events to the simulation
-     * @param e
+     * Add catastrophic events to the simulation
+     * @param events the list of events that will be applied to the simulation
      */
 	public void add_events(ArrayList<Event> events){
 		if (events.size() > 0){
 			simulation.events(events);
 		}
-	}
-
-    
-    /**
-     * Write the final or intermediate (when interrupted) results
-     * @throws IOException
-     */
+	}    
+	
+	@Override
     public void write_results() throws IOException {
     	// Write the results to the file
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
@@ -322,15 +326,19 @@ public class ControllerSingle extends Controller
         writer.close();    	
     }
     
-    
-    
     /**
-     * Handles the finalization of the experiments and its possible interruptions
+     * Handles the general execution of the simulation, it notifies the interface
+     * the finalization of the simulation and its possible interruptions
      * 
-     * @author tico
+     * @author Roberto Ulloa
+     * @version 1.0, March 2016
      */
     private class SimulationExecuter extends Thread {
     	
+    	/**
+    	 * Runs and wait for the simulation to finish. Display errors and messages 
+    	 * in the the printable, and notify the end of the execution.
+    	 */
     	public void run (){
 	    	log.print(-1, "Simulation Executor Started\n");
     		try {
@@ -346,6 +354,9 @@ public class ControllerSingle extends Controller
 				e.printStackTrace();
 			}
 	    	
+	    	if (notifiable != null){
+    			notifiable.update();
+    		}   
 
     	}
     }

@@ -109,7 +109,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-           		controller.cancel_all();
+           		controller.cancel();
            		dispose();                
             }
         });
@@ -358,7 +358,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		btn_stop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (btn_stop.isEnabled()){
-					controller.cancel_all();
+					controller.cancel();
 					
 					btn_play.setEnabled(true);
 					btn_play.setSelected(false);
@@ -372,7 +372,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		btn_pause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (btn_pause.isEnabled()){
-					controller.suspend_all();
+					controller.suspend();
 	
 					btn_play.setEnabled(true);
 					btn_play.setSelected(false);					
@@ -393,8 +393,12 @@ public class BatchMode extends JDialog implements Notifiable{
 							
 														
 							if (tp_batch_mode.getSelectedComponent() == tab_conf_file ){
-								controller.load_tasks(file_list, (int) sp_repetitions.getValue());
-								controller.run( tf_results_dir.getText(), "results");
+								try {
+									controller.load_simulations(file_list, null, (int) sp_repetitions.getValue());
+								} catch (ClassNotFoundException | IOException e) {
+									e.printStackTrace();
+								}
+								controller.start( tf_results_dir.getText(), "results");
 								
 						    } else if (tp_batch_mode.getSelectedComponent() == tab_catastrophic) {
 						    	ArrayList<String> sim_list = new ArrayList<String>();		    	
@@ -419,13 +423,17 @@ public class BatchMode extends JDialog implements Notifiable{
 												"the results of a Batch process.");
 									return;
 								}
-						    	controller.load_simulations_from_directory(sim_list, events, (int) sp_repetitions_catastroph.getValue());
+						    	try {
+									controller.load_simulations(sim_list, events, (int) sp_repetitions_catastroph.getValue());
+								} catch (ClassNotFoundException | IOException e) {
+									e.printStackTrace();
+								}
 						    						
-								controller.run(tf_scenarios_dir.getText(), "results" );
+								controller.start(tf_scenarios_dir.getText(), "results" );
 						    }
 						// Resume
 						} else {
-							controller.resume_all();
+							controller.resume();
 						}
 						
 						btn_play.setEnabled(false);

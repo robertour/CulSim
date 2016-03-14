@@ -23,91 +23,101 @@ import simulator.destruction.Flache2;
 import simulator.destruction.Ulloa;
  
 /**
- * This controller creates the tasks base on a CSV configuration file and it
- * can provide an interface for the user to interrupt, suspend or resume the 
- * simulation, or run in a console mode
+ * The controller of the simulations handles the simulations and run them in batch
+ * mode. It creates threads for the simulations, and provide methods to start, stop, 
+ * suspend or resume them, load simulations from a CSV file or a results directory,
+ * interact with a GUI and add events to the simulations
  * 
- * @author tico
+ * @author Roberto Ulloa
+ * @version 1.0, March 2016
  */
 public class ControllerBatch extends Controller
 {
 
 	/**
-	 * The area to append the results (log)
+	 * Area to display the messages
 	 */
 	protected static Printable log = null;
 	
 	/**
-	 * Keep a reference to the events that are going to be executed
+	 * Events that are going to be executed in the simulation
 	 */
 	protected ArrayList<Event> events = new ArrayList<Event>();
 	
-
 	/**
-	 * List of simulations taht need to be run
+	 * List of simulations that need to be run
 	 */
-	protected ArrayList<Simulation> tasks = null;
+	protected ArrayList<Simulation> simulations = null;
 	
-	private Notifiable notifiable = null;
-	
+	/**
+	 * Constructor of the controller that handles multiple simulations (as threads) and 
+	 * alternatively the user batch interface (@see simulator.BatchMode) or 
+	 * CommandLine (@see simulator.Main).
+	 * @param printable the object which will be in charge of displaying the messages 
+	 * from the simulations and the controller
+	 * @param notifiable the object that will be notified when the simulations are finished
+	 */
 	public ControllerBatch(Printable output, Notifiable n) {
+		super (n);
 		log = output;
-		this.notifiable = n;
 	}
 
 	/** 
-	 * Load a simulation object
+	 * Load a single simulation object from a file
+	 * 
+	 * @throws FileNotFoundException 
 	 * @throws IOException 
+	 * @throws ClassNotFoundException 
 	 */
-	public Simulation load_simulation(String simfile){
+	private Simulation load_simulation(String simfile) throws FileNotFoundException, IOException, ClassNotFoundException{
 		Simulation s = null;
-		try {
-			ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(simfile));
-			s = (Simulation) inFile.readObject();
-			inFile.close();
-		}  catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}
+		ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(simfile));
+		s = (Simulation) inFile.readObject();
+		s.log = log;
+		inFile.close();
 		return s;
 	}
 
-	/**
-	 * Open the files and creates the tasks for the experiments
-	 * @throws FileNotFoundException
-	 */
-    public void load_tasks(ArrayList<String> sim_files, int repetitions) {
-    	tasks = new ArrayList<Simulation>();
-
-    	for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
-			String string = (String) iterator.next();
-			for (int j = 0; j < repetitions; j++) {
-    			tasks.add(this.load_simulation(string));	
-			}	
-		}
-    }
     
 	/**
-	 * Open the files and creates the tasks for the experiments
-	 * @throws FileNotFoundException
+	 * Load the simulation stored in the simulation files as many times as specified
+	 * in repetitions and add them to the simulation list. It also add the events that
+	 * will be happening in all the loaded simulations.
+	 * 
+	 * @param sim_files the list of simulation files
+	 * @param events the list of events that will be executed in the simuations
+	 * @param repetitions the number of times each simulation on a file will be executed
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 * @throws FileNotFoundException 
 	 */
-    public void load_simulations_from_directory(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) {
-    	tasks = new ArrayList<Simulation>();
+    public void load_simulations(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions) throws FileNotFoundException, ClassNotFoundException, IOException {
+    	simulations = new ArrayList<Simulation>();
     	IS_BATCH = true;
-    	this.events = events;
+    	if (events != null){
+    		this.events = events;
+    	}
 
     	for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
 			String string = (String) iterator.next();
 			for (int j = 0; j < repetitions; j++) {
 				Simulation s = this.load_simulation(string);
-				s.log = log;
-				s.events(events);
-    			tasks.add(s);	
+				if (events != null){
+					s.events(events);
+				}
+    			simulations.add(s);	
 			}	
 		}
     }
 	
 	/**
-	 * Open the files and creates the tasks for the experiments
+	 * Load simulation from an experimental design stored in a CSV file, this is
+	 * the main way to start interacting with the console mode. It creates a simulation
+	 * for each line in the csv file (Refer to the user manual on how to create a
+	 * CSV file). It also accepts a list of events that will be executed in the scenarios.
+	 * 
+	 * @param csv_file the csv file containing the experimental design
+	 * @param events the list of events that will be executed in the simulation
 	 * @throws FileNotFoundException
 	 */
     public void load_simulations_from_file(String csv_file, ArrayList<Event> events) throws FileNotFoundException {
@@ -124,7 +134,7 @@ public class ControllerBatch extends Controller
         scanner.nextLine();
         scanner.useDelimiter(",");
          
-        tasks = new ArrayList<Simulation>();
+        simulations = new ArrayList<Simulation>();
         
         //Start reading the file
         while (scanner.hasNext())
@@ -165,7 +175,7 @@ public class ControllerBatch extends Controller
 	        		if (events.size() > 0) {
 	        			clone.events(events);
 	        		}
-		        	tasks.add( rand.nextInt(tasks.size()+1), clone);
+		        	simulations.add( rand.nextInt(simulations.size()+1), clone);
 	        	}
 	        	
 	        	if (scanner.hasNextLine()) {
@@ -178,10 +188,7 @@ public class ControllerBatch extends Controller
         scanner.close();
     }
     
-    /**
-     * Write the final or intermediate (when interrupted) results
-     * @throws IOException
-     */
+    @Override
     public void write_results() throws IOException {
     	
     	BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
@@ -191,7 +198,7 @@ public class ControllerBatch extends Controller
                 		(new File(results_dir)).getName() + "-" + identifier + ".csv"), "utf-8"));
         writer.write(Simulation.header());
         writer2.write(Simulation.header());
-        for(Simulation w : tasks) {
+        for(Simulation w : simulations) {
 			writer.write(w.get_results());
 			writer2.write(w.get_results());
 			
@@ -201,7 +208,8 @@ public class ControllerBatch extends Controller
     }
     
     /**
-     * Write the events that this experiment was subject to
+     * Write the events that happened in this simulation.
+     * 
      * @throws IOException
      */
     protected void write_events() throws IOException {
@@ -219,10 +227,7 @@ public class ControllerBatch extends Controller
         writer.close();    	
     }
     
-    /**
-     * Load the file and starts the simulation
-     * @throws FileNotFoundException
-     */
+    @Override
     protected void play(){
     	
     	IS_BATCH = true;
@@ -231,7 +236,7 @@ public class ControllerBatch extends Controller
     	exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     	
     	int id = 0;
-    	for(Simulation w : tasks) {
+    	for(Simulation w : simulations) {
     		w.IDENTIFIER = id++;
     		w.log = log;
     		w.results_dir = results_dir;
@@ -247,77 +252,75 @@ public class ControllerBatch extends Controller
     }
 
     /** 
-     * Cancel all threads
+     * Clean all the simulations structrues that are not going to be 
+     * used anymore
      * @throws IOException
      */
     public void clean_all() {
-    	if (tasks != null) {
-	    	for(Simulation w : tasks) {
+    	if (simulations != null) {
+	    	for(Simulation w : simulations) {
 	    		w.clean();
 	    	} 
     	}
     }
     
-    /** 
-     * Cancel all threads
-     * @throws IOException
-     */
-    public void cancel_all() {
-    	if (tasks != null){
-	    	for(Simulation w : tasks) {
+    @Override
+    public void cancel() {
+    	if (simulations != null){
+	    	for(Simulation w : simulations) {
 	    		w.cancel();
 	    	} 
 	    	exec.shutdownNow();
     	}
     }
     
-    /**
-     * Suspend all threads
-     */
-    public void suspend_all() {
-    	for(Simulation w : tasks) {
+    @Override
+    public void suspend() {
+    	for(Simulation w : simulations) {
     		w.suspend();
     	} 
     }
     
-    /**
-     * Resume all threads
-     */
-    public void resume_all(){
-    	for(Simulation w : tasks) {
+    @Override
+    public void resume(){
+    	for(Simulation w : simulations) {
     		w.resume();
     	}
     }
     
     /**
-     * Handles the finalization of the experiments and its possible interruptions
+     * Handles the general execution of the simulations, it notifies the 
+     * interface (if any) of the finalization of the simulation and its 
+     * possible interruptions
      * 
-     * @author tico
+     * @author Roberto Ulloa
+     * @version 1.0, March 2016
      */
     private class SimulationExecuter extends Thread {
     	
+    	/**
+    	 * Runs and wait for the simulations to finish. Display errors and messages 
+    	 * in the the printable, and notify the end of the execution. It also save 
+    	 * the events that are going to be executed inside the simulations.
+    	 */
     	public void run (){
     		log.print(-1, "Simulation Executor Started\n");
-    		
         	try {
     			write_events();
     		} catch (IOException e) {
     			e.printStackTrace();
     		}
-    			
     		try {
 				exec. awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 				log.print(-1, "The threads were finished and no errors where reported\n");
 			} catch (InterruptedException e) {
 				log.print(-1, "Simulation interrupted\n");
 			}
-    		
     		try {
 		    	write_results();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-    		
     		if (notifiable != null){
     			notifiable.update();
     		}    		

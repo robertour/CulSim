@@ -1,11 +1,21 @@
 package simulator.control;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
+import simulator.Notifiable;
 
-public abstract class Controller {
-	
+
+/**
+ * The controller of the simulations handles the simulation. It creates the tasks
+ * and provide an interface for the user to interrupt, suspend or resume the 
+ * simulation.
+ * 
+ * @author Roberto Ulloa
+ * @version 1.0, April 2016
+ */
+public abstract class Controller {	
 
 	/**
 	 * Workspace Directory
@@ -50,7 +60,6 @@ public abstract class Controller {
 	 */
 	protected String identifier = "results";
 	
-	
 	/**
 	 * Directory to save the CSV results of the simulations
 	 */
@@ -62,24 +71,40 @@ public abstract class Controller {
 	 */
 	public static final String SIMULATIONS_DIR = "simulations/";
 	
-	
 	/**
 	 * References the Executor service that handles the threads
 	 */
 	protected ExecutorService exec = null;
+	
+
+	/**
+	 * Component that gets notified when the threads are finished
+	 */
+	protected Notifiable notifiable = null;
 	
 	
 	/**
 	 * Indicates if several simulations are running at the same time
 	 */
 	public static boolean IS_BATCH;
+	
+	/**
+	 * The constructor of the controller that receives an interface to be notified
+	 * of the finalization of the simulations
+	 * @param notifiable
+	 */
+	public Controller(Notifiable notifiable) {
+		this.notifiable = notifiable;
+	}
 
 	/**
-	 * 
+	 * It creates the directories for the simulation to start. After that it
+	 * start the simulations.
+	 *   
 	 * @param controller
 	 * @param ws_dir
 	 */
-	public void run (String ws_dir, String id){
+	public void start (String ws_dir, String id){
 		identifier = id;
 		// Look for a non existent results directory
 		File dir = new File(ws_dir + identifier + "/");
@@ -100,5 +125,34 @@ public abstract class Controller {
 		play();
 	}
 	
+	/**
+	 * Start or resume running the simulation(s) 
+	 */
 	protected abstract void play ();
+	
+    /** 
+     * Cancel the active simulation(s)
+     * @throws IOException
+     */
+    public abstract void cancel();
+    
+    /**
+     * Suspend/Pause the active simulation(s)
+     */
+    public abstract void suspend();
+    
+    /**
+     * Resume the active simulation(s)
+     */
+    public abstract void resume();
+    
+    /**
+     * Write the final results (or the intermediate ones when interrupted/stopped)
+     * in the results directory. In batch mode, it also create a copy in the resultset
+     * directory in the workspace.
+     * @throws IOException
+     */
+    public abstract void write_results() throws IOException;
+	
+	
 }

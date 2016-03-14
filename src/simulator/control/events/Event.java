@@ -26,7 +26,6 @@ public abstract class Event implements Serializable{
 			rectangular_event(distribution.getRow(s), distribution.getCol(s), 
 					distribution.getRow2(s), distribution.getCol2(s), s);			
 		}
-		
 	}
 	
 	public abstract void trigger(int r, int c, double p, Simulation simulation);

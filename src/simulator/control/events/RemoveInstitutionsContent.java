@@ -18,7 +18,7 @@ public class RemoveInstitutionsContent extends Event {
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
 		if (simulation.getRand().nextDouble() < p){
-			simulation.remove_full_institution_content(r * simulation.COLS + c);
+			simulation.remove_full_institution_content(r, c);
 		}
 	}
 	

@@ -352,6 +352,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	protected static int DEAD_TRAIT = -2;
 	
 	/**
+	 * # that represent an empty institution
+	 */
+	protected static int EMPTY = -3;
+	
+	/**
 	 * This is the starting state of the simulation to
 	 * calculate similarity/change of worlds.
 	 */
@@ -670,6 +675,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration += CHECKPOINT) {
 			
+		
 			check_for_events();
 			update_gui();
 			run_iteration();
@@ -707,6 +713,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		return r;
 	}		
 	
+	protected void calculate_institutions_centers(){};
 	protected abstract void run_iteration();
 	
 	/**
@@ -1204,6 +1211,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 */
 	private void check_for_events(){
 		if (events.size() > 0){
+			calculate_institutions_centers();
 			executing_events = true;
 			for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 				Event event = (Event) iterator.next();
@@ -1255,14 +1263,14 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param c
 	 * @param prob
 	 */
-	public void remove_partial_institution_content(int institution, double prob){}
+	public void remove_partial_institution_content(int r, int c, double prob){}
 	
 	/**
 	 * Remove complete information of an institution
 	 * @param r
 	 * @param c
 	 */
-	public void remove_full_institution_content(int institution){}
+	public void remove_full_institution_content(int r, int c){}
 	
 	/**
 	 * Forget the institution I belong to
@@ -1276,7 +1284,7 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param r
 	 * @param c
 	 */
-	public void convert_full_institution(int institution){}
+	public void convert_full_institution(int r, int c){}
 	
 	/**
 	 * Convert a percentage of traits towards the invader TRAITS
@@ -1284,13 +1292,13 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 	 * @param c
 	 * @param prob
 	 */
-	public void convert_partial_institution(int institution, double prob){}
+	public void convert_partial_institution(int r, int c, double prob){}
 	
 	/**
 	 * Destroy an institution, all agents become stateless
 	 * @param institution
 	 */
-	public void destoy_institution(int institution){};
+	public void destoy_institution(int r, int c){};
 	
 	/**
 	 * Prepare elements before an invasion. In this case, it would

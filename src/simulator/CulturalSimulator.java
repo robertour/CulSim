@@ -71,7 +71,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-public class CulturalSimulator extends JFrame {
+public class CulturalSimulator extends JFrame implements Notifiable {
 
 
 	private static final long serialVersionUID = -6498782807057797553L;
@@ -598,7 +598,7 @@ public class CulturalSimulator extends JFrame {
 		scrollPane.setViewportView(output_area);
 		splitPane.setDividerLocation(500);
 		
-		controller = new ControllerSingle(output_area);
+		controller = new ControllerSingle(output_area, this);
 		parameters_dialog = new CulturalParameters(this);
 		
 		sidePanel = new JPanel();
@@ -1018,12 +1018,10 @@ public class CulturalSimulator extends JFrame {
 	}
 	
 	public static boolean want_to_continue(Component c){
-		return (controller.is_saved ||
-				controller.get_iteration() == 0 
-				|| controller.get_iteration() > 0 && 
+		return (controller.is_saved() && 
 				JOptionPane.showConfirmDialog(c, 
-						"There is a non-saved simulation in the iteration " + controller.get_iteration() + 
-						".\nAre you sure you want to continue and overwrite the current simulation?", 
+						"There is a non-saved simulation running.\nAre you sure you want to "
+						+ "continue and discard the current simulation?", 
 						"Do you want to continue?", JOptionPane.YES_NO_OPTION, 
 						JOptionPane.WARNING_MESSAGE)== JOptionPane.YES_OPTION);
 	}
@@ -1090,7 +1088,7 @@ public class CulturalSimulator extends JFrame {
 				if (tglbtnPause.isSelected() || tglbtnStop.isSelected()){
 				
 					if (!tglbtnPause.isSelected() && tglbtnStop.isSelected()){
-						controller.run(parameters_dialog.tf_results_dir.getText(), "results");
+						controller.start(parameters_dialog.tf_results_dir.getText(), "results");
 						
 					} else {
 						controller.resume();
@@ -1229,6 +1227,12 @@ public class CulturalSimulator extends JFrame {
 		} else {
 			sliderSpeed.setValue(30);
 		}
+	}
+
+	@Override
+	public void update() {
+		tglbtnStop.doClick();
+		
 	}
 }
 

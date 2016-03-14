@@ -2,6 +2,7 @@ package simulator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -117,13 +118,25 @@ public class Main {
 					" directory didn't contain any simulations. Please make sure you are "
 					+ "providing a directory with the results of a Batch process.");
 		}
-    	if (rep == -1){
-    		controller.load_simulations_from_directory(sim_list, events, 1);
-    	} else {
-    		controller.load_simulations_from_directory(sim_list, events, rep);
-    	}
+
+		try {
+			if (rep == -1){
+				controller.load_simulations(sim_list, events, 1);
+			} else {
+				controller.load_simulations(sim_list, events, rep);
+			}
+    	} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("One of the files in the directory was not found.");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("One of the files in the directory is not of the type simulation. Maybe an old version?.");
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("I/O Exception.");
+		}
     	
-		controller.run( rd + "/", id);
+		controller.start( rd + "/", id);
 		return controller;
 	
 	}
@@ -138,7 +151,7 @@ public class Main {
 			throw new IllegalArgumentException("File not found: "+ ef);
 		}
 
-		controller.run(Controller.WORKSPACE_DIR, id);
+		controller.start(Controller.WORKSPACE_DIR, id);
 		
 		return controller;
 	}

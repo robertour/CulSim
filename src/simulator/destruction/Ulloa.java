@@ -28,6 +28,11 @@ public class Ulloa extends Axelrod {
 	 */
 	protected int institutions[][] = null;
 	
+	/**
+	 * Center of each institution (according to the agents who belong to it)
+	 */
+	protected int institutionsCenters[][] = null;
+	
 	
 	/**
 	 * Implements a circular doubled linked list with the members of the 
@@ -112,6 +117,7 @@ public class Ulloa extends Axelrod {
 		super.setup();
 		
 		institutions = new int[ROWS][COLS];
+		institutionsCenters = new int[ROWS][COLS];
 		
 		institution_beliefs = new int[ROWS*COLS][FEATURES];
 		institutionsN = new int[ROWS*COLS];
@@ -125,6 +131,7 @@ public class Ulloa extends Axelrod {
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
 				institutions[r][c] = r * COLS + c;
+				institutionsCenters[r][c] = r * COLS + c;
 				institutionsN[r * COLS + c] = 1;
 				for (int f = 0; f < FEATURES; f++) {
 					institution_beliefs[r * COLS + c][f] = -1;
@@ -134,8 +141,17 @@ public class Ulloa extends Axelrod {
 				countryman_right_c[r][c] = c;
 				countryman_left_r[r][c] = r;
 				countryman_left_c[r][c] = c;
+				
 			}
 		}
+
+
+		votes_flags = new boolean[ROWS][COLS];
+		votes = new int[FEATURES][TRAITS+1];
+		max_traits = new int[TRAITS];
+		
+		max_traits = new int[FEATURES*TRAITS];
+		max_features = new int[FEATURES*TRAITS];
 		
 		if (!RANDOM_INITIALIZATION){
 			nr = ROWS/2;
@@ -153,16 +169,9 @@ public class Ulloa extends Axelrod {
 				}
 			}
 			
+			calculate_institutions_centers();
 			
 		}
-
-
-		votes_flags = new boolean[ROWS][COLS];
-		votes = new int[FEATURES][TRAITS+1];
-		max_traits = new int[TRAITS];
-		
-		max_traits = new int[FEATURES*TRAITS];
-		max_features = new int[FEATURES*TRAITS];
 		
 		check_circular_list();
 		
@@ -172,6 +181,7 @@ public class Ulloa extends Axelrod {
 	protected void reset(){
 		super.reset();
 		institutions = null;
+		institutionsCenters = null;
 		institution_beliefs = null;
 		institutionsN = null;
 		countryman_right_r = null;
@@ -666,6 +676,117 @@ public class Ulloa extends Axelrod {
 		
 		hasnt_vote_flag = !hasnt_vote_flag;
 	}
+	
+
+	/**
+	 * Calculate the institution centers based on its members
+	 */
+	protected void calculate_institutions_centers() {
+		int r_sum = 0;
+		int c_sum = 0;
+		int nr = 0;
+		int nc = 0;
+		int inst;
+		int temp_r;
+		int rc[] = new int[2];
+		
+		for (int r = 0; r < ROWS; r++) {
+			for (int c = 0; c < COLS; c++) {
+				institutionsCenters[r][c] = EMPTY;
+			}
+		}
+		
+		for (int r = 0; r < ROWS; r++) {
+			
+			for (int c = 0; c < COLS; c++) {
+
+				// include my votes
+				nr = r;
+				nc = c;
+				
+				if (votes_flags[nr][nc] == hasnt_vote_flag) {
+
+					r_sum = 0;
+					c_sum = 0;
+					
+					 while (votes_flags[nr][nc] == hasnt_vote_flag ) {
+												
+						votes_flags[nr][nc] = !hasnt_vote_flag;
+						
+						r_sum += nr;
+						c_sum += nc;
+						
+						// avoid overwriting the nr before time
+						temp_r = nr;
+						
+						// look for the next country man on the right
+						nr = countryman_right_r[nr][nc];
+						nc = countryman_right_c[temp_r][nc];
+						
+					}// end of while
+					 
+					inst = institutions[r][c];
+					r_sum = Math.round(((float) r_sum/institutionsN[inst]));
+					c_sum =  Math.round(((float) c_sum/institutionsN[inst]));
+
+					rc = search_free_institutionCenter(r_sum, c_sum);
+					institutionsCenters[rc[0]][rc[1]] = inst;
+				}
+			}
+		}
+		
+		
+		hasnt_vote_flag = !hasnt_vote_flag;
+	}
+
+	
+	
+
+	/**
+	 * This looks for a non currently occupied institution in the geographical 
+	 * representation of institutions Centers
+	 * 
+	 * @param r
+	 * @param c
+	 * @return
+	 */
+	private int[] search_free_institutionCenter(int r, int c){
+	    int x=0, y=0, dx = 0, dy = -1;
+	    int t = Math.max(ROWS,COLS);
+	    int maxI = t*t;
+	
+	    for (int i=0; i < maxI; i++){
+	        if ((-1 < r+x) && (r+x < ROWS) && (-1 < c+y) && (c+y < COLS)) {
+	            if (institutionsCenters[r+x][c+y] == EMPTY){
+	            	return new int[] {(r+x), (c+y)};
+	            }
+	        }
+	
+	        if( (x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1-y))) {
+	            t=dx; dx=-dy; dy=t;
+	        }   
+	        x+=dx; y+=dy;
+	    }
+	    
+	    log.print(IDENTIFIER, "WARNING! The circular spiral loop have failed finding a free instititution center. "
+	    		+ "This should have never happened, searching for a free institution in the whole space.");
+	    
+	    // This should never happen
+	    for (int r1 = 0; r1 < ROWS; r1++){
+	    	for (int c1 = 0; c1 < COLS; c1++){
+	    		if (institutionsCenters[r1][c1] == EMPTY){
+	    			
+	    			return new int[] {(r1+x), (c1+y)};
+	    			
+	    		}
+	    	}
+	    }
+
+	    log.print(IDENTIFIER, "ERROR! No free institution center was found in an exhaustive search.");
+	    return new int[] {-99999,-99999};
+	}
+
+
 
 
 	
@@ -692,8 +813,9 @@ public class Ulloa extends Axelrod {
 	}
 
 	@Override
-	public void remove_partial_institution_content(int institution, double prob){
-		if (institutionsN[institution] > 0){
+	public void remove_partial_institution_content(int r, int c, double prob){
+		int institution = institutionsCenters[r][c];
+		if (institution != EMPTY && institutionsN[institution] > 0){
 			for (int f = 0; f < FEATURES; f++) {
 				if (Math.random() < prob) {
 					this.removed_traits++;
@@ -704,8 +826,9 @@ public class Ulloa extends Axelrod {
 	}
 	
 	@Override
-	public void remove_full_institution_content(int institution){
-		if (institutionsN[institution] > 0){
+	public void remove_full_institution_content(int r, int c){
+		int institution = institutionsCenters[r][c];
+		if (institution != EMPTY && institutionsN[institution] > 0){
 			this.removed_institutions++;
 			for (int f = 0; f < FEATURES; f++) {
 				institution_beliefs[institution][f] = -1;
@@ -714,25 +837,26 @@ public class Ulloa extends Axelrod {
 	}
 	
 	@Override
-	public void destoy_institution(int institution){
+	public void destoy_institution(int r, int c){
+		int institution = institutionsCenters[r][c];
 
-		if (institutionsN[institution] > 0){
+		if (institution != EMPTY && institutionsN[institution] > 0){
 			this.destoyed_institutions++;
 			int[] member = search_member(institution);
-			int r = member[0];
-			int c = member[1];
+			int mr = member[0];
+			int mc = member[1];
 			
 			if (institutionsN[institution] == 1){
 				this.apostates++;
-				abandon_institution(r, c);
+				abandon_institution(mr, mc);
 			} else {
 				while (institutionsN[institution] > 1){
-					int nr = countryman_right_r[r][c];
-					int nc = countryman_right_c[r][c];
+					int nr = countryman_right_r[mr][mc];
+					int nc = countryman_right_c[mr][mc];
 					this.stateless++;
-					abandon_institution(r, c);
-					r = nr;
-					c = nc;
+					abandon_institution(mr, mc);
+					mr = nr;
+					mc = nc;
 				}
 			}
 		}
@@ -758,8 +882,9 @@ public class Ulloa extends Axelrod {
 	}
 	
 	@Override
-	public void convert_full_institution(int institution){
-		if (institutionsN[institution] > 0){
+	public void convert_full_institution(int r, int c){
+		int institution = institutionsCenters[r][c]; 
+		if (institution != EMPTY && institutionsN[institution] > 0){
 			this.converted_institutions++;
 			for (int f = 0; f < FEATURES; f++) {
 				institution_beliefs[institution][f] = TRAITS;
@@ -769,8 +894,9 @@ public class Ulloa extends Axelrod {
 
 	
 	@Override
-	public void convert_partial_institution(int institution, double prob){
-		if (institutionsN[institution] > 0){
+	public void convert_partial_institution(int r, int c, double prob){
+		int institution = institutionsCenters[r][c];
+		if (institution != EMPTY && institutionsN[institution] > 0){
 			for (int f = 0; f < FEATURES; f++) {
 				if (Math.random() < prob) {
 					this.converted_traits++;
@@ -932,6 +1058,8 @@ public class Ulloa extends Axelrod {
 	}
 
 	protected void print_institutional_beliefs_space(){
+		calculate_institutions_centers();
+		
 		BufferedImage alife_institutional_beliefs_space_image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
 		String ohex_alife_institutions_beliefs_space_image = "";
 		
@@ -946,24 +1074,33 @@ public class Ulloa extends Axelrod {
 
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				institution = r * COLS + c;
-				// Association of the agent to the institution belief space
+				institution = institutionsCenters[r][c];
 				belonging_institution = institutions[r][c];
+				
 				ohex_alife_institutions_beliefs_space_image = "";
 				institutonal_beliefs_association_ohex = "";
 				alife_institution_ohex = "";
 				
+				// Institution association
 				for (int f = 0; f < Math.min(FEATURES,6); f++) {
 					institutonal_beliefs_association_ohex += get_color_for_trait(institution_beliefs[belonging_institution][f]);
-					ohex_alife_institutions_beliefs_space_image += get_color_for_trait(institution_beliefs[institution][f]);
 				}
 				institutonal_beliefs_association_ohex = "#" + institutonal_beliefs_association_ohex;
+				
+				// Institution association
+				if (institution == EMPTY){
+					ohex_alife_institutions_beliefs_space_image  = "000000";
+				} else {
+					for (int f = 0; f < Math.min(FEATURES,6); f++) {	
+						ohex_alife_institutions_beliefs_space_image += get_color_for_trait(institution_beliefs[institution][f]);
+					}
+				}
 				ohex_alife_institutions_beliefs_space_image = "#" + ohex_alife_institutions_beliefs_space_image;
 				
+				
 				// Alife Institutions
-				if (institutionsN[institution] == 0){
+				if (institution == EMPTY){
 					alife_institution_ohex = "#000000";
-					ohex_alife_institutions_beliefs_space_image = "#000000";
 				} else {
 					alife_institution_ohex = "#ffffff";
 				}
@@ -980,6 +1117,9 @@ public class Ulloa extends Axelrod {
 		CulturalSimulator.set_alife_institutional_beliefs_space(alife_institutional_beliefs_space_image);
 	}
 
+
+	
+	
 	
 	/**
 	 * This looks for a non currently occupied institution  near the given
