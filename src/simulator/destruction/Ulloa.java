@@ -172,9 +172,6 @@ public class Ulloa extends Axelrod {
 			calculate_institutions_centers();
 			
 		}
-		
-		check_circular_list();
-		
 	}
 
 	@Override
@@ -199,8 +196,10 @@ public class Ulloa extends Axelrod {
 
 	@Override
 	public void run_iteration() {
+		
 
 		for (int ic = 0; ic < CHECKPOINT; ic++) {
+		
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
 				
 				// select the agent
@@ -361,10 +360,17 @@ public class Ulloa extends Axelrod {
 										
 									// if the institutions are different, then institution change to its neighbors
 									if (institution != neighbors_institution) {
-										// its institution lost a citizen
+										
+										
+										if (check_circular_list()){
+											System.out.println("A - i: " + iteration + " ic: " +ic+ " B: " + r + "," + c + "," + nr + "," + nc);
+											System.exit(0);	
+										}
+										
+										// its institution lost a citizen							
 										institutionsN[institution]--;
 										institutions[r][c] = neighbors_institution;
-										institutionsN[neighbors_institution]++;	
+										institutionsN[neighbors_institution]++;
 										
 										// temporal variables of the agent
 										rr = countryman_right_r[r][c];
@@ -395,6 +401,12 @@ public class Ulloa extends Axelrod {
 										countryman_right_c[nr][nc] = c;
 										countryman_left_r[nrr][nrc] = r;
 										countryman_left_c[nrr][nrc] = c;
+										
+										if (check_circular_list()){
+											System.out.println("B - i: " + iteration + " ic: " +ic+ " coord: " + r + "," + c + "," + nr + "," + nc);
+											System.exit(0);
+											
+										}
 										
 										
 									} // END of different institution
@@ -611,6 +623,7 @@ public class Ulloa extends Axelrod {
 				hasnt_vote_flag = !hasnt_vote_flag;
 			
 			}
+			
 
 			
 		} // END of checkpoint
@@ -619,10 +632,12 @@ public class Ulloa extends Axelrod {
 	} // END of run_experiment
 	
 	
-	protected void check_circular_list() {
+	protected boolean check_circular_list() {
 		boolean stop = false;
-		for (int r = 0; r < ROWS; r++) {
-			
+		boolean fail = false;
+		int members_counter = 0;
+		
+		for (int r = 0; r < ROWS; r++) {			
 			for (int c = 0; c < COLS; c++) {
 
 				// include my votes
@@ -630,20 +645,19 @@ public class Ulloa extends Axelrod {
 				int nc = c;
 				int temp_r;
 				int nationality = institutions[r][c];
-				/*System.out.print( "Nationality(" + culturesN[nationality] + "): " + nationality + 
-						" Members: (" + countryman_left_r[nr][nc] + ", " + countryman_left_c[nr][nc] + 
-						" ) <-(" + nr + "," + nc + 
-						") -> (" + countryman_right_r[nr][nc] + "," + countryman_right_c[nr][nc] + ") - ");
-				*/
-				// country-men votes
-				 while (votes_flags[nr][nc] == hasnt_vote_flag ) {
-					
-					
+				
+				members_counter = 0;
+				boolean did_i_vote_before = votes_flags[nr][nc];
+				 
+				while (votes_flags[nr][nc] == hasnt_vote_flag ) {
 											
 					votes_flags[nr][nc] = !hasnt_vote_flag;
 					
+					members_counter++;
+					
 					if (institutions[nr][nc] != nationality) {
-						System.out.println("kaput!!! Different nationalities: (" + nationality + "," + institutions[nr][nc] + ")");
+						System.out.println("1. Error in circular list: Different nationalities (" + nationality + "," + institutions[nr][nc] + ")");
+						fail = true;
 					}
 					
 					// avoid overwriting the nr before time
@@ -653,18 +667,18 @@ public class Ulloa extends Axelrod {
 					nr = countryman_right_r[nr][nc];
 					nc = countryman_right_c[temp_r][nc];
 					
-					/*System.out.print("(" + countryman_left_r[nr][nc] + "," + countryman_left_c[nr][nc] + 
-						" ) <-(" + nr + "," + nc + 
-						") -> (" + countryman_right_r[nr][nc] + "," + countryman_right_c[nr][nc] + ") - ");*/
 							
 					if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
-						System.out.println("Super NEW Circular list Kaput!!! Somebody already voted.");
+						System.out.println("2. Error in circular list: Somebody already voted.");
 						 stop = true;
+						 fail = true;
 					}
-					
-					// while the next agent hasn't vote (nr == r && nc == c)
 				}
-				//System.out.println();
+				 
+				 if (did_i_vote_before == hasnt_vote_flag && members_counter != institutionsN[nationality]){
+					 System.out.println("3. Error in circular list: different number of members  iter(" + iteration + ") inst (" + nationality + ") " + members_counter + "!=" + institutionsN[nationality]);
+					 fail = true;
+				 }
 			}
 			
 			
@@ -675,6 +689,8 @@ public class Ulloa extends Axelrod {
 		}
 		
 		hasnt_vote_flag = !hasnt_vote_flag;
+		
+		return fail;
 	}
 	
 
@@ -726,6 +742,7 @@ public class Ulloa extends Axelrod {
 					}// end of while
 					 
 					inst = institutions[r][c];
+					
 					r_sum = Math.round(((float) r_sum/institutionsN[inst]));
 					c_sum =  Math.round(((float) c_sum/institutionsN[inst]));
 
@@ -753,7 +770,7 @@ public class Ulloa extends Axelrod {
 	private int[] search_free_institutionCenter(int r, int c){
 	    int x=0, y=0, dx = 0, dy = -1;
 	    int t = Math.max(ROWS,COLS);
-	    int maxI = t*t;
+	    int maxI = (t*2)*(t*2);
 	
 	    for (int i=0; i < maxI; i++){
 	        if ((-1 < r+x) && (r+x < ROWS) && (-1 < c+y) && (c+y < COLS)) {
@@ -768,15 +785,15 @@ public class Ulloa extends Axelrod {
 	        x+=dx; y+=dy;
 	    }
 	    
-	    log.print(IDENTIFIER, "WARNING! The circular spiral loop have failed finding a free instititution center. "
-	    		+ "This should have never happened, searching for a free institution in the whole space.");
+	    System.out.println("WARNING!! The circular spiral loop have failed finding a free instititution center. "
+	    		+ "This should have never happened, searching for a free institution in the whole space. ("+r+","+c+") \n");
 	    
 	    // This should never happen
 	    for (int r1 = 0; r1 < ROWS; r1++){
 	    	for (int c1 = 0; c1 < COLS; c1++){
 	    		if (institutionsCenters[r1][c1] == EMPTY){
 	    			
-	    			return new int[] {(r1+x), (c1+y)};
+	    			return new int[] {r1, c1};
 	    			
 	    		}
 	    	}
@@ -847,7 +864,7 @@ public class Ulloa extends Axelrod {
 			int mc = member[1];
 			
 			if (institutionsN[institution] == 1){
-				this.apostates++;
+				this.stateless++;
 				abandon_institution(mr, mc);
 			} else {
 				while (institutionsN[institution] > 1){
@@ -957,7 +974,6 @@ public class Ulloa extends Axelrod {
 	 */
 	private int abandon_institution (int r, int c){
 
-
 		if (institutionsN[institutions[r][c]] > 1){
 			// Search for a new institution to belong to
 			institution = search_free_institution(r, c);
@@ -988,7 +1004,7 @@ public class Ulloa extends Axelrod {
 			
 			// add the agent to the new institution
 			institutions[r][c] = institution;
-			institutionsN[institution] = 1;
+			institutionsN[institution] = 1;		
 		}
 		
 		// Remove the traits of the new (empty) institution
@@ -1046,6 +1062,7 @@ public class Ulloa extends Axelrod {
 			countryman_right_c[nr][nc] = c;
 			countryman_left_r[nrr][nrc] = r;
 			countryman_left_c[nrr][nrc] = c;
+			
 		}
 		
 	}
@@ -1132,13 +1149,11 @@ public class Ulloa extends Axelrod {
 	private int search_free_institution(int r, int c) {
 	    int x=0, y=0, dx = 0, dy = -1;
 	    int t = Math.max(ROWS,COLS);
-	    int maxI = t*t;
+	    int maxI = (t*2)*(t*2);
 	
 	    for (int i=0; i < maxI; i++){
 	        if ((-1 < r+x) && (r+x < ROWS) && (-1 < c+y) && (c+y < COLS)) {
-	            if (institutionsN[(r+x) * COLS+(c+y)] == 0 || 
-	            		institutionsN[(r+x) * COLS+(c+y)] == 1 
-	            		&& institutions[r+x][c+y] == (r+x) * COLS +(c+y)){
+	            if (institutionsN[(r+x) * COLS+(c+y)] == 0 ){
 	            	return (r+x) * COLS + (c+y);
 	            }
 	        }
@@ -1148,6 +1163,10 @@ public class Ulloa extends Axelrod {
 	        }   
 	        x+=dx; y+=dy;
 	    }
+	    
+
+	    System.out.println("WARNING! The circular spiral loop have failed finding a free instititution. "
+	    		+ "This should have never happened, searching for a free institution in the whole space. ("+r+","+c+") \n");
 	    
 	    // This should never happen
 	    for (int r1 = 0; r1 < ROWS; r1++){

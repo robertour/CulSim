@@ -675,7 +675,6 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 		String r = "";
 		for (iteration = 0; iteration < ITERATIONS; iteration += CHECKPOINT) {
 			
-		
 			check_for_events();
 			update_gui();
 			run_iteration();

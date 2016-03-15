@@ -697,7 +697,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		tabEventSet.setBorder(null);
 		tabEventSet.setLayout(new BorderLayout(0, 0));
 		
-		structureDialog = new DoubleDistributionDialog(null, new Distribution(0.5,0.5,0.2),"Apostasy", "Destroy", this);
+		structureDialog = new DoubleDistributionDialog(new Distribution(0.5,0.5,0.8), null, "Apostasy", "Destroy", this);
 		contentDialog = new DoubleDistributionDialog(new Distribution(1.0),null, "Partial", "Full", this);
 		conversionDialog = new DoubleDistributionDialog(null, new Distribution(0.5,0.5,0.2), "Partial", "Full", this);
 		invasionDialog = new SingleDistributionDialog(new Distribution(0.5,0.5,0.2), "Invasion", this);

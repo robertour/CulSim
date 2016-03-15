@@ -48,7 +48,6 @@ public class ParameterChange extends Event {
 	
 	public String toString() {
 		String s = "";
-		
 
 		s += (iterations < 0)?"":"Iter(" + iterations + ")+";
 		s += (checkpoints < 0)?"":"Speed(" + checkpoints + ")+";
@@ -68,14 +67,14 @@ public class ParameterChange extends Event {
 	
 	public static ParameterChange parseParameterChange(String s){
 		if (s.charAt(0) != '('){
-			throw new IllegalArgumentException("'(' missing at the begining of the distribution: " + s);
+			throw new IllegalArgumentException("'(' missing at the begining of the parameter specification: " + s);
 		} else if (s.charAt(s.length()-1) != ')'){
-			throw new IllegalArgumentException("')' missing at the end of the distribution: " + s);
+			throw new IllegalArgumentException("')' missing at the end of the parameter specification: " + s);
 		}
 		
 		String[] params = s.substring(1, s.length()-1).split(",");
-		if (params[0].length() != 1){
-			throw new IllegalArgumentException(params[0] + " is not a valid distribution in " + s);
+		if (params.length != 2){
+			throw new IllegalArgumentException(s + " needs 2 arguments, " + params.length + " were given instead");
 		}
 		
 		ParameterChange pc = new ParameterChange();
