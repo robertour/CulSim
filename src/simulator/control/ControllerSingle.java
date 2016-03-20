@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import simulator.CulturalParameters;
 import simulator.CulturalSimulator;
@@ -85,11 +87,16 @@ public class ControllerSingle extends Controller
 	 */
 	public void save_simulation(String simfile){
 		if (simulation != null){
+
 			try {
-				ObjectOutputStream write = new ObjectOutputStream (new FileOutputStream(simfile));				
-				write.writeObject(simulation);
+				
+				FileOutputStream fos = new FileOutputStream(simfile);
+				GZIPOutputStream gos = new GZIPOutputStream(fos);
+				ObjectOutputStream oos = new ObjectOutputStream (gos);		
+				oos.writeObject(simulation);
 				is_saved = true;
-				write.close();
+				oos.close();
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -114,10 +121,15 @@ public class ControllerSingle extends Controller
 			simulation.clean(); // clean the memory
 		}
 		try {
-			ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(simfile));
-			simulation = (Simulation) inFile.readObject();
+
+			FileInputStream fis = new FileInputStream(simfile);
+			GZIPInputStream gis = new GZIPInputStream(fis);
+			ObjectInputStream ois = new ObjectInputStream (gis);				
+			
+			simulation = (Simulation) ois.readObject();
+			
 			is_saved = true;
-			inFile.close();
+			ois.close();
 			CulturalSimulator.clean_belief_spaces();
 			if (simulation.iteration > 0){
 				simulation.save_state();
@@ -141,10 +153,12 @@ public class ControllerSingle extends Controller
 			simulation.clean(); // clean the memory
 		}
 		try {
-			ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(simfile));
-			simulation = ((Simulation) inFile.readObject()).clone();
+			FileInputStream fis = new FileInputStream(simfile);
+			GZIPInputStream gis = new GZIPInputStream(fis);
+			ObjectInputStream ois = new ObjectInputStream (gis);			
+			simulation = ((Simulation) ois.readObject()).clone();
 			is_saved = true;
-			inFile.close();
+			ois.close();
 			CulturalSimulator.clean_belief_spaces();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

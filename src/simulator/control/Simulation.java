@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.zip.GZIPOutputStream;
 
 import simulator.CulturalSimulator;
 import simulator.control.events.Event;
@@ -520,9 +521,11 @@ public abstract class Simulation  implements Callable<String>, Serializable {
 
 		try {
 			File f = new File(results_dir + Controller.SIMULATIONS_DIR + IDENTIFIER + ".simfile");
-			ObjectOutputStream write = new ObjectOutputStream (new FileOutputStream(f));				
-			write.writeObject(this);
-			write.close();
+			FileOutputStream fos = new FileOutputStream(f);
+			GZIPOutputStream gos = new GZIPOutputStream(fos);
+			ObjectOutputStream oos = new ObjectOutputStream (gos);		
+			oos.writeObject(this);
+			oos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
