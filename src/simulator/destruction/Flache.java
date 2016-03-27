@@ -6,7 +6,7 @@ public class Flache extends Flache2 {
 
 	
 	@Override
-	public void run_iteration() {
+	public void run_iterations() {
 		for (int ic = 0; ic < CHECKPOINT ; ic++) {
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
 				

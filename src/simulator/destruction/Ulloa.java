@@ -7,15 +7,30 @@ import simulator.CulturalSimulator;
 import simulator.control.Controller;
 
 /**
- * Based on FlacheExperiment1 this class implements:
- * 1. Homophily
- * 2. Probabilistic change confronting agents homophily and institution homophily 
- * (and an alpha associated)
- * 3. Probabilistic institutional change according to homophily between neighbor's
- * culture and the agent's (and an alpha prime associated)
+ * Based on experiment 1 of Flache(2011) this class implements: homophily (Axelrod , 1997),
+ * mutations and selection error.
  * 
- * This corresponds to the PlosOne code corresponding to the Experiments A and C
+ * This class also implements:
+ * 1. Institutional influence: a probabilistic change confronting agents homophily 
+ * and institution homophily (and associated alpha and beta related to them)
+ * 2. Institutional loyalty: probabilistic institutional change according to 
+ * homophily between neighbor's culture and the agent's (and an alpha prime and 
+ * beta prime associated associated to them)
+ * 3. Democratic process: each D iterations, there is a democratic process in which
+ * the agents vote for an institutional trait that they would like to change in the 
+ * institution they are associated to. The selected trait would be the one that makes 
+ * the institution more similar to them.
+ * 4. Propaganda process: each P iterations, there is a propaganda process in which 
+ * the institution send a propaganda message its associated agents in order to change
+ * a trait that would make them more similar to the institution. The trait is selected 
+ * based on the most divergent trait, i.e. the trait that less of the agent share with
+ * their own institution.
  * 
+ * @author Roberto Ulloa
+ * @version 1.0, March 2016
+ *
+ */
+/**
  * @author tico
  *
  */
@@ -24,16 +39,13 @@ public class Ulloa extends Axelrod {
 	private static final long serialVersionUID = 6739780243602561128L;
 
 	/**
-	 * Nationality of each culture
+	 * Institution of each agent.
 	 */
 	protected int institutions[][] = null;
-	
 	/**
-	 * Center of each institution (according to the agents who belong to it)
+	 * Center of each institution (according to the agents who belong to it
 	 */
 	protected int institutionsCenters[][] = null;
-	
-	
 	/**
 	 * Implements a circular doubled linked list with the members of the 
 	 * same culture (country men)
@@ -42,42 +54,30 @@ public class Ulloa extends Axelrod {
 	protected int [][] countryman_right_c = null;
 	private int [][] countryman_left_r = null;
 	private int [][] countryman_left_c = null;
-	
 	/**
 	 * Keep the votes of the country men
 	 */
 	protected int [][] votes = null;
-	
 	/**
 	 * Keep track of the agents that had already vote
 	 */
 	protected boolean [][] votes_flags;
-	
 	/**
 	 * The current flag to indicate an agent has vote
 	 */
 	protected boolean hasnt_vote_flag = false;
-	
 	/**
 	 * Keep the current max traits
 	 */
 	protected int max_traits[] = null;
-	
-	protected int temp_r;
-	protected int max_difference_trait_votes;
-	protected int max_feature_traitN;
-	protected int culture_current_trait_votes;
-	
 	/**
 	 * Keep the current max features
 	 */
-	protected int max_features[] = null;
-	
+	private int max_features[] = null;
 	/**
-	 * Inactive trait main for the instutions
+	 * Inactive trait main for the institutions
 	 */
-	protected static int INACTIVE_TRAIT = -1;
-
+	private static int INACTIVE_TRAIT = -1;
 	/**
 	 * This are variables that I use inside run_iteration, declared
 	 * as fields for efficiency, to avoid re-declaration, all of them
@@ -108,10 +108,11 @@ public class Ulloa extends Axelrod {
 	private transient int lc;
 	private transient int nrr;
 	private transient int nrc;
+	private transient int temp_r;
+	private transient int max_difference_trait_votes;
+	private transient int max_feature_traitN;
+	private transient int culture_current_trait_votes;
 	
-
-	
-
 	@Override
 	public void setup() {
 		super.setup();
@@ -195,9 +196,8 @@ public class Ulloa extends Axelrod {
 	}
 
 	@Override
-	public void run_iteration() {
+	public void run_iterations() {
 		
-
 		for (int ic = 0; ic < CHECKPOINT; ic++) {
 		
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
@@ -631,7 +631,15 @@ public class Ulloa extends Axelrod {
 
 	} // END of run_experiment
 	
-	
+	/**
+	 * This is an auxiliar method for debugging, finding errors in the circular
+	 * list that keeps the agents that belong to the same institution.
+	 * 
+	 * @return true if the circular list is consistent, i.e. the circular lists
+	 * have the correct beginnings and ends, all the members belong to the same 
+	 * institutions and the size of the circular list correspond to the registered
+	 * sizes in the corresponding structure
+	 */
 	protected boolean check_circular_list() {
 		boolean stop = false;
 		boolean fail = false;
@@ -695,7 +703,8 @@ public class Ulloa extends Axelrod {
 	
 
 	/**
-	 * Calculate the institution centers based on its members
+	 * Calculate the institutional "geographical" centers based on the agents
+	 * that belong to it.
 	 */
 	protected void calculate_institutions_centers() {
 		int r_sum = 0;
@@ -752,20 +761,19 @@ public class Ulloa extends Axelrod {
 			}
 		}
 		
-		
 		hasnt_vote_flag = !hasnt_vote_flag;
 	}
 
-	
-	
-
 	/**
-	 * This looks for a non currently occupied institution in the geographical 
-	 * representation of institutions Centers
+	 * This looks for a non currently occupied institution near the specified
+	 * (ideal) coordinates in the geographical representation of institutions.
+	 * The ideal center might be occupied by other institution already, so it 
+	 * is necessary to look for the nearest free cell. 
 	 * 
-	 * @param r
-	 * @param c
-	 * @return
+	 * @param r ideal row for the institutional center
+	 * @param c ideal column for the institutional center
+	 * @return a coordinate (r,c) representing a free cell to be the geographical
+	 * institutional center
 	 */
 	private int[] search_free_institutionCenter(int r, int c){
 	    int x=0, y=0, dx = 0, dy = -1;
@@ -803,14 +811,10 @@ public class Ulloa extends Axelrod {
 	    return new int[] {-99999,-99999};
 	}
 
-
-
-
-	
 	/**
-	 * Search for the biggest culture and counts the number of cultures so far
+	 * Count the number of institutions and search for the biggest one
 	 */
-	private void count_clustersU(){
+	private void count_institutions(){
 		biggest_institution = 0;
 		alife_institutions = 0;
 		for (int i = 0; i < institutionsN.length; i++) {
@@ -825,7 +829,7 @@ public class Ulloa extends Axelrod {
 
 	@Override
 	protected String results() {
-		count_clustersU();
+		count_institutions();
 		return super.results();
 	}
 
@@ -879,7 +883,14 @@ public class Ulloa extends Axelrod {
 		}
 	}
 	
-	
+	/**
+	 * Search for any member that belong to the institution. This is
+	 * useful to start iterating over the circular list that contains 
+	 * all institutional members. 
+	 * 
+	 * @param institution the institution the member has to be search
+	 * @return any member of the institution
+	 */
 	private int[] search_member(int institution){
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
@@ -935,11 +946,8 @@ public class Ulloa extends Axelrod {
 		return institution;
 	}
 	
-	/**
-	 * Before the invasion, a free institution has to be taken as 
-	 * the representation of the invaders, so they can refer to it
-	 * as they representative.
-	 */
+	
+	@Override
 	public void invade(int r, int c, int nr, int nc){
 		this.invaders++;
 		move_to_institution(r, c, nr, nc);
@@ -949,28 +957,21 @@ public class Ulloa extends Axelrod {
 	}
 
 
-	/**
-	 * A genocide would indicate traits as dead.
-	 * 
-	 * @param probability
-	 */
+	@Override
 	public void kill_individual(int r, int c){
 		this.casualties++;
-
-		abandon_institution(r, c);
-		
+		abandon_institution(r, c);		
 		for (int f = 0; f < FEATURES; f++) {
 			beliefs[r][c][f] = DEAD_TRAIT;
 		}
-		
 	}
 
 	
 	/**
-	 * Abandon my institution
-	 * @param r
-	 * @param c
-	 * @param institution
+	 * Make an individual abandon its own institute
+	 * 
+	 * @param r row of the individual
+	 * @param c column of the individual
 	 */
 	private int abandon_institution (int r, int c){
 
@@ -991,7 +992,7 @@ public class Ulloa extends Axelrod {
 			// Remove the agent from the current culture asking my country men
 			// to grab each other
 			countryman_left_r[rr][rc] = lr;
-			countryman_left_c[rr][rc] = lc;
+		 	countryman_left_c[rr][rc] = lc;
 			countryman_right_r[lr][lc] = rr;
 			countryman_right_c[lr][lc] = rc;
 			
@@ -1016,12 +1017,11 @@ public class Ulloa extends Axelrod {
 	}
 	
 	/**
-	 * Move to neighbors institution 
-	 * @param r
-	 * @param c
-	 * @param nr
-	 * @param nc
-	 * @param neighbors_institution
+	 * Move an agent to neighbors agent institution 
+	 * @param r row of the agent
+	 * @param c column of the agent
+	 * @param nr row of the neighbor
+	 * @param nc column of the neighbor
 	 */
 	private void move_to_institution (int r, int c, int nr, int nc){
 		if (!(r == nr && c == nc)){
@@ -1067,14 +1067,18 @@ public class Ulloa extends Axelrod {
 		
 	}
 
+	@Override
 	protected void update_gui(){
 		super.update_gui();
 		if (!Controller.IS_BATCH){
-			print_institutional_beliefs_space();
+			display_institutional_beliefs_space();
 		}
 	}
 
-	protected void print_institutional_beliefs_space(){
+	/**
+	 * Display the institutional belief state in the interface
+	 */
+	private void display_institutional_beliefs_space(){
 		calculate_institutions_centers();
 		
 		BufferedImage alife_institutional_beliefs_space_image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
@@ -1139,12 +1143,12 @@ public class Ulloa extends Axelrod {
 	
 	
 	/**
-	 * This looks for a non currently occupied institution  near the given
+	 * This looks for a non currently occupied institution near the given
 	 * coordinates. 
 	 * 
-	 * @param r
-	 * @param c
-	 * @return
+	 * @param r row of the institution
+	 * @param c column of the institution
+	 * @return the institution that is not occupied
 	 */
 	private int search_free_institution(int r, int c) {
 	    int x=0, y=0, dx = 0, dy = -1;
@@ -1165,10 +1169,9 @@ public class Ulloa extends Axelrod {
 	    }
 	    
 
-	    System.out.println("WARNING! The circular spiral loop have failed finding a free instititution. "
-	    		+ "This should have never happened, searching for a free institution in the whole space. ("+r+","+c+") \n");
-	    
-	    // This should never happen
+	    // This should never happen, though right it is not important anymore because, 
+	    // the centers are now calculated based on the individuals that belongs to an 
+	    // institution
 	    for (int r1 = 0; r1 < ROWS; r1++){
 	    	for (int c1 = 0; c1 < COLS; c1++){
 	    		if (institutionsN[r1 * COLS + c1] == 0 || 
