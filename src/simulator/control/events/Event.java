@@ -47,8 +47,8 @@ public abstract class Event implements Serializable{
 			uniform_event(distribution.getProbability(), s);
 		} else if (distribution.getType() == Distribution.NORMAL) {
 			normal_event(distribution.getDiagonalNormalDistribution(s),	distribution.getRow(s),distribution.getCol(s),s);			
-		} else if (distribution.getType() == Distribution.NEWMANN) {
-			newman_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadious(), s);			
+		} else if (distribution.getType() == Distribution.NEUMANN) {
+			newman_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadius(), s);			
 		}else if (distribution.getType() == Distribution.RECTANGULAR) {
 			rectangular_event(distribution.getRow(s), distribution.getCol(s), 
 					distribution.getRow2(s), distribution.getCol2(s), s);			

@@ -83,7 +83,7 @@ public class DistributionPanel extends JPanel {
 			rdbtnUniformDistribution.setSelected(true);
 		else if (d.getType() == Distribution.NORMAL)
 			rdbtnAproxNormalDistribution.setSelected(true);
-		else if (d.getType() == Distribution.NEWMANN)
+		else if (d.getType() == Distribution.NEUMANN)
 			rdbtnNewmannonProbabilistic.setSelected(true);
 		else if (d.getType() == Distribution.RECTANGULAR)
 			rdbtnRectangular.setSelected(true);
@@ -167,7 +167,7 @@ public class DistributionPanel extends JPanel {
 		add(lblWithRadious);
 		
 		sp_radious = new JSpinner();
-		sp_radious.setModel(new SpinnerNumberModel(new Integer(d.getRadious()), null, null, new Integer(2)));
+		sp_radious.setModel(new SpinnerNumberModel(new Integer(d.getRadius()), null, null, new Integer(2)));
 		sp_radious.setToolTipText("The radio (of the Newman's neighborhood) of the attack");
 		
 		sp_radious.setBounds(123, 294, 52, 20);
