@@ -1,9 +1,17 @@
 package simulator.destruction;
 
+/**
+ *  This class implements the experiment 3 (Social influence and homophily combined) 
+ *  of Flache (2011), in which multilateral social influence is introduced (i.e. the 
+ *  interactions between agents don't happen only between two agents but many of them)
+ *  together with Homophily, Axelrod (1997).
+ *  
+ * @author Roberto Ulloa
+ * @version 1.0, March 2016
+ */
 public class Flache extends Flache2 {
 
 	private static final long serialVersionUID = -4468160398655999146L;
-
 	
 	@Override
 	public void run_iterations() {

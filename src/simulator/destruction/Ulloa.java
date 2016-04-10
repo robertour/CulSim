@@ -30,10 +30,6 @@ import simulator.control.Controller;
  * @version 1.0, March 2016
  *
  */
-/**
- * @author tico
- *
- */
 public class Ulloa extends Axelrod {
 	
 	private static final long serialVersionUID = 6739780243602561128L;
@@ -361,12 +357,6 @@ public class Ulloa extends Axelrod {
 									// if the institutions are different, then institution change to its neighbors
 									if (institution != neighbors_institution) {
 										
-										
-										if (check_circular_list()){
-											System.out.println("A - i: " + iteration + " ic: " +ic+ " B: " + r + "," + c + "," + nr + "," + nc);
-											System.exit(0);	
-										}
-										
 										// its institution lost a citizen							
 										institutionsN[institution]--;
 										institutions[r][c] = neighbors_institution;
@@ -402,13 +392,7 @@ public class Ulloa extends Axelrod {
 										countryman_left_r[nrr][nrc] = r;
 										countryman_left_c[nrr][nrc] = c;
 										
-										if (check_circular_list()){
-											System.out.println("B - i: " + iteration + " ic: " +ic+ " coord: " + r + "," + c + "," + nr + "," + nc);
-											System.exit(0);
-											
-										}
-										
-										
+									
 									} // END of different institution
 									
 									/**
@@ -498,7 +482,7 @@ public class Ulloa extends Axelrod {
 								
 								
 								if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
-									System.out.println("Circular list Kaputt!!! Somebody already voted.");
+									log.print(IDENTIFIER, "ERROR! somebody already voted, the circular list is inconsistent.");
 								}
 								
 								// while the next agent hasn't vote (nr == r && nc == c)
@@ -606,7 +590,7 @@ public class Ulloa extends Axelrod {
 								
 								
 								if (votes_flags[nr][nc] != hasnt_vote_flag && !(nr == r && nc == c)) {
-									System.out.println("Circular list Kaputt!!! Somebody already voted.");
+									log.print(IDENTIFIER, "ERROR! somebody already voted, the circular list is inconsistent.");
 								}
 								
 								// while the next agent hasn't vote (nr == r && nc == c)
@@ -793,7 +777,7 @@ public class Ulloa extends Axelrod {
 	        x+=dx; y+=dy;
 	    }
 	    
-	    System.out.println("WARNING!! The circular spiral loop have failed finding a free instititution center. "
+	    log.print(IDENTIFIER, "WARNING!! The circular spiral loop have failed finding a free instititution center. "
 	    		+ "This should have never happened, searching for a free institution in the whole space. ("+r+","+c+") \n");
 	    
 	    // This should never happen

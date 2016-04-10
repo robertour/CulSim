@@ -1,14 +1,18 @@
 package simulator.destruction;
 
-
+/**
+ *  This class implements the experiment 2 (Social influence without homophily) 
+ *  of Flache (2011), in which:
+ *  1. Homophily is not considered in the social process.
+ *  2. Multilateral social influence is introduced, i.e. the interactions between
+ *  agents don't happen only between two agents but many of them 
+ *  
+ * @author Roberto Ulloa
+ * @version 1.0, March 2016
+ */
 public class Flache2 extends Axelrod {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -340464590651694335L;
 	 
-	// Internal variables declared just one
 	/**
 	 * Counts the votes of each trait per feature
 	 */

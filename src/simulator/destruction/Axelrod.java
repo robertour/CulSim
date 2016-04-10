@@ -2,6 +2,21 @@ package simulator.destruction;
 
 import simulator.control.Simulation;
 
+
+/**
+ *  This class implements Axelrod (1997), but includes the perturbation elements
+ *  tested in the experiment 1 (The collapse of diversity in Axelrod model) of 
+ *  Flache (2011):
+ *  1. Mutation: in each possible interaction, randomly change one cultural trait
+ *  of the individual
+ *  2. Selection error: in each possible interaction, there is a possibility of 
+ *  a perception error, so that an agent would reject to interact with a similar 
+ *  agent (homophily) or accept to interact with a dissimilar one
+ *  
+ *  
+ * @author Roberto Ulloa
+ * @version 1.0, March 2016
+ */
 public class Axelrod extends Simulation {
 
 	private static final long serialVersionUID = 8293331514566105316L;
@@ -11,8 +26,6 @@ public class Axelrod extends Simulation {
 	 */
 	protected int [] mismatches;
 	
-	
-	
 	/**
 	 * Internal variable to keep the non death traits
 	 */
@@ -20,7 +33,9 @@ public class Axelrod extends Simulation {
 	
 
 	/**
-	 * 
+	 * Variable that I use inside run_iteration, declared as fields for efficiency, 
+	 * to avoid re-declaration. This one in particular keeps the feature that is to 
+	 * be mutated.
 	 */
 	protected transient int mutant_feature;
 	

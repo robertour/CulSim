@@ -425,11 +425,12 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				log.print(IDENTIFIER, TYPE + " setup ready. \n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print(IDENTIFIER, "setup() failed");
+				log.print(IDENTIFIER,  TYPE + " setup() failed");
 				failed = true;
 			}
 			try {
 				save_state();
+				log.print(IDENTIFIER, "Initial state has been saved. \n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 				log.print(IDENTIFIER, "save_state() failed");
@@ -883,9 +884,13 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * @return a CSV line with the results
 	 */
 	protected String results() {
+		System.out.println("results 1");
 		calculate_stats();
+		System.out.println("results 2");
 		calculate_newmann_stats();
+		System.out.println("results 3");
 		calculate_responses();
+		System.out.println("results 4");
 		return this.get_results();
 	}
 
@@ -1053,10 +1058,12 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		pixel_institution_similarity = 0;
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				if (institutionsN[r * ROWS + c] > 0 && starter.institutionsN[r * ROWS + c] > 0) {
-					for (int f = 0; f < FEATURES; f++) {
-						if (institution_beliefs[r * ROWS + c][f] == starter.institution_beliefs[r * ROWS + c][f]) {
-							pixel_institution_similarity++;
+				if (institutionsN != null && institution_beliefs != null){
+					if (institutionsN[r * ROWS + c] > 0 && starter.institutionsN[r * ROWS + c] > 0) {
+						for (int f = 0; f < FEATURES; f++) {
+							if (institution_beliefs[r * ROWS + c][f] == starter.institution_beliefs[r * ROWS + c][f]) {
+								pixel_institution_similarity++;
+							}
 						}
 					}
 				}

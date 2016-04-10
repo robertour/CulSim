@@ -74,7 +74,6 @@ import javax.swing.event.ChangeEvent;
 
 public class CulturalSimulator extends JFrame implements Notifiable {
 
-
 	private static final long serialVersionUID = -6498782807057797553L;
 	private JPanel contentPane;
 	
@@ -97,25 +96,25 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	private JMenuItem mntmPause;
 	private JMenuItem mntmStop;
 	private JMenuItem mntmBatchMode;
-	private JPanel panel;
-	private JPanel panel_2;
-	private JPanel panel_3;
-	private JPanel panel_4;
-	private JPanel panel_5;
-	private JPanel panel_6;
+	private JPanel panelSpaces;
+	private JPanel panelOutput;
+	private JPanel panelInstitutions;
+	private JPanel panelInstBeliefSpace;
+	private JPanel panelBeliefSpace;
+	private JPanel panelAlifeInstitutions;
 	private JLabel lblBeliefSpace;
 	private JLabel lblCorrespondinInstitutionalBelief;
 	private JLabel lblNewLabel;
 	private JLabel lblExistentInstitutions;
 	private JMenuItem mntmSafeWorldState;
-	private JMenuItem mntmLoadWorldState;
+	private JMenuItem mntmLoadSimulationState;
 	private JMenuItem mntmExit;
 	private JButton btnClear;
 	private JMenu mnSimulation;
 	private JMenuItem mntmClear;
-	private JSplitPane splitPane_1;
+	private JSplitPane splitSideVsRest;
 	private JPanel sidePanel;
-	private JSplitPane splitPane_2;
+	private JSplitPane splitRestVSGraphs;
 	private JPanel panelGraphs;
 	private JPanel cultures_panel;
 	private JPanel institution_panel;
@@ -125,10 +124,10 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	private JLabel lblEnergy;
 	private JPanel panel_19;
 	private JPanel statusBarPanel;
-	private JPanel tabEventSet;
-	private JPanel panel_27;
-	private JButton button_6;
-	private JTextArea ta_event_set;
+	private JPanel eventsPanel;
+	private JPanel panelSet;
+	private JButton btnRemoveEventSet;
+	private JTextArea taEventSet;
 	private JPanel newmann_similarity_panel;
 	private JPanel panel_29;
 	private JLabel lbl_newman_similarity;
@@ -136,8 +135,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	private JMenuItem mntmReload;
 	private JButton btnSave;
 	private JMenuItem mntmSave;
-	private JPanel panel_26;
-	private JPanel progressPanel;
+	private JPanel eventSetControls;
+	private JPanel panelProgress;
 	private JPanel panel_7;
 	private JLabel lblSpeed;
 	private JPanel panel_11;
@@ -187,9 +186,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	private static JSlider sliderSpeed;
 	private static int speed;
 	private EventPanel parameterEventPanel;
-	private JPanel panel_8;
-	private JButton button;
-	private JButton button_1;
+	private JPanel panelSpeed;
+	private JButton btnSaveEventSet;
+	private JButton btnOpenEventSet;
 
 	/**
 	 * Launch the application.
@@ -261,7 +260,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			world_dir.mkdirs();
         }
 		jfc_load.setCurrentDirectory(world_dir);
-		mntmSafeWorldState = new JMenuItem("Safe World State");
+		mntmSafeWorldState = new JMenuItem("Safe Simualtion State");
+		mntmSafeWorldState.setToolTipText("Save the current state of the simulation");
 		mntmSafeWorldState.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-save.png")));
 		mntmSafeWorldState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -275,9 +275,10 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		});
 		mnFile.add(mntmSafeWorldState);
 		
-		mntmLoadWorldState = new JMenuItem("Load World State");
-		mntmLoadWorldState.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-open.png")));
-		mntmLoadWorldState.addActionListener(new ActionListener() {
+		mntmLoadSimulationState = new JMenuItem("Load Simulation State");
+		mntmLoadSimulationState.setToolTipText("Load a simulation state from a file");
+		mntmLoadSimulationState.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-open.png")));
+		mntmLoadSimulationState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_load.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					if (want_to_continue(jfc_load)){
@@ -291,9 +292,10 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				}
 			}
 		});
-		mnFile.add(mntmLoadWorldState);
+		mnFile.add(mntmLoadSimulationState);
 		mnFile.addSeparator();
 		mntmExit = new JMenuItem("Exit");
+		mntmExit.setToolTipText("Exit the cultural simulator");
 		mntmExit.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/system-shutdown.png")));
 		mntmExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -310,30 +312,36 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		menuBar.add(mnControls);
 		
 		mntmPlay = new JMenuItem("Play");
+		mntmPlay.setToolTipText("Play the simulation");
 		mntmPlay.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-start.png")));
 		mntmPlay.addActionListener(new PlayAL());
 		mnControls.add(mntmPlay);
 		
 		mntmPause = new JMenuItem("Pause");
+		mntmPause.setToolTipText("Pause the simulation");
 		mntmPause.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-pause.png")));
 		mntmPause.addActionListener(new PauseAL());
 		mnControls.add(mntmPause);
 		
 		mntmStop = new JMenuItem("Stop");
+		mntmStop.setToolTipText("Stop the simulation");
 		mntmStop.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-stop.png")));
 		mntmStop.addActionListener(new StopAL());
 		mnControls.add(mntmStop);
 		
-		mntmClear = new JMenuItem("Clear");
+		mntmClear = new JMenuItem("Restart");
+		mntmClear.setToolTipText("Restart the simulation");
 		mntmClear.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-skip-backward.png")));
 		mntmClear.addActionListener(new ClearAL());
 		mnControls.add(mntmClear);
 		
 		mntmReload = new JMenuItem("Reload");
+		mntmReload.setToolTipText("Reload previously saved state of the simulation");
 		mntmReload.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/edit-undo.png")));
 		mntmReload.addActionListener(new ReloadAL());
 		
 		mntmSave = new JMenuItem("Save");
+		mntmSave.setToolTipText("Save the state of the simulation");
 		mntmSave.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/flag-yellow.png")));
 		mntmSave.addActionListener(new SaveAL());
 		mnControls.add(mntmSave);
@@ -342,14 +350,16 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		mnSimulation = new JMenu("Simulation");
 		menuBar.add(mnSimulation);
 		
-		JMenuItem mntmDefineParameters = new JMenuItem("Parameters");
+		JMenuItem mntmParameters = new JMenuItem("Parameters");
+		mntmParameters.setToolTipText("Define the initial parameters of the simualtion");
 		
-		mntmDefineParameters.setAction(action);
-		mntmDefineParameters.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/run-build-configure.png")));
-		mnSimulation.add(mntmDefineParameters);
+		mntmParameters.setAction(action);
+		mntmParameters.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/run-build-configure.png")));
+		mnSimulation.add(mntmParameters);
 		mnSimulation.addSeparator();
 		
 		mntmBatchMode = new JMenuItem("Batch Mode");
+		mntmBatchMode.setToolTipText("Dialog to run big experimental design");
 		mntmBatchMode.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/view-calendar-tasks.png")));
 		mntmBatchMode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -364,11 +374,11 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		splitPane_2 = new JSplitPane();
-		contentPane.add(splitPane_2, BorderLayout.CENTER);
+		splitRestVSGraphs = new JSplitPane();
+		contentPane.add(splitRestVSGraphs, BorderLayout.CENTER);
 		
 		panelGraphs = new JPanel();
-		splitPane_2.setRightComponent(panelGraphs);
+		splitRestVSGraphs.setRightComponent(panelGraphs);
 		panelGraphs.setLayout(new GridLayout(4, 2, 0, 0));
 		
 		panel_11 = new JPanel();
@@ -520,95 +530,95 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		graph_pixels = new GraphPanel();
 		pixel_panel.add(graph_pixels, BorderLayout.CENTER);
 		
-		splitPane_1 = new JSplitPane();
-		splitPane_2.setLeftComponent(splitPane_1);
+		splitSideVsRest = new JSplitPane();
+		splitRestVSGraphs.setLeftComponent(splitSideVsRest);
 		
-		JSplitPane splitPane = new JSplitPane();
-		splitPane_1.setRightComponent(splitPane);
-		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		JSplitPane splitGraphVsOutput = new JSplitPane();
+		splitSideVsRest.setRightComponent(splitGraphVsOutput);
+		splitGraphVsOutput.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		
-		panel = new JPanel();
-		splitPane.setLeftComponent(panel);
-		panel.setLayout(new GridLayout(2, 2, 10, 10));
+		panelSpaces = new JPanel();
+		splitGraphVsOutput.setLeftComponent(panelSpaces);
+		panelSpaces.setLayout(new GridLayout(2, 2, 10, 10));
 		
-		panel_5 = new JPanel();
-		panel.add(panel_5);
-		panel_5.setLayout(new BorderLayout(0, 0));
+		panelBeliefSpace = new JPanel();
+		panelSpaces.add(panelBeliefSpace);
+		panelBeliefSpace.setLayout(new BorderLayout(0, 0));
 		
 		lblBeliefSpace = new JLabel("Belief Space");
 		lblBeliefSpace.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblBeliefSpace.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_5.add(lblBeliefSpace, BorderLayout.NORTH);
+		panelBeliefSpace.add(lblBeliefSpace, BorderLayout.NORTH);
 		
 		
-		panel_5.add(belief_space, BorderLayout.CENTER);
+		panelBeliefSpace.add(belief_space, BorderLayout.CENTER);
 		belief_space.setBackground(Color.WHITE);
 		belief_space.setOpaque(true);
 		
-		panel_4 = new JPanel();
-		panel.add(panel_4);
-		panel_4.setLayout(new BorderLayout(0, 0));
+		panelInstBeliefSpace = new JPanel();
+		panelSpaces.add(panelInstBeliefSpace);
+		panelInstBeliefSpace.setLayout(new BorderLayout(0, 0));
 		
 		lblCorrespondinInstitutionalBelief = new JLabel("Corresponding Institutional Belief Space");
 		lblCorrespondinInstitutionalBelief.setHorizontalAlignment(SwingConstants.CENTER);
 		lblCorrespondinInstitutionalBelief.setHorizontalTextPosition(SwingConstants.CENTER);
-		panel_4.add(lblCorrespondinInstitutionalBelief, BorderLayout.NORTH);
+		panelInstBeliefSpace.add(lblCorrespondinInstitutionalBelief, BorderLayout.NORTH);
 		
 		
-		panel_4.add(institutional_beliefs_association, BorderLayout.CENTER);
+		panelInstBeliefSpace.add(institutional_beliefs_association, BorderLayout.CENTER);
 		institutional_beliefs_association.setOpaque(true);
 		institutional_beliefs_association.setBackground(Color.WHITE);
 		
-		panel_3 = new JPanel();
-		panel.add(panel_3);
-		panel_3.setLayout(new BorderLayout(0, 0));
+		panelInstitutions = new JPanel();
+		panelSpaces.add(panelInstitutions);
+		panelInstitutions.setLayout(new BorderLayout(0, 0));
 		
 		lblNewLabel = new JLabel("Institutions");
 		lblNewLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_3.add(lblNewLabel, BorderLayout.NORTH);
+		panelInstitutions.add(lblNewLabel, BorderLayout.NORTH);
 		
 		
-		panel_3.add(alife_institutional_beliefs_space, BorderLayout.CENTER);
+		panelInstitutions.add(alife_institutional_beliefs_space, BorderLayout.CENTER);
 		alife_institutional_beliefs_space.setBackground(Color.WHITE);
 		alife_institutional_beliefs_space.setOpaque(true);
 		
-		panel_6 = new JPanel();
-		panel.add(panel_6);
-		panel_6.setLayout(new BorderLayout(0, 0));
+		panelAlifeInstitutions = new JPanel();
+		panelSpaces.add(panelAlifeInstitutions);
+		panelAlifeInstitutions.setLayout(new BorderLayout(0, 0));
 		
 		lblExistentInstitutions = new JLabel("Existent Institutions");
 		lblExistentInstitutions.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblExistentInstitutions.setHorizontalAlignment(SwingConstants.CENTER);
-		panel_6.add(lblExistentInstitutions, BorderLayout.NORTH);
+		panelAlifeInstitutions.add(lblExistentInstitutions, BorderLayout.NORTH);
 		
 		
-		panel_6.add(alife_institutions, BorderLayout.CENTER);
+		panelAlifeInstitutions.add(alife_institutions, BorderLayout.CENTER);
 		alife_institutions.setOpaque(true);
 		alife_institutions.setBackground(Color.WHITE);
 		
-		panel_2 = new JPanel();
-		splitPane.setRightComponent(panel_2);
-		panel_2.setMinimumSize(new Dimension(10, 100));
-		panel_2.setLayout(new BorderLayout(0, 0));
+		panelOutput = new JPanel();
+		splitGraphVsOutput.setRightComponent(panelOutput);
+		panelOutput.setMinimumSize(new Dimension(10, 100));
+		panelOutput.setLayout(new BorderLayout(0, 0));
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setMinimumSize(new Dimension(23, 200));
-		panel_2.add(scrollPane);
+		panelOutput.add(scrollPane);
 		
 		output_area = new OutputArea();
 		output_area.setLineWrap(true);
 		output_area.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		output_area.setEditable(false);
 		scrollPane.setViewportView(output_area);
-		splitPane.setDividerLocation(500);
+		splitGraphVsOutput.setDividerLocation(500);
 		
 		controller = new ControllerSingle(output_area, this);
 		parameters_dialog = new CulturalParameters(this);
 		
 		sidePanel = new JPanel();
-		splitPane_1.setLeftComponent(sidePanel);
+		splitSideVsRest.setLeftComponent(sidePanel);
 		sidePanel.setLayout(new BorderLayout(0, 0));
 		
 		JToolBar toolBar = new JToolBar();
@@ -659,18 +669,18 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		
 		
 		
-		panel_8 = new JPanel();
-		sidePanel.add(panel_8, BorderLayout.CENTER);
-		panel_8.setLayout(new BorderLayout(0, 0));
+		panelSpeed = new JPanel();
+		sidePanel.add(panelSpeed, BorderLayout.CENTER);
+		panelSpeed.setLayout(new BorderLayout(0, 0));
 		
-		progressPanel = new JPanel();
-		panel_8.add(progressPanel, BorderLayout.NORTH);
-		progressPanel.setLayout(new BorderLayout(0, 0));
+		panelProgress = new JPanel();
+		panelSpeed.add(panelProgress, BorderLayout.NORTH);
+		panelProgress.setLayout(new BorderLayout(0, 0));
 		
 		panel_7 = new JPanel();
 		FlowLayout flowLayout_1 = (FlowLayout) panel_7.getLayout();
 		flowLayout_1.setHgap(0);
-		progressPanel.add(panel_7, BorderLayout.WEST);
+		panelProgress.add(panel_7, BorderLayout.WEST);
 		
 		lblSpeed = new JLabel("Speed: ");
 		panel_7.add(lblSpeed);
@@ -687,15 +697,15 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		sliderSpeed.setPreferredSize(new Dimension(200, 20));
 		sliderSpeed.setMinimum(1);
 		sliderSpeed.setMaximum(30);
-		progressPanel.add(sliderSpeed);
+		panelProgress.add(sliderSpeed);
 		
 		set_speed((int) CulturalParameters.sp_checkpoints.getValue());
 
-		tabEventSet = new JPanel();
-		panel_8.add(tabEventSet, BorderLayout.CENTER);
-		tabEventSet.setPreferredSize(new Dimension(10, 270));
-		tabEventSet.setBorder(null);
-		tabEventSet.setLayout(new BorderLayout(0, 0));
+		eventsPanel = new JPanel();
+		panelSpeed.add(eventsPanel, BorderLayout.CENTER);
+		eventsPanel.setPreferredSize(new Dimension(10, 270));
+		eventsPanel.setBorder(null);
+		eventsPanel.setLayout(new BorderLayout(0, 0));
 		
 		structureDialog = new DoubleDistributionDialog(new Distribution(0.5,0.5,0.8), null, "Apostasy", "Destroy", this);
 		contentDialog = new DoubleDistributionDialog(new Distribution(1.0),null, "Partial", "Full", this);
@@ -705,11 +715,11 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		parametersDialog = new ParametersDialog("Parameter Change Event", this);
 
 		
-		JPanel eventpanels = new JPanel();
-		eventpanels.setBorder(new EmptyBorder(5, 0, 0, 0));
-		eventpanels.setPreferredSize(new Dimension(10, 446));
-		tabEventSet.add(eventpanels, BorderLayout.NORTH);
-		eventpanels.setLayout(new GridLayout(6, 0, 0, 0));
+		JPanel eventPanels = new JPanel();
+		eventPanels.setBorder(new EmptyBorder(5, 0, 0, 0));
+		eventPanels.setPreferredSize(new Dimension(10, 446));
+		eventsPanel.add(eventPanels, BorderLayout.NORTH);
+		eventPanels.setLayout(new GridLayout(6, 0, 0, 0));
 		EventPanel structurePanelSet = new EventPanel("Institutional structure attack", structureDialog);
 		structurePanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -735,7 +745,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 		structureDialog.addNotifiable(structurePanelSet);
-		eventpanels.add(structurePanelSet);
+		eventPanels.add(structurePanelSet);
 		EventPanel contentPanelSet = new EventPanel("Institutional content removal", contentDialog);
 		contentPanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -761,7 +771,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 		contentDialog.addNotifiable(contentPanelSet);
-		eventpanels.add(contentPanelSet);
+		eventPanels.add(contentPanelSet);
 		EventPanel conversionPanelSet = new EventPanel("Institutional conversion", conversionDialog);
 		conversionPanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -787,7 +797,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 		conversionDialog.addNotifiable(conversionPanelSet);
-		eventpanels.add(conversionPanelSet);
+		eventPanels.add(conversionPanelSet);
 		EventPanel invasionPanelSet = new EventPanel("Invasion", invasionDialog);
 		invasionPanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -807,7 +817,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 		invasionDialog.addNotifiable(invasionPanelSet);
-		eventpanels.add(invasionPanelSet);
+		eventPanels.add(invasionPanelSet);
 		EventPanel genocidePanelSet = new EventPanel("Genocide", genocideDialog);
 		genocidePanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -827,7 +837,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 		genocideDialog.addNotifiable(genocidePanelSet);
-		eventpanels.add(genocidePanelSet);
+		eventPanels.add(genocidePanelSet);
 		parameterEventPanel = new EventPanel("Parameter Change Event", parametersDialog);
 		parameterEventPanel.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -855,31 +865,31 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		            }
 				});
 		parametersDialog.addNotifiable(parameterEventPanel);
-		eventpanels.add(parameterEventPanel);
+		eventPanels.add(parameterEventPanel);
 		
-		panel_27 = new JPanel();
-		panel_27.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Set", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		tabEventSet.add(panel_27, BorderLayout.CENTER);
-		panel_27.setLayout(new BorderLayout(0, 0));
+		panelSet = new JPanel();
+		panelSet.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Set", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		eventsPanel.add(panelSet, BorderLayout.CENTER);
+		panelSet.setLayout(new BorderLayout(0, 0));
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		panel_27.add(scrollPane_1, BorderLayout.NORTH);
+		JScrollPane scrollEventSet = new JScrollPane();
+		scrollEventSet.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		panelSet.add(scrollEventSet, BorderLayout.NORTH);
 		
-		ta_event_set = new JTextArea();
-		ta_event_set.setRows(5);
-		ta_event_set.setFont(new Font("Arial Narrow", Font.PLAIN, 10));
-		ta_event_set.setEditable(false);
-		scrollPane_1.setViewportView(ta_event_set);
+		taEventSet = new JTextArea();
+		taEventSet.setRows(5);
+		taEventSet.setFont(new Font("Arial Narrow", Font.PLAIN, 10));
+		taEventSet.setEditable(false);
+		scrollEventSet.setViewportView(taEventSet);
 		
-		panel_26 = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) panel_26.getLayout();
-		flowLayout.setVgap(1);
-		flowLayout.setAlignment(FlowLayout.RIGHT);
-		panel_27.add(panel_26, BorderLayout.CENTER);
+		eventSetControls = new JPanel();
+		FlowLayout fl_eventSetControls = (FlowLayout) eventSetControls.getLayout();
+		fl_eventSetControls.setVgap(1);
+		fl_eventSetControls.setAlignment(FlowLayout.RIGHT);
+		panelSet.add(eventSetControls, BorderLayout.CENTER);
 		
-		button_1 = new JButton("");
-		button_1.setToolTipText("Open events");
+		btnOpenEventSet = new JButton("");
+		btnOpenEventSet.setToolTipText("Open events");
 		
 		File eve_dir = new File( Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);;
 		if (!eve_dir.exists()){
@@ -887,7 +897,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
         }
 		jfc_events.setCurrentDirectory(eve_dir);
 		
-		button_1.addActionListener(new ActionListener() {
+		btnOpenEventSet.addActionListener(new ActionListener() {
 			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_events.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
@@ -908,14 +918,14 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 			
 		});
-		button_1.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-open.png")));
-		button_1.setSize(new Dimension(33, 9));
-		button_1.setMargin(new Insets(2, 2, 2, 2));
-		panel_26.add(button_1);
+		btnOpenEventSet.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-open.png")));
+		btnOpenEventSet.setSize(new Dimension(33, 9));
+		btnOpenEventSet.setMargin(new Insets(2, 2, 2, 2));
+		eventSetControls.add(btnOpenEventSet);
 		
-		button = new JButton("");
-		button.setToolTipText("Save events");
-		button.addActionListener(new ActionListener() {
+		btnSaveEventSet = new JButton("");
+		btnSaveEventSet.setToolTipText("Save events");
+		btnSaveEventSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (jfc_events.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					String dis_file = jfc_events.getSelectedFile().getAbsolutePath();
@@ -932,30 +942,30 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 			
 		});
-		button.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-save.png")));
-		button.setSize(new Dimension(33, 9));
-		button.setMargin(new Insets(2, 2, 2, 2));
-		panel_26.add(button);
+		btnSaveEventSet.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-save.png")));
+		btnSaveEventSet.setSize(new Dimension(33, 9));
+		btnSaveEventSet.setMargin(new Insets(2, 2, 2, 2));
+		eventSetControls.add(btnSaveEventSet);
 		
-		button_6 = new JButton("");
-		button_6.setToolTipText("Clear events");
-		button_6.setSize(new Dimension(33, 9));
-		button_6.setMargin(new Insets(2, 2, 2, 2));
-		button_6.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/edit-clear-list.png")));
-		panel_26.add(button_6);
-		button_6.addActionListener(new ActionListener() {
+		btnRemoveEventSet = new JButton("");
+		btnRemoveEventSet.setToolTipText("Clear events");
+		btnRemoveEventSet.setSize(new Dimension(33, 9));
+		btnRemoveEventSet.setMargin(new Insets(2, 2, 2, 2));
+		btnRemoveEventSet.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/edit-clear-list.png")));
+		eventSetControls.add(btnRemoveEventSet);
+		btnRemoveEventSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				events.clear();
 				update_event_set();
 			}
 		});
 		
-		JButton btnClear_1 = new JButton("");
-		btnClear_1.setToolTipText("Apply events");
-		btnClear_1.setMargin(new Insets(2, 2, 2, 2));
-		btnClear_1.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/go-jump-locationbar.png")));
-		panel_26.add(btnClear_1);
-		btnClear_1.addActionListener(new ActionListener() {
+		JButton btnExecuteEventSet = new JButton("");
+		btnExecuteEventSet.setToolTipText("Apply events");
+		btnExecuteEventSet.setMargin(new Insets(2, 2, 2, 2));
+		btnExecuteEventSet.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/go-jump-locationbar.png")));
+		eventSetControls.add(btnExecuteEventSet);
+		btnExecuteEventSet.addActionListener(new ActionListener() {
 			
 			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent arg0) {
@@ -986,8 +996,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 
-		splitPane_1.setDividerLocation(195);		
-		splitPane_2.setDividerLocation(700);
+		splitSideVsRest.setDividerLocation(195);		
+		splitRestVSGraphs.setDividerLocation(700);
 		
 		statusBarPanel = new JPanel();
 		statusBarPanel.setBackground(SystemColor.control);
@@ -1022,10 +1032,10 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	
 	private void update_event_set(){
 		int i = 1;
-		ta_event_set.setText("");
+		taEventSet.setText("");
 		for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 			Event event = (Event) iterator.next();
-			ta_event_set.append(i + ". " + event + "\n");
+			taEventSet.append(i + ". " + event + "\n");
 			i++;			
 		}
 	}
@@ -1123,14 +1133,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 					mntmSave.setEnabled(false);
 					
 					mntmSafeWorldState.setEnabled(false);
-					mntmLoadWorldState.setEnabled(false);
+					mntmLoadSimulationState.setEnabled(false);
 					mnSimulation.setEnabled(false);
-					
-
-//					btnCollapse.setEnabled(false);
-//					btnInvasion.setEnabled(false);
-//					btnGenocide.setEnabled(false);
-					
 					
 				} else {
 					output_area.append("Warning: GUI in an unstable state");
@@ -1146,9 +1150,6 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		public void actionPerformed(ActionEvent arg0) {
 			
 			if (tglbtnStop.isEnabled() && mntmStop.isEnabled()){
-						
-				controller.cancel();
-				
 				
 				tglbtnPlay.setEnabled(true);
 				tglbtnPlay.setSelected(false);
@@ -1165,8 +1166,10 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				mntmSave.setEnabled(true);
 			
 				mntmSafeWorldState.setEnabled(true);
-				mntmLoadWorldState.setEnabled(true);
+				mntmLoadSimulationState.setEnabled(true);
 				mnSimulation.setEnabled(true);
+				
+				controller.cancel();
 			} 
 
 		}
@@ -1244,8 +1247,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 	@Override
 	public void update() {
-		tglbtnStop.doClick();
-		
+		if (tglbtnStop.isEnabled() && mntmStop.isEnabled()){
+			tglbtnStop.doClick();
+		}
 	}
 }
 
