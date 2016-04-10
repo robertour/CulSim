@@ -884,13 +884,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * @return a CSV line with the results
 	 */
 	protected String results() {
-		System.out.println("results 1");
 		calculate_stats();
-		System.out.println("results 2");
 		calculate_newmann_stats();
-		System.out.println("results 3");
 		calculate_responses();
-		System.out.println("results 4");
 		return this.get_results();
 	}
 
@@ -1352,53 +1348,53 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	private void update_culture_graphs() {
 
 		int total_features = TOTAL_AGENTS * FEATURES;
-		CulturalSimulator.graph_energy.scores.add((double) energy / total_features);
-		CulturalSimulator.l_energy_foreigners.setText(energy + "");
-		CulturalSimulator.graph_energy.update();
+		CulturalSimulator.graphEnergy.scores.add((double) energy / total_features);
+		CulturalSimulator.lblEnergy.setText(energy + "");
+		CulturalSimulator.graphEnergy.update();
 
-		CulturalSimulator.graph_cultures.scores.add((double) cultureN / TOTAL_AGENTS);
-		CulturalSimulator.graph_cultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
-		CulturalSimulator.graph_cultures.scores3.add(culture_similarity[FULL_SIM]);
-		CulturalSimulator.l_cultures
+		CulturalSimulator.graphCultures.scores.add((double) cultureN / TOTAL_AGENTS);
+		CulturalSimulator.graphCultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
+		CulturalSimulator.graphCultures.scores3.add(culture_similarity[FULL_SIM]);
+		CulturalSimulator.lblCultures
 				.setText(cultureN + "/" + biggest_cluster + "/" + String.format("%.2g", culture_similarity[FULL_SIM]));
-		CulturalSimulator.graph_cultures.update();
+		CulturalSimulator.graphCultures.update();
 
-		CulturalSimulator.graph_newmann_cultures.scores.add((double) culture_newmannN / TOTAL_AGENTS);
-		CulturalSimulator.graph_newmann_cultures.scores2.add((double) biggest_newmann_cluster / TOTAL_AGENTS);
-		CulturalSimulator.graph_newmann_cultures.scores3.add(newmann_similarity[FULL_SIM]);
-		CulturalSimulator.l_newmann.setText(culture_newmannN + "/" + biggest_newmann_cluster + "/"
+		CulturalSimulator.graphNeumann.scores.add((double) culture_newmannN / TOTAL_AGENTS);
+		CulturalSimulator.graphNeumann.scores2.add((double) biggest_newmann_cluster / TOTAL_AGENTS);
+		CulturalSimulator.graphNeumann.scores3.add(newmann_similarity[FULL_SIM]);
+		CulturalSimulator.lblNeumann.setText(culture_newmannN + "/" + biggest_newmann_cluster + "/"
 				+ String.format("%.2g", newmann_similarity[FULL_SIM]));
-		CulturalSimulator.graph_newmann_cultures.update();
+		CulturalSimulator.graphNeumann.update();
 
-		CulturalSimulator.graph_culture_similarity.scores.add(culture_similarity[POS_SIM]);
-		CulturalSimulator.graph_culture_similarity.scores2.add(culture_similarity[SIZ_SIM]);
-		CulturalSimulator.graph_culture_similarity.scores3.add(culture_similarity[BEL_SIM]);
-		CulturalSimulator.l_culture_similarity.setText(String.format("%.2g", culture_similarity[POS_SIM]) + "/"
+		CulturalSimulator.graphCultureSimilarity.scores.add(culture_similarity[POS_SIM]);
+		CulturalSimulator.graphCultureSimilarity.scores2.add(culture_similarity[SIZ_SIM]);
+		CulturalSimulator.graphCultureSimilarity.scores3.add(culture_similarity[BEL_SIM]);
+		CulturalSimulator.lblCultureSimilarity.setText(String.format("%.2g", culture_similarity[POS_SIM]) + "/"
 				+ String.format("%.2g", culture_similarity[SIZ_SIM]) + "/"
 				+ String.format("%.2g", culture_similarity[BEL_SIM]));
-		CulturalSimulator.graph_culture_similarity.update();
+		CulturalSimulator.graphCultureSimilarity.update();
 
-		CulturalSimulator.graph_newmann_similarity.scores.add(newmann_similarity[POS_SIM]);
-		CulturalSimulator.graph_newmann_similarity.scores2.add(newmann_similarity[SIZ_SIM]);
-		CulturalSimulator.graph_newmann_similarity.scores3.add(newmann_similarity[BEL_SIM]);
-		CulturalSimulator.l_newmann_similarity.setText(String.format("%.2g", newmann_similarity[POS_SIM]) + "/"
+		CulturalSimulator.graphNeumannSimilarity.scores.add(newmann_similarity[POS_SIM]);
+		CulturalSimulator.graphNeumannSimilarity.scores2.add(newmann_similarity[SIZ_SIM]);
+		CulturalSimulator.graphNeumannSimilarity.scores3.add(newmann_similarity[BEL_SIM]);
+		CulturalSimulator.lblNeumannSimilarity.setText(String.format("%.2g", newmann_similarity[POS_SIM]) + "/"
 				+ String.format("%.2g", newmann_similarity[SIZ_SIM]) + "/"
 				+ String.format("%.2g", newmann_similarity[BEL_SIM]));
-		CulturalSimulator.graph_newmann_similarity.update();
+		CulturalSimulator.graphNeumannSimilarity.update();
 
-		CulturalSimulator.graph_institutions.scores.add((double) alife_institutions / TOTAL_AGENTS);
-		CulturalSimulator.graph_institutions.scores2.add((double) biggest_institution / TOTAL_AGENTS);
-		CulturalSimulator.graph_institutions.scores3
+		CulturalSimulator.graphInstitutions.scores.add((double) alife_institutions / TOTAL_AGENTS);
+		CulturalSimulator.graphInstitutions.scores2.add((double) biggest_institution / TOTAL_AGENTS);
+		CulturalSimulator.graphInstitutions.scores3
 				.add((double) pixel_institution_similarity / (alife_institutions * FEATURES));
-		CulturalSimulator.l_institutions
+		CulturalSimulator.lblInstitutions
 				.setText(alife_institutions + "/" + biggest_institution + "/" + pixel_institution_similarity);
-		CulturalSimulator.graph_institutions.update();
+		CulturalSimulator.graphInstitutions.update();
 
-		CulturalSimulator.graph_pixels.scores.add((double) alife_traits / total_features);
-		CulturalSimulator.graph_pixels.scores2.add((double) foreiners_traits / total_features);
-		CulturalSimulator.graph_pixels.scores3.add((double) pixel_similarity / total_features);
-		CulturalSimulator.l_pixels.setText(alife_traits + "/" + foreiners_traits + "/" + pixel_similarity);
-		CulturalSimulator.graph_pixels.update();
+		CulturalSimulator.graphPixels.scores.add((double) alife_traits / total_features);
+		CulturalSimulator.graphPixels.scores2.add((double) foreiners_traits / total_features);
+		CulturalSimulator.graphPixels.scores3.add((double) pixel_similarity / total_features);
+		CulturalSimulator.lblPixels.setText(alife_traits + "/" + foreiners_traits + "/" + pixel_similarity);
+		CulturalSimulator.graphPixels.update();
 
 	}
 

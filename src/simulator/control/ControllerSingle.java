@@ -71,7 +71,7 @@ public class ControllerSingle extends Controller
 		}
 		simulation = new Ulloa();
 		is_saved = true;
-		CulturalSimulator.clean_belief_spaces();
+		CulturalSimulator.clean_informational_spaces();
 		if (simulation.iteration > 0){
 			simulation.save_state();
 			simulation.results();
@@ -130,7 +130,7 @@ public class ControllerSingle extends Controller
 			
 			is_saved = true;
 			ois.close();
-			CulturalSimulator.clean_belief_spaces();
+			CulturalSimulator.clean_informational_spaces();
 			if (simulation.iteration > 0){
 				simulation.save_state();
 				simulation.results();
@@ -159,7 +159,7 @@ public class ControllerSingle extends Controller
 			simulation = ((Simulation) ois.readObject()).clone();
 			is_saved = true;
 			ois.close();
-			CulturalSimulator.clean_belief_spaces();
+			CulturalSimulator.clean_informational_spaces();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -180,7 +180,7 @@ public class ControllerSingle extends Controller
 			simulation.starter.clean();
 			simulation.clean();
 			simulation = simulation.clone();
-			CulturalSimulator.clean_belief_spaces();
+			CulturalSimulator.clean_informational_spaces();
 			is_saved = true;
 		}
 	}
@@ -205,7 +205,7 @@ public class ControllerSingle extends Controller
 			simulation.clean();
 			simulation = simulation.starter;
 			simulation.save_state();
-			CulturalSimulator.clean_belief_spaces();
+			CulturalSimulator.clean_informational_spaces();
 			simulation.results();
 			simulation.update_gui();
 		}
@@ -274,7 +274,7 @@ public class ControllerSingle extends Controller
 	    	simulation.FREQ_PROP =  (int) CulturalParameters.sp_propaganda.getValue();;
 	    	simulation.MUTATION = (float) CulturalParameters.sp_mutation.getValue();
 	    	simulation.SELECTION_ERROR = (float) CulturalParameters.sp_sel_error.getValue();
-	    	CulturalSimulator.clean_belief_spaces();
+	    	CulturalSimulator.clean_informational_spaces();
 	    	restore_parameters_to_interface();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
