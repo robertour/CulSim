@@ -3,24 +3,59 @@ package simulator.control.events;
 import simulator.control.Simulation;
 
 /**
- * Genocide event
+ * This event changes parameters in the simulation.
  * 
- * @author tico
- *
+ * @author Roberto Ulloa
+ * @version 1.0, April 2016
  */
 public class ParameterChange extends Event {
 	private static final long serialVersionUID = 3408040472593937200L;
 	
+	/**
+	 * The new iterations parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public int iterations = -1;
+	/**
+	 * The new checkpoints parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public int checkpoints = -1;
+	/**
+	 * The new mutation parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public float mutation = -1;
+	/**
+	 * The new selection error parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public float selection_error = -1;
+	/**
+	 * The new institutional influence parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public float influence = -1;
+	/**
+	 * The new agent's loyalty parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public float loyalty = -1;
+	/**
+	 * The new democracy parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public int democracy = -1;
+	/**
+	 * The new propaganda parameter after the event is executed. If -1, there 
+	 * is no parameter change
+	 */
 	public int propaganda = -1;
 	
 
+	/** 
+	 * Constructor of the parameter change event
+	 */
 	public ParameterChange() {
 		super(null);
 	}
@@ -46,6 +81,7 @@ public class ParameterChange extends Event {
 		
 	}
 	
+	@Override
 	public String toString() {
 		String s = "";
 
@@ -65,6 +101,14 @@ public class ParameterChange extends Event {
 		return s;
 	}
 	
+	/**
+	 * It parses parameter change event represented in a string in the form of 
+	 * (parameter,y), where parameter can be iteration, speed, mutation, selection, 
+	 * influence, loyalty, democracia, or propaganda";
+	 * 
+	 * @param s the string representation of the parameter event
+	 * @return an event that was represented in the string
+	 */
 	public static ParameterChange parseParameterChange(String s){
 		if (s.charAt(0) != '('){
 			throw new IllegalArgumentException("'(' missing at the begining of the parameter specification: " + s);
@@ -102,5 +146,4 @@ public class ParameterChange extends Event {
 		return pc;
 		
 	}
-
 }

@@ -19,7 +19,7 @@ import simulator.control.events.DestroyInstitutions;
 import simulator.control.events.RemoveInstitutionsPartialContent;
 import simulator.control.events.Distribution;
 import simulator.control.events.Event;
-import simulator.control.events.Genocide;
+import simulator.control.events.Murder;
 import simulator.control.events.Invasion;
 import simulator.control.events.ParameterChange;
 
@@ -805,7 +805,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		genocidePanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (genocideDialog.get_distribution() != null){
-					events.add(new Genocide(genocideDialog.get_distribution()));
+					events.add(new Murder(genocideDialog.get_distribution()));
 					update_event_set();
 				}
 			}
@@ -814,7 +814,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
 				if (genocideDialog.get_distribution() != null){
-					events.add(new Genocide(genocideDialog.get_distribution()));
+					events.add(new Murder(genocideDialog.get_distribution()));
 				}
 				controller.add_events(events);
 			}
