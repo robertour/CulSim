@@ -1,4 +1,4 @@
-package simulator;
+package simulator.gui;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;

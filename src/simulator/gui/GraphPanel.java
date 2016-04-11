@@ -1,4 +1,4 @@
-package simulator;
+package simulator.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

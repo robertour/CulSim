@@ -1,4 +1,4 @@
-package simulator;
+package simulator.gui;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
+import simulator.CulturalSimulator;
 import simulator.control.Controller;
 import simulator.control.ControllerBatch;
 import simulator.control.events.Event;

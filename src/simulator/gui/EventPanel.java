@@ -1,8 +1,7 @@
-package simulator;
+package simulator.gui;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 

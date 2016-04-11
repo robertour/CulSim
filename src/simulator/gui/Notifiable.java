@@ -1,4 +1,4 @@
-package simulator;
+package simulator.gui;
 
 /**
  * Any class that implements this method is meant to be updated by changes

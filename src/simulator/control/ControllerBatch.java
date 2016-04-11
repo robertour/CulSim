@@ -15,8 +15,8 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import simulator.Notifiable;
 import simulator.control.events.Event;
+import simulator.gui.Notifiable;
 import simulator.worlds.Axelrod;
 import simulator.worlds.Flache;
 import simulator.worlds.Flache2;

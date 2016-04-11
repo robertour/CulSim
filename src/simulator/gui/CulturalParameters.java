@@ -1,4 +1,4 @@
-package simulator;
+package simulator.gui;
 
 import java.awt.BorderLayout;
 
@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.border.TitledBorder;
 
+import simulator.CulturalSimulator;
 import simulator.control.Controller;
 import simulator.control.ControllerSingle;
 

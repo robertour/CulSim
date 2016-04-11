@@ -14,11 +14,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import simulator.CulturalParameters;
 import simulator.CulturalSimulator;
-import simulator.Notifiable;
-import simulator.ParametersEventDialog;
 import simulator.control.events.Event;
+import simulator.gui.CulturalParameters;
+import simulator.gui.Notifiable;
+import simulator.gui.ParametersEventDialog;
 import simulator.worlds.Ulloa;
 
  

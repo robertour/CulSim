@@ -43,14 +43,18 @@ import simulator.control.events.Event;
  */
 public class Main {
 	private static Printer printer;
-	
 
 	/**
 	 * The main method for the text-based interaction throught the command line
-	 * @param args the main arguments are as follows: -ef is the initial experimental csv  file (for the "by file" mode);
-	 * -rd, the results directory (for the "by directory" mode); -id, an identifier for the simulation used in the directory
-	 * file names that are created automatically; -r specifies the number of repetitions (for the "by directory" mode);
-	 * -evs, to send the event sets that should be executed
+	 * 
+	 * @param args
+	 *            the main arguments are as follows: -ef is the initial
+	 *            experimental csv file (for the "by file" mode); -rd, the
+	 *            results directory (for the "by directory" mode); -id, an
+	 *            identifier for the simulation used in the directory file names
+	 *            that are created automatically; -r specifies the number of
+	 *            repetitions (for the "by directory" mode); -evs, to send the
+	 *            event sets that should be executed
 	 */
 	public static void main(String[] args) {
 		String experimental_file = null;
@@ -59,166 +63,187 @@ public class Main {
 		int rep = -1;
 		boolean collecting_events_args = false;
 		ArrayList<Event> events = new ArrayList<Event>();
-		
-	    for (int i = 0; i < args.length; i++) {
-	        switch (args[i].charAt(0)) {
-		        case '-':
-	                collecting_events_args = false;                	
-		            if (args[i].length() < 2)
-		                throw new IllegalArgumentException("Not a valid argument: "+args[i]);
-	                if (args.length-1 == i)
-	                    throw new IllegalArgumentException("Expected argument after: "+args[i]);
-	                String argu = args[i].substring(1, args[i].length());
 
-	                if (argu.equals("ef")){
-	                	experimental_file = args[i+1];
-	                	i++;
-	                } else if (argu.equals("rd")){
-	                	results_directory = args[i+1];
-	                	i++;
-	                } else if (argu.equals("id")){
-	                	identifier = args[i+1];
-	                	i++;
-	                } else if (argu.equals("r")){
-	                	try {
-	                		rep = Integer.parseInt(args[i+1]);
-	                		i++;
-	                	} catch (Exception e){
-	                		throw new IllegalArgumentException("Invalid argument for -r: " + args[i+1]);
-	                	}
-	                	
-	                } else if (argu.equals("evs")){
-	                	collecting_events_args = true;
-	                } else {
-	                	throw new IllegalArgumentException("Invalid argument: "+args[i]);
-	                }
-		            break;
-		        default:
-		        	if (collecting_events_args){
-		        		events.add(Event.parseEvent(args[i]));
-		        	} else {
-		        		throw new IllegalArgumentException("Unexpected argument: "+args[i]);
-		        	}
-	        }
-	    } 
-	    
-	    printer = new Main.Printer();
-	    
-	    if (results_directory != null && experimental_file != null ){
-	    	throw new IllegalArgumentException("WARNING: either the experimental file (-ef) or results directory (-rd)"
-	    			+ " but not both has to be specified.");
-	    } else if (results_directory == null && experimental_file == null ){
-	    	printer.print(-1, "WARNING: no experimental file or results directory has been specified,"
-	    			+ " 'sample.csv' will be used as experimental file.");
-	    	experimental_file = "sample.csv";
-	    }
-	    
-	    if (events.size() > 0){
-	    	printer.print(-1, "The following events have been set up for the scenarios: \n");
-	    	for (Iterator <Event> iterator = events.iterator(); iterator.hasNext();) {
+		for (int i = 0; i < args.length; i++) {
+			switch (args[i].charAt(0)) {
+			case '-':
+				collecting_events_args = false;
+				if (args[i].length() < 2)
+					throw new IllegalArgumentException("Not a valid argument: " + args[i]);
+				if (args.length - 1 == i)
+					throw new IllegalArgumentException("Expected argument after: " + args[i]);
+				String argu = args[i].substring(1, args[i].length());
+
+				if (argu.equals("ef")) {
+					experimental_file = args[i + 1];
+					i++;
+				} else if (argu.equals("rd")) {
+					results_directory = args[i + 1];
+					i++;
+				} else if (argu.equals("id")) {
+					identifier = args[i + 1];
+					i++;
+				} else if (argu.equals("r")) {
+					try {
+						rep = Integer.parseInt(args[i + 1]);
+						i++;
+					} catch (Exception e) {
+						throw new IllegalArgumentException("Invalid argument for -r: " + args[i + 1]);
+					}
+
+				} else if (argu.equals("evs")) {
+					collecting_events_args = true;
+				} else {
+					throw new IllegalArgumentException("Invalid argument: " + args[i]);
+				}
+				break;
+			default:
+				if (collecting_events_args) {
+					events.add(Event.parseEvent(args[i]));
+				} else {
+					throw new IllegalArgumentException("Unexpected argument: " + args[i]);
+				}
+			}
+		}
+
+		printer = new Main.Printer();
+
+		if (results_directory != null && experimental_file != null) {
+			throw new IllegalArgumentException("WARNING: either the experimental file (-ef) or results directory (-rd)"
+					+ " but not both has to be specified.");
+		} else if (results_directory == null && experimental_file == null) {
+			printer.print(-1, "WARNING: no experimental file or results directory has been specified,"
+					+ " 'sample.csv' will be used as experimental file.");
+			experimental_file = "sample.csv";
+		}
+
+		if (events.size() > 0) {
+			printer.print(-1, "The following events have been set up for the scenarios: \n");
+			for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 				printer.print(-1, iterator.next() + "\n");
 			}
-	    }
-	    
-	    if (results_directory != null){
-	    	run_from_directory(results_directory, events, identifier, rep);
-	    	
-	    } else if (experimental_file != null){
-	    	if (rep != -1){
-	    		throw new IllegalArgumentException("The number of iterations are take from the csv file. Parameter -i is ambiguos when a csv is specified.");
-	    	}
-	    	run_from_file(experimental_file, events, identifier);
-	    }
+		}
+
+		if (results_directory != null) {
+			run_from_directory(results_directory, events, identifier, rep);
+
+		} else if (experimental_file != null) {
+			if (rep != -1) {
+				throw new IllegalArgumentException(
+						"The number of iterations are take from the csv file. Parameter -i is ambiguos when a csv is specified.");
+			}
+			run_from_file(experimental_file, events, identifier);
+		}
 
 	}
-	
+
 	/**
 	 * Run the simulation in the "by directory" mode.
 	 * 
-	 * @param rd the results directory is the main input of the simulation
-	 * @param events the events that will be executed in the converged states stored in the results directory
-	 * @param id the id of the simulation to identify the results
-	 * @param rep the number of repetitions that this will be executed (it makes more sense for randomized events)
+	 * @param rd
+	 *            the results directory is the main input of the simulation
+	 * @param events
+	 *            the events that will be executed in the converged states
+	 *            stored in the results directory
+	 * @param id
+	 *            the id of the simulation to identify the results
+	 * @param rep
+	 *            the number of repetitions that this will be executed (it makes
+	 *            more sense for randomized events)
 	 * @return the controller of the simulation
 	 */
-	private static ControllerBatch run_from_directory(String rd, ArrayList<Event> events, String id, int rep){
+	private static ControllerBatch run_from_directory(String rd, ArrayList<Event> events, String id, int rep) {
 		ControllerBatch controller = new ControllerBatch(printer, null);
 		ArrayList<String> sim_list = new ArrayList<String>();
-		
+
 		File rdf = new File(rd);
-		File simulations_dir = new File (rdf.getAbsolutePath() + "/" + ControllerBatch.SIMULATIONS_DIR);
-    	if (simulations_dir.exists() && simulations_dir.isDirectory()){
+		File simulations_dir = new File(rdf.getAbsolutePath() + "/" + ControllerBatch.SIMULATIONS_DIR);
+		if (simulations_dir.exists() && simulations_dir.isDirectory()) {
 			File[] directoryListing = simulations_dir.listFiles();
 			if (directoryListing != null) {
 				for (File child : directoryListing) {
 					sim_list.add(child.getAbsolutePath());
 				}
 			} else {
-				throw new IllegalArgumentException("The " + rd + ControllerBatch.SIMULATIONS_DIR + 
-						" directory didn't contain any simulations. Please make sure you are "
+				throw new IllegalArgumentException("The " + rd + ControllerBatch.SIMULATIONS_DIR
+						+ " directory didn't contain any simulations. Please make sure you are "
 						+ "providing a directory with the results of a Batch process.");
 			}
 		} else {
-			throw new IllegalArgumentException("The " + rd + ControllerBatch.SIMULATIONS_DIR + 
-					" directory didn't contain any simulations. Please make sure you are "
+			throw new IllegalArgumentException("The " + rd + ControllerBatch.SIMULATIONS_DIR
+					+ " directory didn't contain any simulations. Please make sure you are "
 					+ "providing a directory with the results of a Batch process.");
 		}
 
 		try {
-			if (rep == -1){
+			if (rep == -1) {
 				controller.load_simulations(sim_list, events, 1);
 			} else {
 				controller.load_simulations(sim_list, events, rep);
 			}
-    	} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("One of the files in the directory was not found.");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-			throw new IllegalArgumentException("One of the files in the directory is not of the type simulation. Maybe an old version?.");
+			throw new IllegalArgumentException(
+					"One of the files in the directory is not of the type simulation. Maybe an old version?.");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("I/O Exception.");
 		}
-    	
-		controller.start( rd + "/", id);
+
+		controller.start(rd + "/", id);
 		return controller;
-	
+
 	}
 
 	/**
 	 * Run the simulation in the "by file" mode.
 	 * 
-	 * @param ef the experimental file is the main input of the simulation, a csv file describing the
-	 * parameters and repetition of each configuration
-	 * @param events the events that will be executed in the simulations, it makes more sense when the simulation
-	 * is not initialized at random in the parameters of the csv file
-	 * @param id the id of the simulation to identify the results
+	 * @param ef
+	 *            the experimental file is the main input of the simulation, a
+	 *            csv file describing the parameters and repetition of each
+	 *            configuration
+	 * @param events
+	 *            the events that will be executed in the simulations, it makes
+	 *            more sense when the simulation is not initialized at random in
+	 *            the parameters of the csv file
+	 * @param id
+	 *            the id of the simulation to identify the results
 	 * @return the controller of the simulation
 	 */
-	private static ControllerBatch run_from_file(String ef, ArrayList<Event> events, String id){
+	private static ControllerBatch run_from_file(String ef, ArrayList<Event> events, String id) {
 		ControllerBatch controller = new ControllerBatch(printer, null);
-		
+
 		try {
-			controller.load_simulations_from_file(ef,events);
+			controller.load_simulations_from_file(ef, events);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			throw new IllegalArgumentException("File not found: "+ ef);
+			throw new IllegalArgumentException("File not found: " + ef);
 		}
 
 		controller.start(Controller.WORKSPACE_DIR, id);
-		
+
 		return controller;
 	}
-		
-	private static class Printer implements  Printable {
-		public void print(int id, String str){
-			if (id < 0){
+
+	/**
+	 * An proxy class to the system.out. It basically allows for the simulations
+	 * to print in the terminal
+	 * 
+	 * @author Roberto Ulloa
+	 * @version 1.0, April 2016
+	 *
+	 */
+	private static class Printer implements Printable {
+		public void print(int id, String str) {
+			if (id < 0) {
 				System.out.print(str);
 			} else {
-				System.out.print("(ID: " + id +  "): " + str);
+				System.out.print("(ID: " + id + "): " + str);
 			}
-		} 
+		}
 	}
 
 }
