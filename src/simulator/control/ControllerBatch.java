@@ -15,12 +15,12 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import simulator.destruction.Flache;
 import simulator.Notifiable;
 import simulator.control.events.Event;
-import simulator.destruction.Axelrod;
-import simulator.destruction.Flache2;
-import simulator.destruction.Ulloa;
+import simulator.worlds.Axelrod;
+import simulator.worlds.Flache;
+import simulator.worlds.Flache2;
+import simulator.worlds.Ulloa;
  
 /**
  * The controller of the simulations handles the simulations and run them in batch

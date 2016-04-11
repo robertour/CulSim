@@ -16,45 +16,52 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.awt.event.ActionEvent;
 
-public class SingleDistributionDialog extends JDialog {
-	
+/**
+ * Interface that let you pick up and configure different distributions for one
+ * event.
+ * 
+ * @author Roberto Ulloa
+ * @version 1.0, April 2016
+ */
+public class DistributionSingleDialog extends JDialog {
+
 	private static final long serialVersionUID = -8199562513877809300L;
-	
-	private final JPanel contentPanel = new JPanel();
+
+	/**
+	 * The distribution panel to configure a distribution
+	 */
 	private DistributionPanel d_panel;
+
+	/**
+	 * The list of components this interface has to notify after changes are are
+	 * applied
+	 */
 	private ArrayList<Notifiable> notifiables = new ArrayList<Notifiable>();
 
 	/**
-	 * Launch the application.
+	 * Create a distribution dialog panel
+	 * 
+	 * @param d
+	 *            the initial distribution that will be showed
+	 * @param title
+	 *            the tile and identifier name for the dialog
+	 * @param owner
+	 *            the owner for the modal
 	 */
-	public static void main(String[] args) {
-		try {
-			Distribution d = new Distribution(0.1);
-			
-			SingleDistributionDialog dialog = new SingleDistributionDialog(d, "Example", null);
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Create the dialog.
-	 */
-	public SingleDistributionDialog(Distribution d, String title, JFrame owner) {
+	public DistributionSingleDialog(Distribution d, String title, JFrame owner) {
 		super(owner);
 
 		setTitle("Distribution Dialog");
-		
+
 		setBounds(100, 100, 214, 543);
 		getContentPane().setLayout(new BorderLayout());
+		JPanel contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new BorderLayout(0, 0));
 		{
 			d_panel = new DistributionPanel(d, title);
-			
+
 			contentPanel.add(d_panel, BorderLayout.CENTER);
 		}
 		{
@@ -69,7 +76,7 @@ public class SingleDistributionDialog extends JDialog {
 							Notifiable notifiable = (Notifiable) i.next();
 							notifiable.update();
 						}
-						SingleDistributionDialog.this.setVisible(false);						
+						DistributionSingleDialog.this.setVisible(false);
 					}
 				});
 				okButton.setActionCommand("OK");
@@ -78,16 +85,31 @@ public class SingleDistributionDialog extends JDialog {
 			}
 		}
 	}
-	
+
+	/**
+	 * Returns the configured distribution of the event
+	 * 
+	 * @return the distribution that the event will follow
+	 */
 	public Distribution get_distribution() {
 		return d_panel.get_distribution();
 	}
-	
-	public void addNotifiable(Notifiable n){
+
+	/**
+	 * Adds instances of components that need to be notified of changes in this
+	 * interface
+	 * 
+	 * @param n
+	 *            the instance that need to be notified
+	 */
+	public void addNotifiable(Notifiable n) {
 		notifiables.add(n);
 	}
-	
-	public String toString(){
-		return ((d_panel.get_distribution()== null)?"None":d_panel.get_distribution().toString());
+
+	/**
+	 * Returns a representation of the distribution that has been configured
+	 */
+	public String toString() {
+		return ((d_panel.get_distribution() == null) ? "None" : d_panel.get_distribution().toString());
 	}
 }

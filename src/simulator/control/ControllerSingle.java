@@ -17,16 +17,16 @@ import java.util.zip.GZIPOutputStream;
 import simulator.CulturalParameters;
 import simulator.CulturalSimulator;
 import simulator.Notifiable;
-import simulator.ParametersDialog;
+import simulator.ParametersEventDialog;
 import simulator.control.events.Event;
-import simulator.destruction.Ulloa;
+import simulator.worlds.Ulloa;
 
  
 /**
- * The controller of the simulations handles the simulation. It creates the thread
- * for the simulation, and provide methods to start, stop, suspend or resume the 
- * simulation, load and save states of the simulation, update to and from the GUI
- * and add events to the simulation
+ * The controller of the simulations handles the simulation. It creates the
+ * thread for the simulation, and provide methods to start, stop, suspend or
+ * resume the simulation, load and save states of the simulation, update to and
+ * from the GUI and add events to the simulation
  * 
  * @author Roberto Ulloa
  * @version 1.0, March 2016
@@ -233,14 +233,14 @@ public class ControllerSingle extends Controller
     	CulturalParameters.sp_mutation.setValue(simulation.MUTATION);
     	CulturalParameters.sp_sel_error.setValue(simulation.SELECTION_ERROR);
     	
-    	ParametersDialog.iterations = simulation.ITERATIONS;
-    	ParametersDialog.checkpoints = simulation.CHECKPOINT;
-    	ParametersDialog.selection_error = simulation.SELECTION_ERROR;
-    	ParametersDialog.mutation = simulation.MUTATION;
-    	ParametersDialog.influence = simulation.ALPHA;
-    	ParametersDialog.loyalty = simulation.ALPHA_PRIME;
-    	ParametersDialog.democracy = simulation.FREQ_DEM;
-    	ParametersDialog.propaganda = simulation.FREQ_PROP;
+    	ParametersEventDialog.iterations = simulation.ITERATIONS;
+    	ParametersEventDialog.checkpoints = simulation.CHECKPOINT;
+    	ParametersEventDialog.selection_error = simulation.SELECTION_ERROR;
+    	ParametersEventDialog.mutation = simulation.MUTATION;
+    	ParametersEventDialog.influence = simulation.ALPHA;
+    	ParametersEventDialog.loyalty = simulation.ALPHA_PRIME;
+    	ParametersEventDialog.democracy = simulation.FREQ_DEM;
+    	ParametersEventDialog.propaganda = simulation.FREQ_PROP;
     	CulturalSimulator.set_speed(simulation.CHECKPOINT);
     	
     	CulturalSimulator.l_start_identification.setText("S: " + simulation.get_identification());

@@ -2,7 +2,6 @@ package simulator;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.EventQueue;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -42,63 +41,76 @@ import java.awt.Font;
 import javax.swing.JTextArea;
 import javax.swing.ImageIcon;
 
+/**
+ * Interface of the batch mode. It allows the configuration of repetitions of
+ * the same experiment.
+ * 
+ * @author Roberto Ulloa
+ * @version 1.0, April 2016
+ */
 public class BatchMode extends JDialog implements Notifiable{
 
 	private static final long serialVersionUID = -6498782807057797553L;
+	
+	/** 
+	 * The main panel of the simulations
+	 */
 	private JPanel contentPane;
 	
-	private JToggleButton btn_pause;
-	public JTextField tf_results_dir;
+	/**
+	 * The main tabs of the simulations
+	 */
+	private JTabbedPane tp_batch_mode;
+	private JPanel tab_conf_file;
+	private JPanel tab_catastrophic;
 	
+	/**
+	 * The file dialogs for the folder an file selection of the simulations
+	 */
 	private JFileChooser jfc_experiment = new JFileChooser(Controller.WORKSPACE_DIR + "sample.csv");
 	private JFileChooser jfc_results = new JFileChooser(Controller.WORKSPACE_DIR);
 	private JFileChooser jfc_disasters = new JFileChooser(Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);
 	private JFileChooser jfc_scenarios = new JFileChooser(Controller.WORKSPACE_DIR);	
 	private JFileChooser jfc_configurations = new JFileChooser(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
-	
-	private ControllerBatch controller;
-	private JToggleButton btn_play;
-	private JToggleButton btn_stop;
-	private JButton btn_open_file;
-	private static OutputArea TA_OUTPUT;
-	private JPanel tab_conf_file;
-	private JSpinner sp_repetitions;
-	private JButton btnAddConfigurationFile;
-	private JButton btnAddFolder;
-	private JPanel tab_catastrophic;
-	private JButton btnOpen;
+
+	/**
+	 * Textfields to keep some of the paths that will be set in the simulations
+	 */
 	private JTextField tf_scenarios_dir;
-	private JLabel lblFolderWithResults;
-	private JList<String> sel_conf_files;
-	private DefaultListModel<String> conf_list;
-	private ArrayList<String> file_list;
-	private JTabbedPane tp_batch_mode;
-	private JScrollPane scroll_pane;
-	private JButton btnLoad;
-	
-	private ArrayList<Event> events = new ArrayList<Event>();
-	private JButton btnClearEvents;
-	private JTextArea ta_set_events;
-	
-	CulturalSimulator cultural_simulator;
-	private JSpinner sp_repetitions_catastroph;
+	public JTextField tf_results_dir;
 	
 	/**
-	 * Launch the application.
+	 * List of files that will be used in the simulations
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					CulturalSimulator frame = new CulturalSimulator();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private DefaultListModel<String> conf_list;
+	private ArrayList<String> file_list;
+	
+	/**
+	 * Events for the catastrophic batch mode
+	 */
+	private ArrayList<Event> events = new ArrayList<Event>();
+	private JTextArea ta_set_events;
 
+	/**
+	 * Number of repetitions of the different configurations
+	 */
+	private JSpinner sp_repetitions;
+	private JSpinner sp_repetitions_catastroph;
+
+	/**
+	 * Controls of the simulations
+	 */
+	private JToggleButton btn_play;
+	private JToggleButton btn_stop;
+	private JToggleButton btn_pause;
+	private OutputArea taOutput;
+	
+	/** 
+	 * Batch controller of the simulations
+	 */
+	private ControllerBatch controller;
+	
+	
 	/**
 	 * Create the frame.
 	 */
@@ -126,17 +138,17 @@ public class BatchMode extends JDialog implements Notifiable{
 		jfc_results.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		jfc_results.setAcceptAllFileFilterUsed(false);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 274, 582, 227);
-		contentPane.add(scrollPane);
+		JScrollPane scrollOutput = new JScrollPane();
+		scrollOutput.setBounds(10, 274, 582, 227);
+		contentPane.add(scrollOutput);
 		
-		TA_OUTPUT = new OutputArea();
-		TA_OUTPUT.setFont(new Font("Tahoma", Font.PLAIN, 9));
-		TA_OUTPUT.setLineWrap(true);
-		TA_OUTPUT.setEditable(false);
-		scrollPane.setViewportView(TA_OUTPUT);
+		taOutput = new OutputArea();
+		taOutput.setFont(new Font("Tahoma", Font.PLAIN, 9));
+		taOutput.setLineWrap(true);
+		taOutput.setEditable(false);
+		scrollOutput.setViewportView(taOutput);
 		
-		controller = new ControllerBatch(TA_OUTPUT, this);
+		controller = new ControllerBatch(taOutput, this);
 		
 		tp_batch_mode = new JTabbedPane(JTabbedPane.TOP);
 		tp_batch_mode.setBounds(10, 11, 582, 208);
@@ -173,7 +185,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		lblRepetitions.setBounds(10, 111, 70, 14);
 		tab_conf_file.add(lblRepetitions);
 		
-		btnAddConfigurationFile = new JButton("Add File");
+		JButton btnAddConfigurationFile = new JButton("Add File");
 		btnAddConfigurationFile.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open.png")));
 		btnAddConfigurationFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -187,7 +199,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		btnAddConfigurationFile.setBounds(467, 107, 105, 25);
 		tab_conf_file.add(btnAddConfigurationFile);
 		
-		btnAddFolder = new JButton("Add Folder");
+		JButton btnAddFolder = new JButton("Add Folder");
 		btnAddFolder.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open-folder.png")));
 		btnAddFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -221,7 +233,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		scrollPane_1.setBounds(105, 11, 462, 85);
 		tab_conf_file.add(scrollPane_1);
 		
-		sel_conf_files = new JList<String>();
+		JList<String> sel_conf_files = new JList<String>();
 		scrollPane_1.setViewportView(sel_conf_files);
 		sel_conf_files.setModel(conf_list);
 		
@@ -235,13 +247,13 @@ public class BatchMode extends JDialog implements Notifiable{
 		tf_results_dir.setEditable(false);
 		tf_results_dir.setColumns(10);
 		tf_results_dir.setText(jfc_results.getCurrentDirectory().getAbsolutePath() + "\\");
-		btn_open_file = new JButton("Select");
+		JButton btn_open_file = new JButton("Select");
 		btn_open_file.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open-folder.png")));
 		btn_open_file.setBounds(467, 143, 100, 25);
 		tab_conf_file.add(btn_open_file);
 		
 		JLabel lblConfigurations = new JLabel("Configurations:");
-		lblConfigurations.setLabelFor(scrollPane);
+		lblConfigurations.setLabelFor(scrollOutput);
 		lblConfigurations.setBounds(10, 13, 85, 14);
 		tab_conf_file.add(lblConfigurations);
 		
@@ -249,7 +261,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		tp_batch_mode.addTab("Catastrophic Setup", null, tab_catastrophic, null);
 		tab_catastrophic.setLayout(null);
 		
-		btnOpen = new JButton("Select");
+		JButton btnOpen = new JButton("Select");
 		btnOpen.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open.png")));
 		btnOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -269,12 +281,12 @@ public class BatchMode extends JDialog implements Notifiable{
 		tf_scenarios_dir.setBounds(75, 10, 399, 25);
 		tab_catastrophic.add(tf_scenarios_dir);
 		
-		lblFolderWithResults = new JLabel("Scenarios:");
+		JLabel lblFolderWithResults = new JLabel("Scenarios:");
 		lblFolderWithResults.setToolTipText("These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"Configuration Files\" or \"CSV Configuration\".");
 		lblFolderWithResults.setBounds(10, 15, 55, 15);
 		tab_catastrophic.add(lblFolderWithResults);
 		
-		scroll_pane = new JScrollPane();
+		JScrollPane scroll_pane = new JScrollPane();
 		scroll_pane.setBounds(75, 46, 399, 94);
 		tab_catastrophic.add(scroll_pane);
 		
@@ -283,7 +295,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		ta_set_events.setEditable(false);
 		scroll_pane.setViewportView(ta_set_events);
 		
-		btnLoad = new JButton("Load");
+		JButton btnLoad = new JButton("Load");
 		btnLoad.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-save.png")));
 		btnLoad.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnLoad.addActionListener(new ActionListener() {
@@ -309,7 +321,7 @@ public class BatchMode extends JDialog implements Notifiable{
 		btnLoad.setBounds(484, 115, 85, 25);
 		tab_catastrophic.add(btnLoad);
 		
-		btnClearEvents = new JButton("Clear");
+		JButton btnClearEvents = new JButton("Clear");
 		btnClearEvents.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/trash-empty.png")));
 		btnClearEvents.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnClearEvents.addActionListener(new ActionListener() {
@@ -342,8 +354,6 @@ public class BatchMode extends JDialog implements Notifiable{
 			}
 		});
 		
-		
-		this.cultural_simulator = cultural_simulator; 
 		
 		btn_play = new JToggleButton("Play");
 		btn_play.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/media-playback-start.png")));
@@ -419,13 +429,13 @@ public class BatchMode extends JDialog implements Notifiable{
 											sim_list.add(child.getAbsolutePath());
 										}
 									} else {
-										TA_OUTPUT.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory didn't contain " +
+										taOutput.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory didn't contain " +
 													"any simulations. Please make sure you are providing a directory with " +
 													"the results of a Batch process.");
 										return;
 									}
 								} else {
-									TA_OUTPUT.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory was not found on " +
+									taOutput.print(-1, "The " + ControllerBatch.SIMULATIONS_DIR + " directory was not found on " +
 												"the provided directory. Please make sure you are providing a directory with " +
 												"the results of a Batch process.");
 									return;
@@ -456,10 +466,13 @@ public class BatchMode extends JDialog implements Notifiable{
 			}
 		});
 
-		DefaultCaret caret = (DefaultCaret)TA_OUTPUT.getCaret();
+		DefaultCaret caret = (DefaultCaret)taOutput.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 	}
 	
+	/**
+	 * Update the event set in the interface
+	 */
 	private void update_event_set(){
 		int i = 1;
 		ta_set_events.setText("");
@@ -472,9 +485,17 @@ public class BatchMode extends JDialog implements Notifiable{
 
 	@Override
 	public void update() {
-		btn_stop.doClick();
+		if (btn_stop.isEnabled()){
+			btn_stop.doClick();
+		}
 	}
 	
+	/**
+	 * Method that enables/disables the components recursively. 
+	 * 
+	 * @param container the container to enable/disable
+	 * @param enable the new set status
+	 */
 	private void setEnableRec(Component container, boolean enable){
 		container.setEnabled(enable);
 		

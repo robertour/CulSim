@@ -11,11 +11,47 @@ import simulator.control.ControllerBatch;
 import simulator.control.Printable;
 import simulator.control.events.Event;
 
-
+/**
+ * Main text-based interface of the simulation. It implements a command based
+ * version of the software that can be used in servers. The configuration of the
+ * simulation is given by parameters in the command, or by files.
+ * 
+ * There is basically two ways of running a simulation, by file or by directory.
+ * The two ways are used for different purposes.
+ * 
+ * By file: it uses a csv file with an experimental design as the main input.
+ * This csv contains the parameters that the simulation is going to run. The
+ * purpose here is to run the simulation to let cultures emerge. Although
+ * introducing events is possible, for most of the cases it really makes little
+ * sense to introduce them because the system hasn't converge to any particular
+ * state. A big exception occurs when the simulation is not initialized at
+ * random, but with only one culture. The results of the simulation is stored in
+ * one folder that becomes the main input of the other way of running the
+ * simulation, i.e. by directory.
+ * 
+ * By folder: it uses a folder produced by the "by file" way of running the
+ * simulation (see above). This folder contains the final simulation states of
+ * (presumably) converged states in which cultures have emerged. The main
+ * purpose of running the simulation with the "by directory" mode is to test the
+ * effects of events on those converge states.
+ * 
+ * 
+ * 
+ * @author Roberto Ulloa
+ * @version 1.0, April 2016
+ *
+ */
 public class Main {
 	private static Printer printer;
 	
 
+	/**
+	 * The main method for the text-based interaction throught the command line
+	 * @param args the main arguments are as follows: -ef is the initial experimental csv  file (for the "by file" mode);
+	 * -rd, the results directory (for the "by directory" mode); -id, an identifier for the simulation used in the directory
+	 * file names that are created automatically; -r specifies the number of repetitions (for the "by directory" mode);
+	 * -evs, to send the event sets that should be executed
+	 */
 	public static void main(String[] args) {
 		String experimental_file = null;
 		String results_directory = null;
@@ -96,6 +132,15 @@ public class Main {
 
 	}
 	
+	/**
+	 * Run the simulation in the "by directory" mode.
+	 * 
+	 * @param rd the results directory is the main input of the simulation
+	 * @param events the events that will be executed in the converged states stored in the results directory
+	 * @param id the id of the simulation to identify the results
+	 * @param rep the number of repetitions that this will be executed (it makes more sense for randomized events)
+	 * @return the controller of the simulation
+	 */
 	private static ControllerBatch run_from_directory(String rd, ArrayList<Event> events, String id, int rep){
 		ControllerBatch controller = new ControllerBatch(printer, null);
 		ArrayList<String> sim_list = new ArrayList<String>();
@@ -141,6 +186,16 @@ public class Main {
 	
 	}
 
+	/**
+	 * Run the simulation in the "by file" mode.
+	 * 
+	 * @param ef the experimental file is the main input of the simulation, a csv file describing the
+	 * parameters and repetition of each configuration
+	 * @param events the events that will be executed in the simulations, it makes more sense when the simulation
+	 * is not initialized at random in the parameters of the csv file
+	 * @param id the id of the simulation to identify the results
+	 * @return the controller of the simulation
+	 */
 	private static ControllerBatch run_from_file(String ef, ArrayList<Event> events, String id){
 		ControllerBatch controller = new ControllerBatch(printer, null);
 		

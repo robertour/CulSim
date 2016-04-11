@@ -1,4 +1,4 @@
-package simulator.destruction;
+package simulator.worlds;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;

@@ -73,7 +73,7 @@ import javax.swing.event.ChangeEvent;
 
 /**
  * Main interface of the simulation. It contains components to control all the
- * graphical functionality of the software. 
+ * graphical functionality of the software.
  * 
  * @author Roberto Ulloa
  * @version 1.0, April 2016
@@ -126,12 +126,12 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	/**
 	 * These are the dialogs for configuring the events
 	 */
-	private DoubleDistributionDialog structureDialog;
-	private DoubleDistributionDialog contentDialog;
-	private DoubleDistributionDialog conversionDialog;
-	private SingleDistributionDialog invasionDialog;
-	private SingleDistributionDialog genocideDialog;
-	private ParametersDialog parametersDialog;
+	private DistributionDoubleDialog structureDialog;
+	private DistributionDoubleDialog contentDialog;
+	private DistributionDoubleDialog conversionDialog;
+	private DistributionSingleDialog invasionDialog;
+	private DistributionSingleDialog genocideDialog;
+	private ParametersEventDialog parametersDialog;
 	
 	/**
 	 * These are the dialogs for the initial parameters configuration
@@ -691,12 +691,12 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		eventsPanel.setBorder(null);
 		eventsPanel.setLayout(new BorderLayout(0, 0));
 		
-		structureDialog = new DoubleDistributionDialog(new Distribution(0.5,0.5,0.8), null, "Apostasy", "Destroy", this);
-		contentDialog = new DoubleDistributionDialog(new Distribution(1.0),null, "Partial", "Full", this);
-		conversionDialog = new DoubleDistributionDialog(null, new Distribution(0.5,0.5,0.2), "Partial", "Full", this);
-		invasionDialog = new SingleDistributionDialog(new Distribution(0.5,0.5,0.2), "Invasion", this);
-		genocideDialog = new SingleDistributionDialog(new Distribution(0.5,0.5,0.2), "Genocide", this);
-		parametersDialog = new ParametersDialog("Parameter Change Event", this);
+		structureDialog = new DistributionDoubleDialog(new Distribution(0.5,0.5,0.8), null, "Apostasy", "Destroy", this);
+		contentDialog = new DistributionDoubleDialog(new Distribution(1.0),null, "Partial", "Full", this);
+		conversionDialog = new DistributionDoubleDialog(null, new Distribution(0.5,0.5,0.2), "Partial", "Full", this);
+		invasionDialog = new DistributionSingleDialog(new Distribution(0.5,0.5,0.2), "Invasion", this);
+		genocideDialog = new DistributionSingleDialog(new Distribution(0.5,0.5,0.2), "Genocide", this);
+		parametersDialog = new ParametersEventDialog("Parameter Change Event", this);
 		
 		JPanel eventPanels = new JPanel();
 		eventPanels.setBorder(new EmptyBorder(5, 0, 0, 0));
@@ -969,7 +969,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				}
 				lblSpeedValue.setText(speed + "");
 				
-				ParametersDialog.checkpoints = speed;
+				ParametersEventDialog.checkpoints = speed;
 				ParameterChange pc = new ParameterChange();
 				pc.checkpoints = speed;
 			    ArrayList<Event> evs =  new ArrayList<Event>();
