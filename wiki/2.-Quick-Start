@@ -1,11 +1,15 @@
 Quick Start!
 ==========
 
-The  Cultural Simulator is an agent-based system that  simulates how cultures emerges in space where individuals are represented by agents that live in a grid. In the interface, the agents are colored according to their cultural vector, a list of cultural features with assigned cultural traits, e.g. the cultural feature *music* could have the cultural trait *jazz* assigned. 
+The  Cultural Simulator is an agent-based system that  simulates how cultures emerges in space where individuals are represented by agents that live in a grid. In the interface, the agents are colored according to their **cultural vector**, a list of **cultural features** with assigned **cultural traits**, e.g. the cultural feature *music* could have the cultural trait *jazz* assigned. 
 
 When two agents (1) have exactly the same cultural features in the cultural vector and (2) are are adyacence neighbors in the grid in the cultural vectors then they belong to the same culture. Over time, agents influence each other, transmitting their cultural traits to other neighboring agents in a Neumann radius. 
 
-If agents constantly transmit the information to each other, do they end sharing the same culture? Well, it really depend on the rules for sharing information, and the initial  conditions. 
+If agents constantly transmit the information to each other, do they end sharing the same culture? Well, it really depends on the rules for sharing information, and the initial  conditions. For example, ***homophily***, the principle that *like attracks like* has proven to promote cultural diversity, but also the size of the grid, the size of the cultural vector, the number of traits, the size of the Neumann neigborhood have proven to be important paramaters that affect the final diversity.
+
+The Cultural Simulator no only including many of those parameters, but also different versions of the models, i.e. rulesets, proposed by different authors: Axelrod (1997), Flache (2011), Ulloa (2016). It includes elements such as random changes in the cultural vectors (**mutation**), errors in the selection of similar agents (**selection error**), simultaneous  influence by several agents (**multilateral social influence**), and a second layer of information that serves as central repositories for group of agents (**institutions**) and that are able to influence them indirectly by preventing social influence (**institutional influence**) or directly by top-down and bottom-up process (**propaganda** and **democracy**).
+
+Finally, the Cultural Simulator
 
 
 Hey! I'm your first Markdown document in **StackEdit**[^stackedit]. Don't delete me, I'm very helpful! I can be recovered anyway in the **Utils** tab of the <i class="icon-cog"></i> **Settings** dialog.
