@@ -104,7 +104,7 @@ public class CulturalParameters extends JDialog {
 	/**
 	 * Save the workspace directory
 	 */
-	public JTextField tf_workspace_dir;
+	private JTextField tf_workspace_dir;
 
 	/**
 	 * This is the controller of the simulations
@@ -424,8 +424,7 @@ public class CulturalParameters extends JDialog {
 						if (!conf_dir.exists()) {
 							conf_dir.mkdirs();
 						}
-						jfc_load.setCurrentDirectory(
-								new File(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR));
+						jfc_load.setCurrentDirectory(conf_dir);
 						JButton btn_load = new JButton("Load");
 						btn_load.setIcon(new ImageIcon(
 								CulturalParameters.class.getResource("/simulator/img/document-open.png")));
@@ -433,14 +432,14 @@ public class CulturalParameters extends JDialog {
 						btn_load.setBounds(542, 221, 101, 23);
 						panel_1.add(btn_load);
 						{
-							JLabel lblResultsDirectory = new JLabel("Results Directory:");
-							lblResultsDirectory.setBounds(10, 278, 104, 20);
-							contentPanel.add(lblResultsDirectory);
+							JLabel lblWorkspaceDirectory = new JLabel("Workspace:");
+							lblWorkspaceDirectory.setBounds(10, 278, 104, 20);
+							contentPanel.add(lblWorkspaceDirectory);
 						}
 
 						tf_workspace_dir = new JTextField();
 						tf_workspace_dir.setEditable(false);
-						tf_workspace_dir.setBounds(109, 278, 434, 20);
+						tf_workspace_dir.setBounds(76, 278, 467, 20);
 						contentPanel.add(tf_workspace_dir);
 						tf_workspace_dir.setColumns(10);
 						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + "\\");
@@ -459,6 +458,11 @@ public class CulturalParameters extends JDialog {
 						contentPanel.add(btnBrowse);
 						btn_load.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
+								File conf_dir = new File(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
+								if (!conf_dir.exists()) {
+									conf_dir.mkdirs();
+									jfc_load.setCurrentDirectory(conf_dir);
+								}
 								if (jfc_load.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
 									if (CulturalSimulator.want_to_continue(jfc_load)) {
 
@@ -472,6 +476,11 @@ public class CulturalParameters extends JDialog {
 					}
 					btn_save.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
+							File conf_dir = new File(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
+							if (!conf_dir.exists()) {
+								conf_dir.mkdirs();
+								jfc_load.setCurrentDirectory(conf_dir);
+							}
 							if (jfc_load.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
 								if (CulturalSimulator.want_to_continue(jfc_load)) {
 									String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
@@ -495,6 +504,7 @@ public class CulturalParameters extends JDialog {
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						if (CulturalSimulator.want_to_continue(CulturalParameters.this)) {
+							Controller.WORKSPACE_DIR = jfc_workspace.getSelectedFile().getAbsolutePath() + "\\";
 							controller.load_parameters_from_interface();
 							CulturalParameters.this.setVisible(false);
 						}
@@ -508,6 +518,8 @@ public class CulturalParameters extends JDialog {
 				JButton cancelButton = new JButton("Cancel");
 				cancelButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						jfc_workspace.setCurrentDirectory(new File(Controller.WORKSPACE_DIR));
+						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + "\\");
 						controller.restore_parameters_to_interface();
 						CulturalParameters.this.setVisible(false);
 					}

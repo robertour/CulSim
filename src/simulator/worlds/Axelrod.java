@@ -4,16 +4,15 @@ import simulator.control.Simulation;
 
 
 /**
- *  This class implements Axelrod (1997), but includes the perturbation elements
- *  tested in the experiment 1 (The collapse of diversity in Axelrod model) of 
- *  Flache (2011):
- *  1. Mutation: in each possible interaction, randomly change one cultural trait
- *  of the individual
- *  2. Selection error: in each possible interaction, there is a possibility of 
- *  a perception error, so that an agent would reject to interact with a similar 
- *  agent (homophily) or accept to interact with a dissimilar one
- *  
- *  
+ * This class implements Axelrod (1997), but includes the perturbation elements
+ * tested in the experiment 1 (The collapse of diversity in Axelrod model) of
+ * Flache (2011): 1. Mutation: in each possible interaction, randomly change one
+ * cultural trait of the individual 2. Selection error: in each possible
+ * interaction, there is a possibility of a perception error, so that an agent
+ * would reject to interact with a similar agent (homophily) or accept to
+ * interact with a dissimilar one
+ * 
+ * 
  * @author Roberto Ulloa
  * @version 1.0, March 2016
  */

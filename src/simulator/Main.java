@@ -193,7 +193,7 @@ public class Main {
 			throw new IllegalArgumentException("I/O Exception.");
 		}
 
-		controller.start(rd + "/", id);
+		controller.start(id, rd + "/");
 		return controller;
 
 	}
@@ -223,7 +223,7 @@ public class Main {
 			throw new IllegalArgumentException("File not found: " + ef);
 		}
 
-		controller.start(Controller.WORKSPACE_DIR, id);
+		controller.start(id, Controller.WORKSPACE_DIR);
 
 		return controller;
 	}

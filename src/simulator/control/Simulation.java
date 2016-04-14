@@ -25,7 +25,7 @@ import simulator.CulturalSimulator;
 import simulator.control.events.Event;
 
 /**
- * TODO comment this class. Describe the general model. 
+ * TODO comment this class. Describe the general model.
  * 
  * @author Roberto Ulloa
  *
@@ -148,7 +148,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	protected Random rand = new Random();
 	/**
-	 * This indicates how many times the generation have been saved and restarted
+	 * This indicates how many times the generation have been saved and
+	 * restarted
 	 */
 	protected int epoch = 0;
 	/**
@@ -352,6 +353,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * The results directory
 	 */
 	protected transient String results_dir = null;
+
 	/**
 	 * The constructor just loads the class TYPE. The rest of the things are
 	 * decided in the setup() which is safer.
@@ -425,7 +427,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				log.print(IDENTIFIER, TYPE + " setup ready. \n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print(IDENTIFIER,  TYPE + " setup() failed");
+				log.print(IDENTIFIER, TYPE + " setup() failed");
 				failed = true;
 			}
 			try {
@@ -708,16 +710,17 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
-	 * Calculate institutions geographical center based on the individuals
-	 * that belongs to it
+	 * Calculate institutions geographical center based on the individuals that
+	 * belongs to it
 	 */
-	protected void calculate_institutions_centers() {};
+	protected void calculate_institutions_centers() {
+	};
 
 	/**
 	 * Start the execution of iterations, as many as the checkpoints parameter
-	 * indicates. Please read the subclass documentation for specific details 
-	 * regarding implementation. The subclasses define the way the agents interact
-	 * with each other.
+	 * indicates. Please read the subclass documentation for specific details
+	 * regarding implementation. The subclasses define the way the agents
+	 * interact with each other.
 	 */
 	protected abstract void run_iterations();
 
@@ -891,8 +894,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
-	 * Count clusters size, number of cultures and calculate some
-	 * cluster statistics
+	 * Count clusters size, number of cultures and calculate some cluster
+	 * statistics
 	 */
 	private void calculate_stats() {
 		biggest_cluster = 0;
@@ -931,8 +934,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Auxiliar (recursive) method to count cultures
 	 * 
-	 * @param r current row
-	 * @param c current column
+	 * @param r
+	 *            current row
+	 * @param c
+	 *            current column
 	 */
 	private void calculate_stats_rec(int r, int c) {
 		flags[r][c] = flag_mark;
@@ -1001,8 +1006,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Auxiliar (recursive) method of calculate newmann stats.
 	 * 
-	 * @param r current row
-	 * @param c current column
+	 * @param r
+	 *            current row
+	 * @param c
+	 *            current column
 	 */
 	private void calculate_newmann_stats_rec(int r, int c) {
 		flags[r][c] = flag_mark;
@@ -1027,8 +1034,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Compare if two cultures are equivalent
 	 * 
-	 * @param c1 array of the culture to compare
-	 * @param c2 array of another culture to compare
+	 * @param c1
+	 *            array of the culture to compare
+	 * @param c2
+	 *            array of another culture to compare
 	 * @return
 	 */
 	private boolean is_same_culture(int[] c1, int[] c2) {
@@ -1043,8 +1052,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
-	 * Calculate the energy of the system, the amount of foreign and alife traits, 
-	 * and the similarity with the starter state
+	 * Calculate the energy of the system, the amount of foreign and alife
+	 * traits, and the similarity with the starter state
 	 */
 	private void calculate_responses() {
 		pixel_similarity = 0;
@@ -1054,7 +1063,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		pixel_institution_similarity = 0;
 		for (int r = 0; r < ROWS; r++) {
 			for (int c = 0; c < COLS; c++) {
-				if (institutionsN != null && institution_beliefs != null){
+				if (institutionsN != null && institution_beliefs != null) {
 					if (institutionsN[r * ROWS + c] > 0 && starter.institutionsN[r * ROWS + c] > 0) {
 						for (int f = 0; f < FEATURES; f++) {
 							if (institution_beliefs[r * ROWS + c][f] == starter.institution_beliefs[r * ROWS + c][f]) {
@@ -1091,10 +1100,13 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 	/**
 	 * Compare the statistics of two instants of the cultural evolution
-	 *  
-	 * @param stats1 list of statistics of one state
-	 * @param stats2 list of statistics of another state
-	 * @param sims the results of the comparison
+	 * 
+	 * @param stats1
+	 *            list of statistics of one state
+	 * @param stats2
+	 *            list of statistics of another state
+	 * @param sims
+	 *            the results of the comparison
 	 */
 	private void compare_stats(List<CultureStatistics> stats1, List<CultureStatistics> stats2, double[] sims) {
 
@@ -1212,7 +1224,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Execute events if it is not running, otherwise add them to the list
 	 * 
-	 * @param events list of events that need to be executed
+	 * @param events
+	 *            list of events that need to be executed
 	 */
 	public void events(ArrayList<Event> events) {
 		if (playing) {
@@ -1244,62 +1257,96 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Remove partial information from an institution
 	 * 
-	 * @param r row of the institution (averaged over the agents that belongs to it)
-	 * @param c column of the institution (averaged over the agents that belongs to it)
-	 * @param prob probability of a trait of being deleted
+	 * @param r
+	 *            row of the institution (averaged over the agents that belongs
+	 *            to it)
+	 * @param c
+	 *            column of the institution (averaged over the agents that
+	 *            belongs to it)
+	 * @param prob
+	 *            probability of a trait of being deleted
 	 */
-	public void remove_partial_institution_content(int r, int c, double prob) {}
+	public void remove_partial_institution_content(int r, int c, double prob) {
+	}
 
 	/**
 	 * Remove complete information from an institution
 	 * 
-	 * @param r row of the institution (averaged over the agents that belongs to it)
-	 * @param c column of the institution (averaged over the agents that belongs to it)
+	 * @param r
+	 *            row of the institution (averaged over the agents that belongs
+	 *            to it)
+	 * @param c
+	 *            column of the institution (averaged over the agents that
+	 *            belongs to it)
 	 */
-	public void remove_full_institution_content(int r, int c) {}
+	public void remove_full_institution_content(int r, int c) {
+	}
 
 	/**
 	 * Quit to the institution the agent belongs to
 	 * 
-	 * @param r row of the individual
-	 * @param c column of the individual
+	 * @param r
+	 *            row of the individual
+	 * @param c
+	 *            column of the individual
 	 */
-	public void apostasy(int r, int c) {}
+	public void apostasy(int r, int c) {
+	}
 
 	/**
 	 * Convert an institution towards the invader TRAITS
 	 * 
-	 * @param r row of the institution (averaged over the agents that belongs to it)
-	 * @param c column of the institution (averaged over the agents that belongs to it)
+	 * @param r
+	 *            row of the institution (averaged over the agents that belongs
+	 *            to it)
+	 * @param c
+	 *            column of the institution (averaged over the agents that
+	 *            belongs to it)
 	 */
-	public void convert_full_institution(int r, int c) {}
+	public void convert_full_institution(int r, int c) {
+	}
 
 	/**
-	 * Convert some of the traits  towards the invader TRAITS
+	 * Convert some of the traits towards the invader TRAITS
 	 * 
-	 * @param r row of the institution (averaged over the agents that belongs to it)
-	 * @param c column of the institution (averaged over the agents that belongs to it)
-	 * @param prob probability of a trait of being converted
+	 * @param r
+	 *            row of the institution (averaged over the agents that belongs
+	 *            to it)
+	 * @param c
+	 *            column of the institution (averaged over the agents that
+	 *            belongs to it)
+	 * @param prob
+	 *            probability of a trait of being converted
 	 */
-	public void convert_partial_institution(int r, int c, double prob) {}
+	public void convert_partial_institution(int r, int c, double prob) {
+	}
 
 	/**
 	 * Destroy an institution, all agents become stateless
 	 * 
-	 * @param r row of the institution (averaged over the agents that belongs to it)
-	 * @param c column of the institution (averaged over the agents that belongs to it)
+	 * @param r
+	 *            row of the institution (averaged over the agents that belongs
+	 *            to it)
+	 * @param c
+	 *            column of the institution (averaged over the agents that
+	 *            belongs to it)
 	 */
-	public void destoy_institution(int r, int c) {}
+	public void destoy_institution(int r, int c) {
+	}
 
 	/**
-	 * Prepare elements before an invasion. Before the invasion, a free 
-	 * institution has to be taken as the representation of the invaders, 
-	 * so they can refer to it as they representative. In this case, it 
-	 * would be finding a free institution near the r, c coordinates.
+	 * Prepare elements before an invasion. Before the invasion, a free
+	 * institution has to be taken as the representation of the invaders, so
+	 * they can refer to it as they representative. In this case, it would be
+	 * finding a free institution near the r, c coordinates.
 	 * 
-	 * @param r row of the institution (averaged over the agents that belongs to it)
-	 * @param c column of the institution (averaged over the agents that belongs to it)
-	 * @return  the free institution that was found
+	 * @param r
+	 *            row of the institution (averaged over the agents that belongs
+	 *            to it)
+	 * @param c
+	 *            column of the institution (averaged over the agents that
+	 *            belongs to it)
+	 * @return the free institution that was found
 	 */
 	public int pre_invasion(int r, int c) {
 		return -999;
@@ -1307,9 +1354,11 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 	/**
 	 * Invade a cell, replace the individual in the cell with an invader
-	 *  
-	 * @param r row of the individual
-	 * @param c column of the individual
+	 * 
+	 * @param r
+	 *            row of the individual
+	 * @param c
+	 *            column of the individual
 	 */
 	public void invade(int r, int c, int nr, int nc) {
 		for (int f = 0; f < FEATURES; f++) {
@@ -1320,8 +1369,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Kill an individual in an specified cell
 	 * 
-	 * @param r row of the individual
-	 * @param c column of the individual
+	 * @param r
+	 *            row of the individual
+	 * @param c
+	 *            column of the individual
 	 */
 	public void kill_individual(int r, int c) {
 		this.casualties++;
@@ -1423,10 +1474,11 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Return a color according to a trait number and the posssible traits
 	 * 
-	 * @param t get a color for 
+	 * @param t
+	 *            get a color for
 	 * @return a String representing the color
 	 */
-	 protected String get_color_for_trait(int t) {
+	protected String get_color_for_trait(int t) {
 		String color = "0";
 		if (t == TRAITS) {
 			color = "f";
@@ -1441,9 +1493,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
-	 * Return the random generator. Don't change but use it in order to generate 
+	 * Return the random generator. Don't change but use it in order to generate
 	 * events related to the simulation, so it keeps a unique seed associated to
-	 * the simulation. 
+	 * the simulation.
 	 * 
 	 * @return the generator.
 	 */

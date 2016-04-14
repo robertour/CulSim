@@ -3,12 +3,12 @@ package simulator.control.events;
 import simulator.control.Simulation;
 
 /**
- * When a probabilistic distribution is used, this event convert some institutions 
- * traits towards foreigner traits using the probability that corresponds to the
- * institution. When a deterministic distribution is used, there is no difference
- * between this event and the ConvertInstitutions (all the traits are converted
- * towards the foreigner traits)  
- *  
+ * When a probabilistic distribution is used, this event convert some
+ * institutions traits towards foreigner traits using the probability that
+ * corresponds to the institution. When a deterministic distribution is used,
+ * there is no difference between this event and the ConvertInstitutions (all
+ * the traits are converted towards the foreigner traits)
+ * 
  * @author Roberto Ulloa
  * @version 1.0, April 2016
  */
