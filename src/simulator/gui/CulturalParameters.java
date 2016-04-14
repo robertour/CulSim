@@ -28,6 +28,7 @@ import javax.swing.border.TitledBorder;
 import simulator.CulturalSimulator;
 import simulator.control.Controller;
 import simulator.control.ControllerSingle;
+import simulator.control.Simulation;
 
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -481,7 +482,8 @@ public class CulturalParameters extends JDialog {
 								conf_dir.mkdirs();
 								jfc_load.setCurrentDirectory(conf_dir);
 							}
-							if (jfc_load.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
+							if (jfc_load.showSaveDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
+								// This will overwrite the controller in the simulation. 
 								if (CulturalSimulator.want_to_continue(jfc_load)) {
 									String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
 									controller.load_parameters_from_interface();
@@ -588,8 +590,21 @@ public class CulturalParameters extends JDialog {
 					findClasses(file, packageName + "." + file.getName());
 				} else if (file.getName().endsWith(".class")) {
 					String name = file.getName().substring(0, file.getName().length() - 6);
-					prettyNames.add(name + " (" + packageName + ")");
-					classes.add(Class.forName(packageName + '.' + name));
+					
+					Class<?> sim = Class.forName(packageName + '.' + name);
+					try {
+						Simulation simulation = (Simulation) sim.newInstance();
+						prettyNames.add(simulation.getModelDescription());
+						classes.add(sim);
+					} catch (InstantiationException e) {
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+							
+						
+					
+					
 				}
 			}
 		}

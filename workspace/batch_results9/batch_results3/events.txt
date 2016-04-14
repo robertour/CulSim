@@ -1,0 +1,7 @@
+The following events have been set up for the scenarios: 
+Convert traits: Event: Uniform: p=0.1
+Convert Institutions: Event: Uniform: p=0.1
+Partial Content: Event: Uniform: p=0.1
+Full Content: Event: Uniform: p=0.1
+Structure: Event: Uniform: p=0.1
+Iter(1000)

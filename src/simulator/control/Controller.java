@@ -19,7 +19,7 @@ public abstract class Controller {
 	/**
 	 * Workspace Directory
 	 */
-	public static String WORKSPACE_DIR = "./workspace/";
+	public static String WORKSPACE_DIR = "workspace/";
 
 	/**
 	 * Default directory containing saved disasters (combination of catastrophic

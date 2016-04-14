@@ -20,7 +20,7 @@ import simulator.control.events.Event;
 import simulator.gui.CulturalParameters;
 import simulator.gui.Notifiable;
 import simulator.gui.ParametersEventDialog;
-import simulator.worlds.Ulloa;
+import simulator.worlds.InstitutionsHomophily;
 
 /**
  * The controller of the simulations handles the simulation. It creates the
@@ -71,7 +71,7 @@ public class ControllerSingle extends Controller {
 		if (simulation != null) {
 			simulation.clean();
 		}
-		simulation = new Ulloa();
+		simulation = new InstitutionsHomophily();
 		is_saved = true;
 		CulturalSimulator.clean_informational_spaces();
 		if (simulation.iteration > 0) {
@@ -222,9 +222,7 @@ public class ControllerSingle extends Controller {
 	 * Restore the parameters of the simulation to the interface
 	 */
 	public void restore_parameters_to_interface() {
-		String the_class = simulation.getClass().getSimpleName() + " (" + simulation.getClass().getPackage().getName()
-				+ ")";
-		CulturalParameters.classSelector.setSelectedItem(the_class);
+		CulturalParameters.classSelector.setSelectedItem(simulation.getModelDescription());
 		CulturalParameters.cb_random_initialization.setSelected(simulation.RANDOM_INITIALIZATION);
 		CulturalParameters.sp_iterations.setValue(simulation.ITERATIONS);
 		CulturalParameters.sp_checkpoints.setValue(simulation.CHECKPOINT);

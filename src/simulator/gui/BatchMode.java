@@ -18,8 +18,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
@@ -128,16 +126,6 @@ public class BatchMode extends JDialog implements Notifiable {
 			}
 		});
 
-		addComponentListener(new ComponentAdapter() {
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-				System.out.println("this component has been shown");
-				jfc_scenarios.setCurrentDirectory(new File(Controller.WORKSPACE_DIR));
-				tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath() + "\\");
-			}
-
-		});
 
 		setBounds(100, 100, 618, 551);
 		contentPane = new JPanel();
@@ -226,6 +214,7 @@ public class BatchMode extends JDialog implements Notifiable {
 					jfc_configurations.setCurrentDirectory(conf_dir);
 				}
 				jfc_configurations.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				jfc_configurations.setSelectedFile(conf_dir.getAbsoluteFile());
 				if (jfc_configurations.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					File[] directoryListing = jfc_configurations.getSelectedFile().listFiles();
 					if (directoryListing != null) {
@@ -313,7 +302,7 @@ public class BatchMode extends JDialog implements Notifiable {
 					String dis_file = jfc_disasters.getSelectedFile().getAbsolutePath();
 					try {
 						ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(dis_file));
-						events = (ArrayList<Event>) inFile.readObject();
+						events.addAll((ArrayList<Event>) inFile.readObject());
 						inFile.close();
 						update_event_set();
 					} catch (FileNotFoundException e1) {

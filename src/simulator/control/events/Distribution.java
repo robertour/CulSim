@@ -388,7 +388,7 @@ public class Distribution implements Serializable {
 		} else if (getType() == NORMAL) {
 			r += "Normal: C=" + getRow_ratio() + "," + getCol_ratio() + " SD=" + getSd();
 		} else if (getType() == NEUMANN) {
-			r += "Newmann: C=" + getRow_ratio() + "," + getCol_ratio() + " R=" + getRadius();
+			r += "Neumann: C=" + getRow_ratio() + "," + getCol_ratio() + " R=" + getRadius();
 		} else if (getType() == RECTANGULAR) {
 			r += "Rect: p1=" + getRow_ratio() + "," + getCol_ratio() + " p2=" + getRow2_ratio() + "," + getCol2_ratio();
 		}
@@ -464,7 +464,7 @@ public class Distribution implements Serializable {
 		case 'W':
 			if (params.length != 4) {
 				throw new IllegalArgumentException(
-						"Newmann's distribution accepts exactly 3 parameters after the 'W' in " + s);
+						"Neumann's distribution accepts exactly 3 parameters after the 'W' in " + s);
 			}
 			return new Distribution(Double.parseDouble(params[1]), Double.parseDouble(params[2]),
 					Integer.parseInt(params[3]));

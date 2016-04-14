@@ -14,13 +14,14 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 import simulator.control.events.Event;
 import simulator.gui.Notifiable;
-import simulator.worlds.Axelrod;
-import simulator.worlds.Flache;
-import simulator.worlds.Flache2;
-import simulator.worlds.Ulloa;
+import simulator.worlds.Homophily;
+import simulator.worlds.MultilateralHomophily;
+import simulator.worlds.Multilateral;
+import simulator.worlds.InstitutionsHomophily;
 
 /**
  * The controller of the simulations handles the simulations and run them in
@@ -75,10 +76,14 @@ public class ControllerBatch extends Controller {
 	private Simulation load_simulation(String simfile)
 			throws FileNotFoundException, IOException, ClassNotFoundException {
 		Simulation s = null;
-		ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(simfile));
-		s = (Simulation) inFile.readObject();
+		
+		FileInputStream fis = new FileInputStream(simfile);
+		GZIPInputStream gis = new GZIPInputStream(fis);
+		ObjectInputStream ois = new ObjectInputStream(gis);
+		
+		s = (Simulation) ois.readObject();
 		s.log = log;
-		inFile.close();
+		ois.close();
 		return s;
 	}
 
@@ -106,9 +111,9 @@ public class ControllerBatch extends Controller {
 		}
 
 		for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
-			String string = (String) iterator.next();
+			String simstate_file = (String) iterator.next();
 			for (int j = 0; j < repetitions; j++) {
-				Simulation s = this.load_simulation(string);
+				Simulation s = this.load_simulation(simstate_file);
 				if (events != null) {
 					s.events(events);
 				}
@@ -152,20 +157,15 @@ public class ControllerBatch extends Controller {
 			if (repetitions > 0) {
 				Simulation simulation = null;
 				String type = scanner.next();
-				switch (type) {
-				case "Flache":
-					simulation = new Flache();
-					break;
-				case "Ulloa":
-					simulation = new Ulloa();
-					break;
-				case "FLACHE1":
-					simulation = new Axelrod();
-					break;
-				case "FLACHE2":
-					simulation = new Flache2();
-					break;
-				}
+				if (type.equals(MultilateralHomophily.class.getSimpleName()))
+					simulation = new MultilateralHomophily();
+				if (type.equals(InstitutionsHomophily.class.getSimpleName()))
+					simulation = new InstitutionsHomophily();
+				if (type.equals(Homophily.class.getSimpleName()))
+					simulation = new Homophily();
+				if (type.equals(Multilateral.class.getSimpleName()))
+					simulation = new Multilateral();
+					
 				simulation.RANDOM_INITIALIZATION = Boolean.parseBoolean(scanner.next());
 				simulation.ITERATIONS = Integer.parseInt(scanner.next());
 				simulation.CHECKPOINT = Integer.parseInt(scanner.next());

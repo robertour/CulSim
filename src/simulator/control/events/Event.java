@@ -19,7 +19,7 @@ public abstract class Event implements Serializable {
 
 	/**
 	 * This represents the distribution of the event in the grid, it could be a
-	 * deterministic distribution (e.g. a Newmann's neighborhood) or a
+	 * deterministic distribution (e.g. a Neumann's neighborhood) or a
 	 * probilistic distribution (e.g. uniform distribution, in which an event
 	 * could occur with equal probability in each cell)
 	 */
@@ -30,7 +30,7 @@ public abstract class Event implements Serializable {
 	 * 
 	 * @param d
 	 *            represents the distribution of the event in the grid, it could
-	 *            be a deterministic distribution (e.g. a Newmann's
+	 *            be a deterministic distribution (e.g. a Neumann's
 	 *            neighborhood) or a probilistic distribution (e.g. uniform
 	 *            distribution, in which an event could occur with equal
 	 *            probability in each cell)
@@ -55,7 +55,7 @@ public abstract class Event implements Serializable {
 			normal_event(distribution.getDiagonalNormalDistribution(s), distribution.getRow(s), distribution.getCol(s),
 					s);
 		} else if (distribution.getType() == Distribution.NEUMANN) {
-			newman_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadius(), s);
+			neumann_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadius(), s);
 		} else if (distribution.getType() == Distribution.RECTANGULAR) {
 			rectangular_event(distribution.getRow(s), distribution.getCol(s), distribution.getRow2(s),
 					distribution.getCol2(s), s);
@@ -110,7 +110,7 @@ public abstract class Event implements Serializable {
 	}
 
 	/**
-	 * The event is distributed in a Newmann's neighborhood which radious is
+	 * The event is distributed in a Neumann's neighborhood which radious is
 	 * specified by the parameter radious. The distribution is centered in r, c.
 	 * 
 	 * @param r
@@ -118,11 +118,11 @@ public abstract class Event implements Serializable {
 	 * @param c
 	 *            the column in which this distribution will be centered
 	 * @param radius
-	 *            the radious of the Newmann's neighborhood
+	 *            the radious of the Neumann's neighborhood
 	 * @param s
 	 *            the simulation in which the event occurs
 	 */
-	private void newman_event(int r, int c, int radius, Simulation s) {
+	private void neumann_event(int r, int c, int radius, Simulation s) {
 
 		trigger(r, c, 1.0, s);
 
@@ -240,7 +240,7 @@ public abstract class Event implements Serializable {
 					+ ". Options are DP (Partial Destruction), DF (Full Destruction), DS (Structural Destruction)."
 					+ "CP (Partial Conversion), CF (Full Conversion), I (Invasion) and G (Genocide), followed by "
 					+ "a distribution: e.g G(U, 0.1), genocided in which all agents have a probability of dying "
-					+ "of 0.1, I(W,0.5,0.5,6), invasion in which all agents in a Newmann's radious of 6 from the "
+					+ "of 0.1, I(W,0.5,0.5,6), invasion in which all agents in a Neumann's radious of 6 from the "
 					+ "center (0.5*ROWS, 0.5*COLS) will be the invadors, or CP(N,-1,-1,0.2), partial conversion "
 					+ "in which the probability of the institutional trais being converted is distributed normally "
 					+ "from a randomly selected center (-1,-1) which has probility of 1.0.");

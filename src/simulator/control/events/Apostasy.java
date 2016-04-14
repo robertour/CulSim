@@ -19,7 +19,7 @@ public class Apostasy extends Event {
 	 * 
 	 * @param d
 	 *            represents the distribution of the event in the grid, it could
-	 *            be a deterministic distribution (e.g. a Newmann's
+	 *            be a deterministic distribution (e.g. a Neumann's
 	 *            neighborhood) or a probilistic distribution (e.g. uniform
 	 *            distribution, in which an event could occur with equal
 	 *            probability in each cell)

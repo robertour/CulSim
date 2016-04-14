@@ -246,13 +246,13 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			world_dir.mkdirs();
 		}
 		jfc_simulation_state.setCurrentDirectory(world_dir);
-		mntmSafeWorldState = new JMenuItem("Safe Simualtion State");
+		mntmSafeWorldState = new JMenuItem("Save Simulation State");
 		mntmSafeWorldState.setToolTipText("Save the current state of the simulation");
 		mntmSafeWorldState
 				.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/document-save.png")));
 		mntmSafeWorldState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (jfc_simulation_state.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
+				if (jfc_simulation_state.showSaveDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					if (want_to_continue(jfc_simulation_state)) {
 						String conf_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
 						controller.save_simulation(conf_file);
@@ -270,9 +270,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_simulation_state.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					if (want_to_continue(jfc_simulation_state)) {
-						String conf_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
+						String simstate_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
 						try {
-							controller.load_simulation(conf_file);
+							controller.load_simulation(simstate_file);
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
@@ -811,7 +811,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 					eve_dir.mkdirs();
 					jfc_events.setCurrentDirectory(eve_dir);
 				}
-				if (jfc_events.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
+				if (jfc_events.showSaveDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
 					String dis_file = jfc_events.getSelectedFile().getAbsolutePath();
 					try {
 						ObjectOutputStream write = new ObjectOutputStream(new FileOutputStream(dis_file));
