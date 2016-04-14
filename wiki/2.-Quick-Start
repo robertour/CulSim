@@ -9,7 +9,9 @@ If agents constantly transmit the information to each other, do they end sharing
 
 The Cultural Simulator no only including many of those parameters, but also different versions of the models, i.e. rulesets, proposed by different authors: Axelrod (1997), Flache (2011), Ulloa (2016). It includes elements such as random changes in the cultural vectors (**mutation**), errors in the selection of similar agents (**selection error**), simultaneous  influence by several agents (**multilateral social influence**), and a second layer of information that serves as central repositories for group of agents (**institutions**) and that are able to influence them indirectly by preventing social influence (**institutional influence**) or directly by top-down and bottom-up process (**propaganda** and **democracy**).
 
-Finally, the Cultural Simulator
+Finally, the Cultural Simulator includes mechanisms to explore the resilience of convergence states (e.g. a cultural diverse state) that are called events. This events introduced (1) changes to the initial parameters of the simulation, or (2) dramatic situations that changes the the content of the agents and institutions. For example, a **genocide event** can kill a percentage of the population, or a **conversion event**can introduce foreigners traits to the institutions.
+
+Continue with the Quick Start and start trying your parameters!
 
 
 Hey! I'm your first Markdown document in **StackEdit**[^stackedit]. Don't delete me, I'm very helpful! I can be recovered anyway in the **Utils** tab of the <i class="icon-cog"></i> **Settings** dialog.
