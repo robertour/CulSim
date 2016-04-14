@@ -1,3 +1,0 @@
-The following events have been set up for the scenarios: 
-Genocide: Event: Normal: C=0.5,0.5 SD=0.2
-Iter(1000)
