@@ -504,7 +504,9 @@ public class CulturalParameters extends JDialog {
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						if (CulturalSimulator.want_to_continue(CulturalParameters.this)) {
-							Controller.WORKSPACE_DIR = jfc_workspace.getSelectedFile().getAbsolutePath() + "\\";
+							if (jfc_workspace.getSelectedFile() != null){
+								Controller.WORKSPACE_DIR = jfc_workspace.getSelectedFile().getAbsolutePath() + "\\";
+							}
 							controller.load_parameters_from_interface();
 							CulturalParameters.this.setVisible(false);
 						}

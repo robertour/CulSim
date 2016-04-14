@@ -47,9 +47,9 @@ public class GraphPanel extends JPanel {
 	 * The lists that keeps the values of the progression for the response
 	 * variables
 	 */
-	public ArrayList<Double> scores;
-	public ArrayList<Double> scores2;
-	public ArrayList<Double> scores3;
+	protected ArrayList<Double> scores;
+	protected ArrayList<Double> scores2;
+	protected ArrayList<Double> scores3;
 
 	/**
 	 * A test constructor that has the lists for the 3 response variables
@@ -213,7 +213,7 @@ public class GraphPanel extends JPanel {
 	 * @param minScore
 	 *            the minimum score to be set
 	 */
-	public void setMinScore(int minScore) {
+	private void setMinScore(int minScore) {
 		this.minScore = minScore;
 	}
 
@@ -239,14 +239,14 @@ public class GraphPanel extends JPanel {
 	 * @param minScore
 	 *            the minimum score to be set
 	 */
-	public void setMaxScore(int maxScore) {
+	private void setMaxScore(int maxScore) {
 		this.maxScore = maxScore;
 	}
 
 	/**
 	 * Update the interface
 	 */
-	public void update() {
+	protected void update() {
 		invalidate();
 		this.repaint();
 	}

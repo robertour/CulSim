@@ -11,6 +11,7 @@ import javax.swing.text.DefaultCaret;
 
 import simulator.control.Controller;
 import simulator.control.ControllerSingle;
+import simulator.control.Simulation;
 import simulator.control.events.Apostasy;
 import simulator.control.events.ConvertInstitutions;
 import simulator.control.events.ConvertTraits;
@@ -22,7 +23,7 @@ import simulator.gui.CulturalParameters;
 import simulator.gui.DistributionDoubleDialog;
 import simulator.gui.DistributionSingleDialog;
 import simulator.gui.EventPanel;
-import simulator.gui.GraphPanel;
+import simulator.gui.GraphLabeledPanel;
 import simulator.gui.Notifiable;
 import simulator.gui.OutputArea;
 import simulator.gui.ParametersEventDialog;
@@ -164,28 +165,6 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	public static JLabel l_current_identification;
 
 	/**
-	 * These are the graph panels on the right
-	 */
-	public static GraphPanel graphCultures;
-	public static GraphPanel graphInstitutions;
-	public static GraphPanel graphNeumann;
-	public static GraphPanel graphEnergy;
-	public static GraphPanel graphNeumannSimilarity;
-	public static GraphPanel graphCultureSimilarity;
-	public static GraphPanel graphPixels;
-
-	/**
-	 * This are labels that can be updated from the controller
-	 */
-	public static JLabel lblEnergy;
-	public static JLabel lblCultures;
-	public static JLabel lblNeumann;
-	public static JLabel lblInstitutions;
-	public static JLabel lblNeumannSimilarity;
-	public static JLabel lblPixels;
-	public static JLabel lblCultureSimilarity;
-
-	/**
 	 * This defines the easy speed configuration
 	 */
 	private static JLabel lblSpeedValue;
@@ -197,6 +176,17 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	public static ControllerSingle controller;
 	private ArrayList<Event> events = new ArrayList<Event>();
 	private static int speed;
+	
+	/**
+	 * These are the graph panels on the right
+	 */
+	public static GraphLabeledPanel energyPanel;
+	public static GraphLabeledPanel culturesPanel;
+	public static GraphLabeledPanel neumannPanel;
+	public static GraphLabeledPanel cultureSimilarityPanel;
+	public static GraphLabeledPanel neumannSimilarityPanel;
+	public static GraphLabeledPanel institutionsPanel;
+	public static GraphLabeledPanel pixelPanel;
 
 	/**
 	 * This the event that launches the application
@@ -389,165 +379,33 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		JPanel panelGraphControls = new JPanel();
 		panelGraphs.add(panelGraphControls);
 
-		JPanel energyPanel = new JPanel();
+		energyPanel = new GraphLabeledPanel("Energy");
 		panelGraphs.add(energyPanel);
-		energyPanel.setLayout(new BorderLayout(0, 0));
-
-		JPanel panelEnergyLabels = new JPanel();
-		energyPanel.add(panelEnergyLabels, BorderLayout.NORTH);
-		panelEnergyLabels.setLayout(new BorderLayout(0, 0));
-
-		JLabel lblEnergyTitle = new JLabel("Energy:");
-		lblEnergyTitle.setToolTipText(
-				"Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		panelEnergyLabels.add(lblEnergyTitle, BorderLayout.WEST);
-		lblEnergyTitle.setHorizontalAlignment(SwingConstants.LEFT);
-
-		lblEnergy = new JLabel("");
-		lblEnergy.setForeground(SystemColor.textHighlight);
-		lblEnergy.setToolTipText(
-				"Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		panelEnergyLabels.add(lblEnergy, BorderLayout.EAST);
-
-		graphEnergy = new GraphPanel();
-		energyPanel.add(graphEnergy, BorderLayout.CENTER);
-
-		JPanel culturesPanel = new JPanel();
+		energyPanel.setCounterLabels("Energy","","");
+		
+		culturesPanel = new GraphLabeledPanel("Cultures");
 		panelGraphs.add(culturesPanel);
-		culturesPanel.setLayout(new BorderLayout(0, 0));
-
-		graphCultures = new GraphPanel();
-		culturesPanel.add(graphCultures, BorderLayout.CENTER);
-
-		JPanel panelCulturesLabels = new JPanel();
-		culturesPanel.add(panelCulturesLabels, BorderLayout.NORTH);
-		panelCulturesLabels.setLayout(new BorderLayout(0, 0));
-
-		JLabel lblCulturesTitle = new JLabel("Cultures:");
-		lblCulturesTitle.setToolTipText(
-				"Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of immediate neighbors.");
-		panelCulturesLabels.add(lblCulturesTitle, BorderLayout.WEST);
-
-		lblCultures = new JLabel("");
-		lblCultures.setBorder(null);
-		lblCultures.setForeground(SystemColor.textHighlight);
-		lblCultures.setToolTipText(
-				"Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of immediate neighbors.");
-		panelCulturesLabels.add(lblCultures, BorderLayout.EAST);
-
-		JPanel neumannPanel = new JPanel();
+		culturesPanel.setCounterLabels("Cultures","Biggest culture","Similarity");
+		
+		neumannPanel = new GraphLabeledPanel("Neumann's");
 		panelGraphs.add(neumannPanel);
-		neumannPanel.setLayout(new BorderLayout(0, 0));
+		neumannPanel.setCounterLabels("Neumann's cultures","Neumann's biggest culture","Neumann's similarity");
 
-		JPanel panelNeumannLabels = new JPanel();
-		neumannPanel.add(panelNeumannLabels, BorderLayout.NORTH);
-		panelNeumannLabels.setLayout(new BorderLayout(0, 0));
-
-		JLabel lblNeumannTitle = new JLabel("Newmann's:");
-		lblNeumannTitle.setToolTipText(
-				"Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
-		panelNeumannLabels.add(lblNeumannTitle, BorderLayout.WEST);
-		lblNeumannTitle.setHorizontalAlignment(SwingConstants.LEFT);
-
-		lblNeumann = new JLabel("");
-		lblNeumann.setForeground(SystemColor.textHighlight);
-		lblNeumann.setToolTipText(
-				"Blue line (left number) is the number of cultures, and red line (right number) the size of the biggest culture. The cultures are defined through the scope of the neighborhood radius.");
-		panelNeumannLabels.add(lblNeumann, BorderLayout.EAST);
-
-		graphNeumann = new GraphPanel();
-		neumannPanel.add(graphNeumann, BorderLayout.CENTER);
-
-		JPanel cultureSimilarityPanel = new JPanel();
+		cultureSimilarityPanel = new GraphLabeledPanel("Culture's Sim");
 		panelGraphs.add(cultureSimilarityPanel);
-		cultureSimilarityPanel.setLayout(new BorderLayout(0, 0));
+		cultureSimilarityPanel.setCounterLabels("Position similarity","Size similarity","Beliefs similarity");
 
-		graphCultureSimilarity = new GraphPanel();
-		cultureSimilarityPanel.add(graphCultureSimilarity, BorderLayout.CENTER);
-
-		JPanel panelCultureSimilarityLabels = new JPanel();
-		cultureSimilarityPanel.add(panelCultureSimilarityLabels, BorderLayout.NORTH);
-		panelCultureSimilarityLabels.setLayout(new BorderLayout(0, 0));
-
-		JLabel lblCultureSimilarityTitle = new JLabel("Culture's Sim:");
-		lblCultureSimilarityTitle.setToolTipText(
-				"Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		lblCultureSimilarityTitle.setHorizontalAlignment(SwingConstants.LEFT);
-		panelCultureSimilarityLabels.add(lblCultureSimilarityTitle, BorderLayout.WEST);
-
-		lblCultureSimilarity = new JLabel("");
-		lblCultureSimilarity.setToolTipText(
-				"Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		lblCultureSimilarity.setForeground(SystemColor.textHighlight);
-		panelCultureSimilarityLabels.add(lblCultureSimilarity, BorderLayout.EAST);
-
-		JPanel neumannSimilarityPanel = new JPanel();
+		neumannSimilarityPanel = new GraphLabeledPanel("Neumann's Sim");
 		panelGraphs.add(neumannSimilarityPanel);
-		neumannSimilarityPanel.setPreferredSize(new Dimension(10, 160));
-		neumannSimilarityPanel.setLayout(new BorderLayout(0, 0));
-
-		JPanel panelNeumannSimilarityLabels = new JPanel();
-		neumannSimilarityPanel.add(panelNeumannSimilarityLabels, BorderLayout.NORTH);
-		panelNeumannSimilarityLabels.setLayout(new BorderLayout(0, 0));
-
-		JLabel lblNeumannSimilarityTitle = new JLabel("Newmann's Sim:");
-		lblNeumannSimilarityTitle.setToolTipText(
-				"Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		lblNeumannSimilarityTitle.setHorizontalAlignment(SwingConstants.LEFT);
-		panelNeumannSimilarityLabels.add(lblNeumannSimilarityTitle, BorderLayout.WEST);
-
-		lblNeumannSimilarity = new JLabel("");
-		lblNeumannSimilarity.setForeground(SystemColor.textHighlight);
-		lblNeumannSimilarity.setToolTipText(
-				"Blue line (left number) is the energy of the system, and red line (right number) is the dispersion of the foreign trait.");
-		panelNeumannSimilarityLabels.add(lblNeumannSimilarity, BorderLayout.EAST);
-
-		graphNeumannSimilarity = new GraphPanel();
-		neumannSimilarityPanel.add(graphNeumannSimilarity, BorderLayout.CENTER);
-
-		JPanel institutionsPanel = new JPanel();
+		neumannSimilarityPanel.setCounterLabels("Neumann's position similarity","Neumann's size similarity","Neumann's beliefs similarity");
+		
+		institutionsPanel = new GraphLabeledPanel("Institutions");
 		panelGraphs.add(institutionsPanel);
-		institutionsPanel.setLayout(new BorderLayout(0, 0));
+		institutionsPanel.setCounterLabels("Total", "Biggest", "Institution's similarity");
 
-		graphInstitutions = new GraphPanel();
-		institutionsPanel.add(graphInstitutions, BorderLayout.CENTER);
-
-		JPanel panelInstitutionsLabels = new JPanel();
-		institutionsPanel.add(panelInstitutionsLabels, BorderLayout.NORTH);
-		panelInstitutionsLabels.setLayout(new BorderLayout(0, 0));
-
-		JLabel lblInstitutionsTitle = new JLabel("Institutions:");
-		lblInstitutionsTitle.setToolTipText(
-				"Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
-		panelInstitutionsLabels.add(lblInstitutionsTitle, BorderLayout.WEST);
-
-		lblInstitutions = new JLabel("");
-		lblInstitutions.setForeground(SystemColor.textHighlight);
-		lblInstitutions.setToolTipText(
-				"Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
-		panelInstitutionsLabels.add(lblInstitutions, BorderLayout.EAST);
-
-		JPanel pixelPanel = new JPanel();
+		pixelPanel = new GraphLabeledPanel("Pixels");
 		panelGraphs.add(pixelPanel);
-		pixelPanel.setLayout(new BorderLayout(0, 0));
-
-		JPanel panelPixelsLabels = new JPanel();
-		pixelPanel.add(panelPixelsLabels, BorderLayout.NORTH);
-		panelPixelsLabels.setLayout(new BorderLayout(0, 0));
-
-		JLabel lblPixelsTitle = new JLabel("Pixels:");
-		panelPixelsLabels.add(lblPixelsTitle, BorderLayout.WEST);
-		lblPixelsTitle.setToolTipText(
-				"Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
-
-		lblPixels = new JLabel("");
-		lblPixels.setToolTipText(
-				"Blue line (left number) is the number of instititutions, and red line (right number) the size of the biggest institution");
-		lblPixels.setForeground(SystemColor.textHighlight);
-		panelPixelsLabels.add(lblPixels, BorderLayout.EAST);
-
-		graphPixels = new GraphPanel();
-		pixelPanel.add(graphPixels, BorderLayout.CENTER);
+		pixelPanel.setCounterLabels("Alife traits", "Foreign traits", "Pixel similarity");
 
 		JSplitPane splitSideVsRest = new JSplitPane();
 		splitRestVSGraphs.setLeftComponent(splitSideVsRest);
@@ -1031,11 +889,13 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		statusBarPanel.setLayout(new GridLayout(2, 1, 0, 0));
 
 		l_start_identification = new JLabel("S:");
+		l_start_identification.setToolTipText("<html><p width=\"900\">"+Simulation.get_identification_description()+"</p></html>");
 		l_start_identification.setForeground(SystemColor.textHighlight);
 		l_start_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		statusBarPanel.add(l_start_identification);
 
 		l_current_identification = new JLabel("C:");
+		l_current_identification.setToolTipText("<html><p width=\"900\">"+Simulation.get_identification_description()+"</p></html>");
 		l_current_identification.setForeground(SystemColor.textHighlight);
 		l_current_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		statusBarPanel.add(l_current_identification);
@@ -1111,13 +971,14 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		institutional_beliefs_association.setIcon(null);
 		alife_institutional_beliefs_space.setIcon(null);
 		alife_institutions.setIcon(null);
-		graphCultures.clean();
-		graphInstitutions.clean();
-		graphNeumann.clean();
-		graphEnergy.clean();
-		graphNeumannSimilarity.clean();
-		graphCultureSimilarity.clean();
-		graphPixels.clean();
+		
+		energyPanel.clean();
+		culturesPanel.clean();
+		institutionsPanel.clean();
+		neumannPanel.clean();		
+		neumannSimilarityPanel.clean();
+		cultureSimilarityPanel.clean();
+		pixelPanel.clean();
 	}
 
 	/**
@@ -1227,25 +1088,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		public void actionPerformed(ActionEvent arg0) {
 
 			if (tglbtnStop.isEnabled() && mntmStop.isEnabled()) {
-
-				tglbtnPlay.setEnabled(true);
-				tglbtnPlay.setSelected(false);
-				mntmPlay.setEnabled(true);
-				tglbtnPause.setEnabled(false);
-				mntmPause.setEnabled(false);
-				tglbtnStop.setEnabled(false);
-				mntmStop.setEnabled(false);
-				btnClear.setEnabled(true);
-				mntmClear.setEnabled(true);
-				btnReload.setEnabled(true);
-				mntmReload.setEnabled(true);
-				btnSave.setEnabled(true);
-				mntmSave.setEnabled(true);
-
-				mntmSafeWorldState.setEnabled(true);
-				mntmLoadSimulationState.setEnabled(true);
-				mnSimulation.setEnabled(true);
-
+				setStopState();
 				controller.cancel();
 			}
 
@@ -1354,7 +1197,31 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	@Override
 	public void update() {
 		if (tglbtnStop.isEnabled() && mntmStop.isEnabled()) {
-			tglbtnStop.doClick();
+			tglbtnStop.setSelected(true);
+			setStopState();
 		}
+	}
+
+	/**
+	 * Set the state of the buttons of the interface to an stop state
+	 */
+	private void setStopState() {
+		tglbtnPlay.setEnabled(true);
+		tglbtnPlay.setSelected(false);
+		mntmPlay.setEnabled(true);
+		tglbtnPause.setEnabled(false);
+		mntmPause.setEnabled(false);
+		tglbtnStop.setEnabled(false);
+		mntmStop.setEnabled(false);
+		btnClear.setEnabled(true);
+		mntmClear.setEnabled(true);
+		btnReload.setEnabled(true);
+		mntmReload.setEnabled(true);
+		btnSave.setEnabled(true);
+		mntmSave.setEnabled(true);
+
+		mntmSafeWorldState.setEnabled(true);
+		mntmLoadSimulationState.setEnabled(true);
+		mnSimulation.setEnabled(true);
 	}
 }

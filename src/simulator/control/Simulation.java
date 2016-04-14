@@ -203,7 +203,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Number of members of the biggest Newmann cluster
 	 */
-	protected int biggest_newmann_cluster = 0;
+	protected int biggest_neumann_cluster = 0;
 	/**
 	 * Number of Newmann clusters
 	 */
@@ -277,7 +277,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Newmann's culture similarity with the initial state
 	 */
-	private double[] newmann_similarity = new double[4];
+	private double[] neumann_similarity = new double[4];
 	/**
 	 * Culture similarity with the initial state
 	 */
@@ -851,8 +851,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ MUTATION + "," + SELECTION_ERROR + "," + epoch + "," + generation + "," + iteration + "," + energy
 				+ "," + cultureN + "," + biggest_cluster + "," + culture_similarity[FULL_SIM] + ","
 				+ culture_similarity[POS_SIM] + "," + culture_similarity[SIZ_SIM] + "," + culture_similarity[BEL_SIM]
-				+ "," + culture_newmannN + "," + biggest_newmann_cluster + "," + newmann_similarity[FULL_SIM] + ","
-				+ newmann_similarity[POS_SIM] + "," + newmann_similarity[SIZ_SIM] + "," + newmann_similarity[BEL_SIM]
+				+ "," + culture_newmannN + "," + biggest_neumann_cluster + "," + neumann_similarity[FULL_SIM] + ","
+				+ neumann_similarity[POS_SIM] + "," + neumann_similarity[SIZ_SIM] + "," + neumann_similarity[BEL_SIM]
 				+ "," + alife_institutions + "," + biggest_institution + "," + pixel_institution_similarity + ","
 				+ alife_traits + "," + foreiners_traits + "," + pixel_similarity + "," + destoyed_institutions + ","
 				+ stateless + "," + apostates + "," + removed_institutions + "," + removed_traits + ","
@@ -872,13 +872,40 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ biggest_cluster + "/" + String.format("%.1g", culture_similarity[FULL_SIM]) + "="
 				+ String.format("%.1g", culture_similarity[POS_SIM]) + "*"
 				+ String.format("%.1g", culture_similarity[SIZ_SIM]) + "*"
-				+ String.format("%.1g", culture_similarity[BEL_SIM]) + " | " + "Newmann's: " + culture_newmannN + "/"
-				+ biggest_newmann_cluster + "/" + String.format("%.1g", newmann_similarity[FULL_SIM]) + "="
-				+ String.format("%.1g", newmann_similarity[POS_SIM]) + "*"
-				+ String.format("%.1g", newmann_similarity[SIZ_SIM]) + "*"
-				+ String.format("%.1g", newmann_similarity[BEL_SIM]) + " | " + "Inst: " + alife_institutions + "/"
-				+ biggest_institution + "/" + pixel_institution_similarity + " | " + "Pixel: " + foreiners_traits + "/"
+				+ String.format("%.1g", culture_similarity[BEL_SIM]) + " | " 
+				+ "Neumann's: " + culture_newmannN + "/"
+				+ biggest_neumann_cluster + "/" + String.format("%.1g", neumann_similarity[FULL_SIM]) + "="
+				+ String.format("%.1g", neumann_similarity[POS_SIM]) + "*"
+				+ String.format("%.1g", neumann_similarity[SIZ_SIM]) + "*"
+				+ String.format("%.1g", neumann_similarity[BEL_SIM]) + " | " 
+				+ "Inst: " + alife_institutions + "/"
+				+ biggest_institution + "/" + pixel_institution_similarity + " | " 
+				+ "Pixel: " + foreiners_traits + "/"
 				+ alife_institutions + "/" + pixel_similarity + ")";
+	}
+	
+	/**
+	 * Generates a description for the identification of the system (used in the tooltiptext)
+	 * 
+	 * @return an identification of the system
+	 */
+	public static String get_identification_description() {
+		return "Based model(Random(R) or Static (S)) RowsxColumns(Radius): "
+				+ "Features/Traits:F/T | Mutation/Sel. Error:M/S | "
+				+ "Inst. Influence/Agent Loyalty:a/a\' | Democracy/Propaganda:D/P @ Epoch" 
+				+ "|Generation (Energy: E | Cultures: total/"
+				+ "biggest/similarity="
+				+ "position similarity*"
+				+ "size similarity*"
+				+ "beliefs similarity | " 
+				+ "Newmann's: total/"
+				+ "biggest/similarity="
+				+ "position similarity*"
+				+ "size similarity*"
+				+ "beliefs similarity | " 
+				+ "Institutions: total/"
+				+ "biggest/pixel_institution_similarity | " 
+				+ "Pixel: foreigners/alife/similarity)";
 	}
 
 	/**
@@ -971,7 +998,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * radius and calculate some cluster statistics
 	 */
 	private void calculate_newmann_stats() {
-		biggest_newmann_cluster = 0;
+		biggest_neumann_cluster = 0;
 		culture_newmannN = 0;
 		CultureStatistics cs = null;
 		newmann_stats.clear();
@@ -985,8 +1012,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 					ave_col = 0;
 
 					calculate_newmann_stats_rec(r, c);
-					if (cluster_size > biggest_newmann_cluster) {
-						biggest_newmann_cluster = cluster_size;
+					if (cluster_size > biggest_neumann_cluster) {
+						biggest_neumann_cluster = cluster_size;
 					}
 
 					if (cluster_size > 2) {
@@ -1093,7 +1120,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			}
 		}
 
-		compare_stats(newmann_stats, starter.newmann_stats, newmann_similarity);
+		compare_stats(newmann_stats, starter.newmann_stats, neumann_similarity);
 		compare_stats(culture_stats, starter.culture_stats, culture_similarity);
 
 	}
@@ -1397,56 +1424,20 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * Update the graphs of the interface
 	 */
 	private void update_culture_graphs() {
-
 		int total_features = TOTAL_AGENTS * FEATURES;
-		CulturalSimulator.graphEnergy.scores.add((double) energy / total_features);
-		CulturalSimulator.lblEnergy.setText(energy + "");
-		CulturalSimulator.graphEnergy.update();
-
-		CulturalSimulator.graphCultures.scores.add((double) cultureN / TOTAL_AGENTS);
-		CulturalSimulator.graphCultures.scores2.add((double) biggest_cluster / TOTAL_AGENTS);
-		CulturalSimulator.graphCultures.scores3.add(culture_similarity[FULL_SIM]);
-		CulturalSimulator.lblCultures
-				.setText(cultureN + "/" + biggest_cluster + "/" + String.format("%.2g", culture_similarity[FULL_SIM]));
-		CulturalSimulator.graphCultures.update();
-
-		CulturalSimulator.graphNeumann.scores.add((double) culture_newmannN / TOTAL_AGENTS);
-		CulturalSimulator.graphNeumann.scores2.add((double) biggest_newmann_cluster / TOTAL_AGENTS);
-		CulturalSimulator.graphNeumann.scores3.add(newmann_similarity[FULL_SIM]);
-		CulturalSimulator.lblNeumann.setText(culture_newmannN + "/" + biggest_newmann_cluster + "/"
-				+ String.format("%.2g", newmann_similarity[FULL_SIM]));
-		CulturalSimulator.graphNeumann.update();
-
-		CulturalSimulator.graphCultureSimilarity.scores.add(culture_similarity[POS_SIM]);
-		CulturalSimulator.graphCultureSimilarity.scores2.add(culture_similarity[SIZ_SIM]);
-		CulturalSimulator.graphCultureSimilarity.scores3.add(culture_similarity[BEL_SIM]);
-		CulturalSimulator.lblCultureSimilarity.setText(String.format("%.2g", culture_similarity[POS_SIM]) + "/"
-				+ String.format("%.2g", culture_similarity[SIZ_SIM]) + "/"
-				+ String.format("%.2g", culture_similarity[BEL_SIM]));
-		CulturalSimulator.graphCultureSimilarity.update();
-
-		CulturalSimulator.graphNeumannSimilarity.scores.add(newmann_similarity[POS_SIM]);
-		CulturalSimulator.graphNeumannSimilarity.scores2.add(newmann_similarity[SIZ_SIM]);
-		CulturalSimulator.graphNeumannSimilarity.scores3.add(newmann_similarity[BEL_SIM]);
-		CulturalSimulator.lblNeumannSimilarity.setText(String.format("%.2g", newmann_similarity[POS_SIM]) + "/"
-				+ String.format("%.2g", newmann_similarity[SIZ_SIM]) + "/"
-				+ String.format("%.2g", newmann_similarity[BEL_SIM]));
-		CulturalSimulator.graphNeumannSimilarity.update();
-
-		CulturalSimulator.graphInstitutions.scores.add((double) alife_institutions / TOTAL_AGENTS);
-		CulturalSimulator.graphInstitutions.scores2.add((double) biggest_institution / TOTAL_AGENTS);
-		CulturalSimulator.graphInstitutions.scores3
-				.add((double) pixel_institution_similarity / (alife_institutions * FEATURES));
-		CulturalSimulator.lblInstitutions
-				.setText(alife_institutions + "/" + biggest_institution + "/" + pixel_institution_similarity);
-		CulturalSimulator.graphInstitutions.update();
-
-		CulturalSimulator.graphPixels.scores.add((double) alife_traits / total_features);
-		CulturalSimulator.graphPixels.scores2.add((double) foreiners_traits / total_features);
-		CulturalSimulator.graphPixels.scores3.add((double) pixel_similarity / total_features);
-		CulturalSimulator.lblPixels.setText(alife_traits + "/" + foreiners_traits + "/" + pixel_similarity);
-		CulturalSimulator.graphPixels.update();
-
+		CulturalSimulator.energyPanel.addScores((double) energy / total_features, -1, -1);
+		CulturalSimulator.culturesPanel.addScores((double) cultureN / TOTAL_AGENTS, 
+				(double) biggest_cluster / TOTAL_AGENTS, culture_similarity[FULL_SIM]);
+		CulturalSimulator.neumannPanel.addScores((double) culture_newmannN / TOTAL_AGENTS,
+				(double) biggest_neumann_cluster / TOTAL_AGENTS,neumann_similarity[FULL_SIM]);
+		CulturalSimulator.cultureSimilarityPanel.addScores(culture_similarity[POS_SIM],
+				culture_similarity[SIZ_SIM],culture_similarity[BEL_SIM]);
+		CulturalSimulator.neumannSimilarityPanel.addScores(neumann_similarity[POS_SIM],
+				neumann_similarity[SIZ_SIM],neumann_similarity[BEL_SIM]);
+		CulturalSimulator.institutionsPanel.addScores((double) alife_institutions / TOTAL_AGENTS,
+				(double) biggest_institution / TOTAL_AGENTS, (double) pixel_institution_similarity / (alife_institutions * FEATURES));
+		CulturalSimulator.pixelPanel.addScores((double) alife_traits / total_features,
+				(double) foreiners_traits / total_features, (double) pixel_similarity / total_features);
 	}
 
 	/**
