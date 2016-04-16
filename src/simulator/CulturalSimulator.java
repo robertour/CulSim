@@ -424,7 +424,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelSpaces.add(panelBeliefSpace);
 		panelBeliefSpace.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblBeliefSpace = new JLabel("Belief Space");
+		JLabel lblBeliefSpace = new JLabel("Cultural Space");
 		lblBeliefSpace.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblBeliefSpace.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -437,7 +437,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelSpaces.add(panelInstBeliefSpace);
 		panelInstBeliefSpace.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblCorrespondinInstitutionalBelief = new JLabel("Corresponding Institutional Belief Space");
+		JLabel lblCorrespondinInstitutionalBelief = new JLabel("Corresponding Institutional Cultural Space");
 		lblCorrespondinInstitutionalBelief.setHorizontalAlignment(SwingConstants.CENTER);
 		lblCorrespondinInstitutionalBelief.setHorizontalTextPosition(SwingConstants.CENTER);
 		panelInstBeliefSpace.add(lblCorrespondinInstitutionalBelief, BorderLayout.NORTH);
