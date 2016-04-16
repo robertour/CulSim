@@ -74,7 +74,7 @@ public class DistributionPanel extends JPanel {
 		rdbtnAproxNormalDistribution.setBounds(6, 103, 157, 23);
 		add(rdbtnAproxNormalDistribution);
 
-		rdbtnNeumannonProbabilistic = new JRadioButton("Neumann (non probabilistic):");
+		rdbtnNeumannonProbabilistic = new JRadioButton("Neumann:");
 		rdbtnNeumannonProbabilistic.setToolTipText(
 				"The event always occur to the agents in the neighborhood of the specified row and column. Use -1 to specify random selection of rows and columns.");
 		rdbtnNeumannonProbabilistic.setBounds(6, 214, 169, 23);
@@ -85,7 +85,7 @@ public class DistributionPanel extends JPanel {
 		rdbtnNone.setBounds(6, 18, 157, 23);
 		add(rdbtnNone);
 
-		rdbtnRectangular = new JRadioButton("Rectangular (non probabilistic):");
+		rdbtnRectangular = new JRadioButton("Rectangular:");
 		rdbtnRectangular.setToolTipText(
 				"The event always occur to the agents in the neighborhood of the specified row and column. Use -1 to specify random selection of rows and columns.");
 		rdbtnRectangular.setBounds(6, 326, 169, 23);

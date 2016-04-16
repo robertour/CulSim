@@ -36,6 +36,8 @@ import simulator.control.events.ParameterChange;
 import javax.swing.ImageIcon;
 
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -580,8 +582,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		eventsPanel.setBorder(null);
 		eventsPanel.setLayout(new BorderLayout(0, 0));
 
-		structureDialog = new DistributionDoubleDialog(new Distribution(0.5, 0.5, 0.8), null, "Apostasy", "Destroy",
-				this);
+		structureDialog = new DistributionDoubleDialog(new Distribution(0.5, 0.5, 0.8), null, "Apostasy", "Destruction", this);
 		contentDialog = new DistributionDoubleDialog(new Distribution(1.0), null, "Partial", "Full", this);
 		conversionDialog = new DistributionDoubleDialog(null, new Distribution(0.5, 0.5, 0.2), "Partial", "Full", this);
 		invasionDialog = new DistributionSingleDialog(new Distribution(0.5, 0.5, 0.2), "Invasion", this);
@@ -593,7 +594,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		eventPanels.setPreferredSize(new Dimension(10, 446));
 		eventsPanel.add(eventPanels, BorderLayout.NORTH);
 		eventPanels.setLayout(new GridLayout(6, 0, 0, 0));
-		EventPanel structurePanelSet = new EventPanel("Institutional structure attack", structureDialog);
+		EventPanel structurePanelSet = new EventPanel("Institutional structure removal", structureDialog);
 		structurePanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (structureDialog.get_distribution1() != null) {
@@ -729,9 +730,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				controller.add_events(events);
 			}
 		});
-		parametersDialog.addWindowListener(new WindowAdapter() {
+		parametersDialog.addComponentListener(new ComponentAdapter() {
 			@Override
-			public void windowActivated(WindowEvent e) {
+			public void componentShown(ComponentEvent e){
 				controller.restore_parameters_to_interface();
 				parametersDialog.refresh_dialog();
 			}
