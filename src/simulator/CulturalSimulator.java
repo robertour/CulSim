@@ -555,6 +555,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelProgress.add(panelSpeedLabels, BorderLayout.WEST);
 
 		JLabel lblSpeed = new JLabel("Speed: ");
+		lblSpeed.setBorder(new EmptyBorder(0, 5, 0, 0));
 		panelSpeedLabels.add(lblSpeed);
 
 		lblSpeedValue = new JLabel("1000");
