@@ -65,13 +65,13 @@ public class GraphLabeledPanel extends JPanel {
 		}
 		if (!l2.equals("")){
 			if (!tooltip.equals("")){
-				tooltip += "/";
+				tooltip += " / ";
 			}
 			tooltip += "<span color='red'>"+l2+"</span>";	
 		}
 		if (!l3.equals("")){
 			if (!tooltip.equals("")){
-				tooltip += "/";
+				tooltip += " / ";
 			}
 			tooltip += "<span color='green'>"+l3+"</span>";
 		}

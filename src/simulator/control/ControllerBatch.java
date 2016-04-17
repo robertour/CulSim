@@ -18,10 +18,10 @@ import java.util.zip.GZIPInputStream;
 
 import simulator.control.events.Event;
 import simulator.gui.Notifiable;
-import simulator.worlds.Homophily;
-import simulator.worlds.MultilateralHomophily;
-import simulator.worlds.Multilateral;
-import simulator.worlds.InstitutionsHomophily;
+import simulator.worlds.E1;
+import simulator.worlds.E3;
+import simulator.worlds.E2;
+import simulator.worlds.Inst;
 
 /**
  * The controller of the simulations handles the simulations and run them in
@@ -157,14 +157,14 @@ public class ControllerBatch extends Controller {
 			if (repetitions > 0) {
 				Simulation simulation = null;
 				String type = scanner.next();
-				if (type.equals(MultilateralHomophily.class.getSimpleName()))
-					simulation = new MultilateralHomophily();
-				if (type.equals(InstitutionsHomophily.class.getSimpleName()))
-					simulation = new InstitutionsHomophily();
-				if (type.equals(Homophily.class.getSimpleName()))
-					simulation = new Homophily();
-				if (type.equals(Multilateral.class.getSimpleName()))
-					simulation = new Multilateral();
+				if (type.equals(E3.class.getSimpleName()))
+					simulation = new E3();
+				if (type.equals(Inst.class.getSimpleName()))
+					simulation = new Inst();
+				if (type.equals(E1.class.getSimpleName()))
+					simulation = new E1();
+				if (type.equals(E2.class.getSimpleName()))
+					simulation = new E2();
 					
 				simulation.RANDOM_INITIALIZATION = Boolean.parseBoolean(scanner.next());
 				simulation.ITERATIONS = Integer.parseInt(scanner.next());

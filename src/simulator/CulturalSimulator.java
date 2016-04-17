@@ -188,7 +188,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	public static GraphLabeledPanel cultureSimilarityPanel;
 	public static GraphLabeledPanel neumannSimilarityPanel;
 	public static GraphLabeledPanel institutionsPanel;
-	public static GraphLabeledPanel pixelPanel;
+	public static GraphLabeledPanel traitPanel;
 
 	/**
 	 * This the event that launches the application
@@ -383,7 +383,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 		energyPanel = new GraphLabeledPanel("Energy");
 		panelGraphs.add(energyPanel);
-		energyPanel.setCounterLabels("Energy","","");
+		energyPanel.setCounterLabels("Energy","","Similarity");
 		
 		culturesPanel = new GraphLabeledPanel("Cultures");
 		panelGraphs.add(culturesPanel);
@@ -395,19 +395,19 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 		cultureSimilarityPanel = new GraphLabeledPanel("Culture's Sim");
 		panelGraphs.add(cultureSimilarityPanel);
-		cultureSimilarityPanel.setCounterLabels("Position similarity","Size similarity","Beliefs similarity");
+		cultureSimilarityPanel.setCounterLabels("Position similarity","Size similarity","Traits similarity");
 
 		neumannSimilarityPanel = new GraphLabeledPanel("Neumann's Sim");
 		panelGraphs.add(neumannSimilarityPanel);
-		neumannSimilarityPanel.setCounterLabels("Neumann's position similarity","Neumann's size similarity","Neumann's beliefs similarity");
+		neumannSimilarityPanel.setCounterLabels("Neumann's position similarity","Neumann's size similarity","Neumann's traits similarity");
 		
 		institutionsPanel = new GraphLabeledPanel("Institutions");
 		panelGraphs.add(institutionsPanel);
-		institutionsPanel.setCounterLabels("Total", "Biggest", "Institution's similarity");
+		institutionsPanel.setCounterLabels("Institutions", "Biggest", "Institution's similarity");
 
-		pixelPanel = new GraphLabeledPanel("Pixels");
-		panelGraphs.add(pixelPanel);
-		pixelPanel.setCounterLabels("Alife traits", "Foreign traits", "Pixel similarity");
+		traitPanel = new GraphLabeledPanel("Traits");
+		panelGraphs.add(traitPanel);
+		traitPanel.setCounterLabels("Alife traits", "Foreign traits", "");
 
 		JSplitPane splitSideVsRest = new JSplitPane();
 		splitRestVSGraphs.setLeftComponent(splitSideVsRest);
@@ -980,7 +980,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		neumannPanel.clean();		
 		neumannSimilarityPanel.clean();
 		cultureSimilarityPanel.clean();
-		pixelPanel.clean();
+		traitPanel.clean();
 	}
 
 	/**

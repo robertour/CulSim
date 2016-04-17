@@ -29,7 +29,7 @@ import simulator.control.Controller;
  * @version 1.0, March 2016
  *
  */
-public class InstitutionsHomophily extends Homophily {
+public class Inst extends E1 {
 
 	private static final long serialVersionUID = 6739780243602561128L;
 
@@ -191,7 +191,7 @@ public class InstitutionsHomophily extends Homophily {
 	
 	@Override
 	public String getModelDescription(){
-		return "Institutions including homophily Axelrod (1997) - Ulloa(2016)";
+		return TYPE + ": Institutions including homophily Axelrod (1997) - Ulloa(2016)";
 	}
 
 	@Override

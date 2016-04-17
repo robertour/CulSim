@@ -20,7 +20,7 @@ import simulator.control.events.Event;
 import simulator.gui.CulturalParameters;
 import simulator.gui.Notifiable;
 import simulator.gui.ParametersEventDialog;
-import simulator.worlds.InstitutionsHomophily;
+import simulator.worlds.Inst;
 
 /**
  * The controller of the simulations handles the simulation. It creates the
@@ -71,7 +71,7 @@ public class ControllerSingle extends Controller {
 		if (simulation != null) {
 			simulation.clean();
 		}
-		simulation = new InstitutionsHomophily();
+		simulation = new Inst();
 		is_saved = true;
 		CulturalSimulator.clean_informational_spaces();
 		if (simulation.iteration > 0) {

@@ -16,7 +16,7 @@ import simulator.control.Simulation;
  * @author Roberto Ulloa
  * @version 1.0, March 2016
  */
-public class Homophily extends Simulation {
+public class E1 extends Simulation {
 
 	private static final long serialVersionUID = 8293331514566105316L;
 
@@ -53,7 +53,7 @@ public class Homophily extends Simulation {
 	
 	@Override
 	public String getModelDescription(){
-		return "Homophily (Axelrod, 1997) including mutation and selection error - Experiment 1, Flache(2011)";
+		return TYPE + ": Homophily (Axelrod, 1997) including mutation and selection error - Experiment 1, Flache(2011)";
 	}
 	
 	@Override

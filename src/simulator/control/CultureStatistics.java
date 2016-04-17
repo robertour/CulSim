@@ -16,7 +16,6 @@ public class CultureStatistics implements Serializable {
 	private double y = -102;
 	private int size = -103;
 	private int beliefs[] = null;
-	private double diagonal;
 	private Simulation sim;
 
 	/**
@@ -40,8 +39,6 @@ public class CultureStatistics implements Serializable {
 		this.x = x;
 		this.y = y;
 		this.sim = sim;
-		diagonal = Math.pow(sim.ROWS * sim.ROWS + sim.COLS * sim.COLS, 0.5);
-
 	}
 
 	/**
@@ -55,15 +52,12 @@ public class CultureStatistics implements Serializable {
 	 */
 	public double compare_positions(CultureStatistics o) {
 
-		double y_diff = y - o.y;
-		double x_diff = x - o.x;
+		double y_diff = y/sim.COLS - o.y/sim.COLS;
+		double x_diff = x/sim.ROWS - o.x/sim.ROWS;
 
 		double diff = Math.pow(x_diff * x_diff + y_diff * y_diff, 0.5);
-		if (diff > diagonal) {
-			return 0;
-		} else {
-			return 1 - diff / diagonal;
-		}
+		
+		return 1 - diff;
 	}
 
 	/**
