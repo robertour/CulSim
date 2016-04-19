@@ -274,17 +274,17 @@ public class BatchMode extends JDialog implements Notifiable {
 		tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath() + "\\");
 		tf_scenarios_dir.setEditable(false);
 		tf_scenarios_dir.setColumns(10);
-		tf_scenarios_dir.setBounds(75, 10, 399, 25);
+		tf_scenarios_dir.setBounds(97, 10, 377, 25);
 		tab_catastrophic.add(tf_scenarios_dir);
 
-		JLabel lblFolderWithResults = new JLabel("Scenarios:");
+		JLabel lblFolderWithResults = new JLabel("Result Folder:");
 		lblFolderWithResults.setToolTipText(
 				"These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
-		lblFolderWithResults.setBounds(10, 15, 55, 15);
+		lblFolderWithResults.setBounds(10, 15, 70, 15);
 		tab_catastrophic.add(lblFolderWithResults);
 
 		JScrollPane scroll_pane = new JScrollPane();
-		scroll_pane.setBounds(75, 46, 399, 94);
+		scroll_pane.setBounds(97, 46, 377, 94);
 		tab_catastrophic.add(scroll_pane);
 
 		ta_set_events = new JTextArea();
@@ -293,7 +293,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		scroll_pane.setViewportView(ta_set_events);
 
 		JButton btnLoad = new JButton("Load");
-		btnLoad.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-save.png")));
+		btnLoad.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open.png")));
 		btnLoad.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnLoad.addActionListener(new ActionListener() {
 			@SuppressWarnings("unchecked")
@@ -319,7 +319,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_catastrophic.add(btnLoad);
 
 		JButton btnClearEvents = new JButton("Clear");
-		btnClearEvents.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/trash-empty.png")));
+		btnClearEvents.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/edit-clear-list.png")));
 		btnClearEvents.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnClearEvents.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -336,14 +336,14 @@ public class BatchMode extends JDialog implements Notifiable {
 		lblEvents.setBounds(10, 47, 55, 15);
 		tab_catastrophic.add(lblEvents);
 
-		JLabel label = new JLabel("Repetitions:");
-		label.setBounds(10, 155, 70, 14);
-		tab_catastrophic.add(label);
+		JLabel lblEventRepetitions = new JLabel("Event Repetitions:");
+		lblEventRepetitions.setBounds(10, 155, 99, 14);
+		tab_catastrophic.add(lblEventRepetitions);
 
 		sp_repetitions_catastroph = new JSpinner();
 		sp_repetitions_catastroph
 				.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
-		sp_repetitions_catastroph.setBounds(75, 151, 55, 20);
+		sp_repetitions_catastroph.setBounds(107, 152, 55, 20);
 		tab_catastrophic.add(sp_repetitions_catastroph);
 
 		btn_play = new JToggleButton("Play");
