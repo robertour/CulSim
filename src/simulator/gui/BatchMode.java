@@ -164,13 +164,13 @@ public class BatchMode extends JDialog implements Notifiable {
 		}
 		jfc_configurations.setCurrentDirectory(conf_dir);
 
-		File[] directoryListing = jfc_configurations.getCurrentDirectory().listFiles();
-		if (directoryListing != null) {
-			for (File child : directoryListing) {
-				conf_list.addElement(child.getAbsolutePath());
-				file_list.add(child.getAbsolutePath());
-			}
-		}
+//		File[] directoryListing = jfc_configurations.getCurrentDirectory().listFiles();
+//		if (directoryListing != null) {
+//			for (File child : directoryListing) {
+//				conf_list.addElement(child.getAbsolutePath());
+//				file_list.add(child.getAbsolutePath());
+//			}
+//		}
 
 		tab_conf_file = new JPanel();
 		tp_batch_mode.addTab("From Configuration Files", null, tab_conf_file, null);
@@ -185,7 +185,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		lblRepetitions.setBounds(10, 155, 70, 14);
 		tab_conf_file.add(lblRepetitions);
 
-		JButton btnAddConfigurationFile = new JButton("Add File");
+		JButton btnAddConfigurationFile = new JButton("Add Files");
 		btnAddConfigurationFile.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open.png")));
 		btnAddConfigurationFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -195,39 +195,20 @@ public class BatchMode extends JDialog implements Notifiable {
 					jfc_configurations.setCurrentDirectory(conf_dir);
 				}
 				jfc_configurations.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				jfc_configurations.setMultiSelectionEnabled(true);
 				if (jfc_configurations.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					conf_list.addElement(jfc_configurations.getSelectedFile().getAbsolutePath());
-					file_list.add(jfc_configurations.getSelectedFile().getAbsolutePath());
+					File[] files = jfc_configurations.getSelectedFiles();
+					for (int i = 0; i < files.length; i++) {
+						conf_list.addElement(files[i].getAbsolutePath());
+						file_list.add(files[i].getAbsolutePath());
+						
+					}
+					
 				}
 			}
 		});
 		btnAddConfigurationFile.setBounds(462, 146, 105, 25);
 		tab_conf_file.add(btnAddConfigurationFile);
-
-		JButton btnAddFolder = new JButton("Add Folder");
-		btnAddFolder.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open-folder.png")));
-		btnAddFolder.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				File conf_dir = new File(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
-				if (!conf_dir.exists()) {
-					conf_dir.mkdirs();
-					jfc_configurations.setCurrentDirectory(conf_dir);
-				}
-				jfc_configurations.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				jfc_configurations.setSelectedFile(conf_dir.getAbsoluteFile());
-				if (jfc_configurations.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					File[] directoryListing = jfc_configurations.getSelectedFile().listFiles();
-					if (directoryListing != null) {
-						for (File child : directoryListing) {
-							conf_list.addElement(child.getAbsolutePath());
-							file_list.add(child.getAbsolutePath());
-						}
-					}
-				}
-			}
-		});
-		btnAddFolder.setBounds(347, 146, 105, 25);
-		tab_conf_file.add(btnAddFolder);
 
 		JButton btn_clearlist = new JButton("Clear");
 		btn_clearlist.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/edit-clear-list.png")));
@@ -237,7 +218,7 @@ public class BatchMode extends JDialog implements Notifiable {
 				file_list.clear();
 			}
 		});
-		btn_clearlist.setBounds(232, 146, 105, 25);
+		btn_clearlist.setBounds(347, 146, 105, 25);
 		tab_conf_file.add(btn_clearlist);
 
 		JScrollPane scrollPane_1 = new JScrollPane();
