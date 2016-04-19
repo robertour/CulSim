@@ -232,7 +232,7 @@ public abstract class Event implements Serializable {
 		case 'I':
 			return new Invasion(Distribution.parseDistribution(s.substring(1)));
 		case 'G':
-			return new Murder(Distribution.parseDistribution(s.substring(1)));
+			return new Genocide(Distribution.parseDistribution(s.substring(1)));
 		case 'P':
 			return ParameterChange.parseParameterChange(s.substring(1));
 		default:

@@ -173,7 +173,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		}
 
 		tab_conf_file = new JPanel();
-		tp_batch_mode.addTab("Configuration Files", null, tab_conf_file, null);
+		tp_batch_mode.addTab("From Configuration Files", null, tab_conf_file, null);
 		tab_conf_file.setLayout(null);
 
 		sp_repetitions = new JSpinner();
@@ -230,7 +230,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_conf_file.add(btnAddFolder);
 
 		JButton btn_clearlist = new JButton("Clear");
-		btn_clearlist.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/trash-empty.png")));
+		btn_clearlist.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/edit-clear-list.png")));
 		btn_clearlist.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				conf_list.clear();
@@ -254,7 +254,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_conf_file.add(lblConfigurations);
 
 		tab_catastrophic = new JPanel();
-		tp_batch_mode.addTab("Catastrophic Setup", null, tab_catastrophic, null);
+		tp_batch_mode.addTab("From Results Folder", null, tab_catastrophic, null);
 		tab_catastrophic.setLayout(null);
 
 		JButton btnOpen = new JButton("Select");
@@ -279,7 +279,7 @@ public class BatchMode extends JDialog implements Notifiable {
 
 		JLabel lblFolderWithResults = new JLabel("Scenarios:");
 		lblFolderWithResults.setToolTipText(
-				"These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"Configuration Files\" or \"CSV Configuration\".");
+				"These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
 		lblFolderWithResults.setBounds(10, 15, 55, 15);
 		tab_catastrophic.add(lblFolderWithResults);
 
@@ -332,7 +332,7 @@ public class BatchMode extends JDialog implements Notifiable {
 
 		JLabel lblEvents = new JLabel("Events");
 		lblEvents.setToolTipText(
-				"These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"Configuration Files\" or \"CSV Configuration\".");
+				"These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\".");
 		lblEvents.setBounds(10, 47, 55, 15);
 		tab_catastrophic.add(lblEvents);
 
@@ -405,7 +405,7 @@ public class BatchMode extends JDialog implements Notifiable {
 								} catch (ClassNotFoundException | IOException e) {
 									e.printStackTrace();
 								}
-								controller.start("batch_results", Controller.WORKSPACE_DIR);
+								controller.start("results", Controller.WORKSPACE_DIR);
 
 							} else if (tp_batch_mode.getSelectedComponent() == tab_catastrophic) {
 								ArrayList<String> sim_list = new ArrayList<String>();
@@ -439,7 +439,7 @@ public class BatchMode extends JDialog implements Notifiable {
 									e.printStackTrace();
 								}
 
-								controller.start("batch_results", tf_scenarios_dir.getText());
+								controller.start("results", tf_scenarios_dir.getText());
 							}
 							// Resume
 						} else {

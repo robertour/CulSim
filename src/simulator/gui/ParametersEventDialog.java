@@ -40,7 +40,7 @@ public class ParametersEventDialog extends JDialog {
 	 * Copy of the current values of the parameters in the simulation.
 	 */
 	public static int iterations = -1;
-	public static int checkpoints = -1;
+	public static int speed = -1;
 	public static float mutation = 0.001f;
 	public static float selection_error = -1;
 	public static float influence = -1;
@@ -57,7 +57,7 @@ public class ParametersEventDialog extends JDialog {
 	private JSpinner sp_democracy;
 	private JSpinner sp_propaganda;
 	private JSpinner sp_iterations;
-	private JSpinner sp_checkpoints;
+	private JSpinner sp_speed;
 	private JSpinner sp_mutation;
 
 	/**
@@ -106,12 +106,12 @@ public class ParametersEventDialog extends JDialog {
 		sp_iterations.setBounds(90, 20, 80, 20);
 		panel_8.add(sp_iterations);
 
-		sp_checkpoints = new JSpinner();
-		sp_checkpoints.setModel(new SpinnerNumberModel(new Integer(100), new Integer(0), null, new Integer(10)));
-		sp_checkpoints.setToolTipText(
+		sp_speed = new JSpinner();
+		sp_speed.setModel(new SpinnerNumberModel(new Integer(100), new Integer(0), null, new Integer(10)));
+		sp_speed.setToolTipText(
 				"How often do you want to save results, update graphs, check for Events or Pause/Stop/Resume states? The highes the value, the faster it executes, but it doesn't update the interface or store results as fast.");
-		sp_checkpoints.setBounds(90, 45, 80, 20);
-		panel_8.add(sp_checkpoints);
+		sp_speed.setBounds(90, 45, 80, 20);
+		panel_8.add(sp_speed);
 
 		JPanel panel_23 = new JPanel();
 		panel_23.setLayout(null);
@@ -237,8 +237,8 @@ public class ParametersEventDialog extends JDialog {
 		ParameterChange pc = new ParameterChange();
 		if (iterations != (int) sp_iterations.getValue())
 			pc.iterations = (int) sp_iterations.getValue();
-		if (checkpoints != (int) sp_checkpoints.getValue())
-			pc.checkpoints = (int) sp_checkpoints.getValue();
+		if (speed != (int) sp_speed.getValue())
+			pc.speed = (int) sp_speed.getValue();
 		if (mutation != (float) sp_mutation.getValue())
 			pc.mutation = (float) sp_mutation.getValue();
 		if (selection_error != (float) sp_selection_error.getValue())
@@ -286,7 +286,7 @@ public class ParametersEventDialog extends JDialog {
 	 */
 	public void refresh_dialog() {
 		sp_iterations.setValue(iterations);
-		sp_checkpoints.setValue(checkpoints);
+		sp_speed.setValue(speed);
 		sp_mutation.setValue(mutation);
 		sp_selection_error.setValue(selection_error);
 		sp_influence.setValue(influence);

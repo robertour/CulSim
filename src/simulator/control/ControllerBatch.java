@@ -168,7 +168,7 @@ public class ControllerBatch extends Controller {
 					
 				simulation.RANDOM_INITIALIZATION = Boolean.parseBoolean(scanner.next());
 				simulation.ITERATIONS = Integer.parseInt(scanner.next());
-				simulation.CHECKPOINT = Integer.parseInt(scanner.next());
+				simulation.SPEED = Integer.parseInt(scanner.next());
 				simulation.BUFFERED_SIZE = Integer.parseInt(scanner.next());
 				simulation.ROWS = Integer.parseInt(scanner.next());
 				simulation.COLS = Integer.parseInt(scanner.next());

@@ -225,7 +225,7 @@ public class ControllerSingle extends Controller {
 		CulturalParameters.classSelector.setSelectedItem(simulation.getModelDescription());
 		CulturalParameters.cb_random_initialization.setSelected(simulation.RANDOM_INITIALIZATION);
 		CulturalParameters.sp_iterations.setValue(simulation.ITERATIONS);
-		CulturalParameters.sp_checkpoints.setValue(simulation.CHECKPOINT);
+		CulturalParameters.sp_speed.setValue(simulation.SPEED);
 		CulturalParameters.sp_buffer.setValue(simulation.BUFFERED_SIZE);
 		CulturalParameters.sp_rows.setValue(simulation.ROWS);
 		CulturalParameters.sp_cols.setValue(simulation.COLS);
@@ -240,14 +240,14 @@ public class ControllerSingle extends Controller {
 		CulturalParameters.sp_sel_error.setValue(simulation.SELECTION_ERROR);
 
 		ParametersEventDialog.iterations = simulation.ITERATIONS;
-		ParametersEventDialog.checkpoints = simulation.CHECKPOINT;
+		ParametersEventDialog.speed = simulation.SPEED;
 		ParametersEventDialog.selection_error = simulation.SELECTION_ERROR;
 		ParametersEventDialog.mutation = simulation.MUTATION;
 		ParametersEventDialog.influence = simulation.ALPHA;
 		ParametersEventDialog.loyalty = simulation.ALPHA_PRIME;
 		ParametersEventDialog.democracy = simulation.FREQ_DEM;
 		ParametersEventDialog.propaganda = simulation.FREQ_PROP;
-		CulturalSimulator.set_speed(simulation.CHECKPOINT);
+		CulturalSimulator.set_speed(simulation.SPEED);
 
 		CulturalSimulator.l_start_identification.setText("S: " + simulation.get_identification());
 		CulturalSimulator.l_current_identification.setText("C: " + simulation.get_identification());
@@ -267,7 +267,7 @@ public class ControllerSingle extends Controller {
 			simulation = (Simulation) CulturalParameters.classes.get(ind).newInstance();
 			simulation.RANDOM_INITIALIZATION = CulturalParameters.cb_random_initialization.isSelected();
 			simulation.ITERATIONS = (int) CulturalParameters.sp_iterations.getValue();
-			simulation.CHECKPOINT = (int) CulturalParameters.sp_checkpoints.getValue();
+			simulation.SPEED = (int) CulturalParameters.sp_speed.getValue();
 			simulation.BUFFERED_SIZE = (int) CulturalParameters.sp_buffer.getValue();
 			simulation.ROWS = (int) CulturalParameters.sp_rows.getValue();
 			simulation.COLS = (int) CulturalParameters.sp_cols.getValue();

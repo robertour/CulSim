@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * This class saves general statistics of a particular culture: the size, the
- * geographical position, the beliefs of the culture.
+ * geographical position, the traits of the culture.
  * 
  * @author Roberto Ulloa
  * @version 1.0, April 2016
@@ -15,7 +15,7 @@ public class CultureStatistics implements Serializable {
 	private double x = -101;
 	private double y = -102;
 	private int size = -103;
-	private int beliefs[] = null;
+	private int traits[] = null;
 	private Simulation sim;
 
 	/**
@@ -28,13 +28,13 @@ public class CultureStatistics implements Serializable {
 	 *            x-axis of the center of the culture
 	 * @param y
 	 *            y-axis of the center of the culture
-	 * @param beliefs
-	 *            the beliefs of the culture
+	 * @param traits
+	 *            the traits of the culture
 	 * @param sim
 	 *            the simulation
 	 */
-	public CultureStatistics(int size, double x, double y, int[] beliefs, Simulation sim) {
-		this.beliefs = beliefs;
+	public CultureStatistics(int size, double x, double y, int[] traits, Simulation sim) {
+		this.traits = traits;
 		this.size = size;
 		this.x = x;
 		this.y = y;
@@ -75,26 +75,26 @@ public class CultureStatistics implements Serializable {
 	}
 
 	/**
-	 * Compare the beliefs of two cultures
+	 * Compare the traits of two cultures
 	 * 
 	 * @param o
 	 *            the other culture
-	 * @return a normalized value comparing the beliefs of the cultures, 1 for
-	 *         exactly the same beliefs, and 0 for completely different beliefs
+	 * @return a normalized value comparing the traits of the cultures, 1 for
+	 *         exactly the same traits, and 0 for completely different traits
 	 */
-	public double compare_beliefs(CultureStatistics other) {
-		double beliefs_sim = 0;
-		for (int i = 0; i < this.beliefs.length; i++) {
-			if (this.beliefs[i] == other.beliefs[i]) {
-				beliefs_sim = beliefs_sim + 1.0;
+	public double compare_traits(CultureStatistics other) {
+		double traits_sim = 0;
+		for (int i = 0; i < this.traits.length; i++) {
+			if (this.traits[i] == other.traits[i]) {
+				traits_sim = traits_sim + 1.0;
 			}
 		}
 
-		return beliefs_sim / beliefs.length;
+		return traits_sim / traits.length;
 	}
 
 	/**
-	 * Compare the two cultures in terms of beliefs, sizes and positions
+	 * Compare the two cultures in terms of traits, sizes and positions
 	 * 
 	 * @param o
 	 *            the other culture
@@ -102,7 +102,7 @@ public class CultureStatistics implements Serializable {
 	 *         same culture, and 0 for completely different cultures
 	 */
 	public double compare(CultureStatistics o) {
-		return compare_beliefs(o) * compare_size(o) * compare_positions(o);
+		return compare_traits(o) * compare_size(o) * compare_positions(o);
 	}
 
 }

@@ -58,7 +58,7 @@ public class E1 extends Simulation {
 	
 	@Override
 	public void run_iterations() {
-		for (int ic = 0; ic < CHECKPOINT; ic++) {
+		for (int ic = 0; ic < SPEED; ic++) {
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
 				
 				// select the agent
@@ -77,13 +77,13 @@ public class E1 extends Simulation {
 				// differences consider death (or just born) agents after genocide				
 				int differences = 0;
 				for (int f = 0; f < FEATURES; f++) {
-					if (beliefs[nr][nc][f] != DEAD_TRAIT){
+					if (traits[nr][nc][f] != DEAD_TRAIT){
 						non_death_features[non_death_traitsN] = f;
 						non_death_traitsN++;
-						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {							
+						if (traits[r][c][f] != traits[nr][nc][f]) {							
 							mismatches[mismatchesN] = f;
 							mismatchesN++;
-							if (beliefs[r][c][f] != DEAD_TRAIT){
+							if (traits[r][c][f] != DEAD_TRAIT){
 								differences++;
 							}
 						}
@@ -93,7 +93,8 @@ public class E1 extends Simulation {
 				}
 				
 				if (non_death_traitsN > 0){
-									
+					
+									 
 					int agents_overlap = FEATURES - differences;
 					
 					// Check for selection error
@@ -102,19 +103,23 @@ public class E1 extends Simulation {
 					boolean is_interaction = rand.nextFloat() >= 1 - ((float) agents_overlap / (float) FEATURES);
 	
 					// check if there is actual interaction 
-					if (agents_overlap != FEATURES
-							&& (is_interaction && !is_selection_error 
-									|| !is_interaction && is_selection_error)) {
-						int selected_feature = mismatches[rand.nextInt(mismatchesN)];
-						beliefs[r][c][selected_feature] = beliefs[nr][nc][selected_feature];
+					if (is_interaction && !is_selection_error 
+									|| !is_interaction && is_selection_error) {
+						int selected_feature = -99;
+						if (mismatchesN > 0)
+							selected_feature = mismatches[rand.nextInt(mismatchesN)];
+						else
+							selected_feature = mismatches[rand.nextInt(FEATURES)];
+						traits[r][c][selected_feature] = traits[nr][nc][selected_feature];
 					}
 	
 					// mutation
 					if ( rand.nextFloat() >= 1 - MUTATION ) {
 						mutant_feature = rand.nextInt(FEATURES);
+				
 						// Don't change dead features
 						if (mutant_feature != DEAD_TRAIT){
-							beliefs[r][c][mutant_feature] = rand.nextInt(TRAITS);
+							traits[r][c][mutant_feature] = rand.nextInt(TRAITS);
 						}
 					}
 				}

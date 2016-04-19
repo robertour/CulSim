@@ -17,10 +17,10 @@ public class ParameterChange extends Event {
 	 */
 	public int iterations = -1;
 	/**
-	 * The new checkpoints parameter after the event is executed. If -1, there
+	 * The new speed parameter after the event is executed. If -1, there
 	 * is no parameter change
 	 */
-	public int checkpoints = -1;
+	public int speed = -1;
 	/**
 	 * The new mutation parameter after the event is executed. If -1, there is
 	 * no parameter change
@@ -63,8 +63,8 @@ public class ParameterChange extends Event {
 	public void trigger(int r, int c, double p, Simulation s) {
 		if (iterations >= 0)
 			s.ITERATIONS = iterations;
-		if (checkpoints >= 0)
-			s.CHECKPOINT = checkpoints;
+		if (speed >= 0)
+			s.SPEED = speed;
 		if (mutation >= 0)
 			s.MUTATION = mutation;
 		if (selection_error >= 0)
@@ -85,7 +85,7 @@ public class ParameterChange extends Event {
 		String s = "";
 
 		s += (iterations < 0) ? "" : "Iter(" + iterations + ")+";
-		s += (checkpoints < 0) ? "" : "Speed(" + checkpoints + ")+";
+		s += (speed < 0) ? "" : "Speed(" + speed + ")+";
 		s += (mutation < 0) ? "" : "Mut(" + String.format("%.2g", mutation) + ")+";
 		s += (selection_error < 0) ? "" : "Sel(" + String.format("%.2g", selection_error) + ")+";
 		s += (influence < 0) ? "" : "Inf(" + String.format("%.2g", influence) + ")+";
@@ -125,7 +125,7 @@ public class ParameterChange extends Event {
 		if (params[0].toLowerCase().contains("iterations"))
 			pc.iterations = Integer.parseInt(params[1]);
 		else if (params[0].toLowerCase().contains("speed"))
-			pc.checkpoints = Integer.parseInt(params[1]);
+			pc.speed = Integer.parseInt(params[1]);
 		else if (params[0].toLowerCase().contains("mutation"))
 			pc.mutation = Float.parseFloat(params[1]);
 		else if (params[0].toLowerCase().contains("selection"))

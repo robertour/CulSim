@@ -20,7 +20,7 @@ public class E3 extends E2 {
 
 	@Override
 	public void run_iterations() {
-		for (int ic = 0; ic < CHECKPOINT; ic++) {
+		for (int ic = 0; ic < SPEED; ic++) {
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
 
 				// row and column of the participating agent
@@ -44,8 +44,8 @@ public class E3 extends E2 {
 					// get the number of identical traits
 					int matches = 0;
 					for (int f = 0; f < FEATURES; f++) {
-						if (beliefs[nr][nc][f] != DEAD_TRAIT
-								&& (beliefs[r][c][f] == DEAD_TRAIT || beliefs[r][c][f] == beliefs[nr][nc][f])) {
+						if (traits[nr][nc][f] != DEAD_TRAIT
+								&& (traits[r][c][f] == DEAD_TRAIT || traits[r][c][f] == traits[nr][nc][f])) {
 							matches++;
 						}
 					}
@@ -60,10 +60,10 @@ public class E3 extends E2 {
 						// then don't include the neighbor
 						if (!is_selection_error) {
 
-							// include the neighbor's beliefs
+							// include the neighbor's traits
 							for (int f = 0; f < FEATURES; f++) {
-								if (beliefs[nr][nc][f] != DEAD_TRAIT) {
-									votes[f][beliefs[nr][nc][f]]++;
+								if (traits[nr][nc][f] != DEAD_TRAIT) {
+									votes[f][traits[nr][nc][f]]++;
 								}
 							}
 						}
@@ -73,10 +73,10 @@ public class E3 extends E2 {
 					// then include the neighbor
 					else if (is_selection_error) {
 
-						// include the neighbor's beliefs
+						// include the neighbor's traits
 						for (int f = 0; f < FEATURES; f++) {
-							if (beliefs[nr][nc][f] != DEAD_TRAIT) {
-								votes[f][beliefs[nr][nc][f]]++;
+							if (traits[nr][nc][f] != DEAD_TRAIT) {
+								votes[f][traits[nr][nc][f]]++;
 							}
 						}
 					}
@@ -85,7 +85,7 @@ public class E3 extends E2 {
 				// get the candidates features
 				int feature_candidatesN = 0;
 				for (int f = 0; f < FEATURES; f++) {
-					int current_trait = beliefs[r][c][f];
+					int current_trait = traits[r][c][f];
 					int current_trait_votes = 0;
 					if (current_trait != DEAD_TRAIT) {
 						current_trait_votes = votes[f][current_trait];
@@ -101,7 +101,7 @@ public class E3 extends E2 {
 				// select the candidate
 				if (feature_candidatesN > 0) {
 					int selected_feature = feature_candidates[rand.nextInt(feature_candidatesN)];
-					int max_trait = beliefs[r][c][selected_feature];
+					int max_trait = traits[r][c][selected_feature];
 					int current_votes = 0;
 					if (max_trait != DEAD_TRAIT) {
 						current_votes = votes[selected_feature][max_trait];
@@ -123,7 +123,7 @@ public class E3 extends E2 {
 
 					// select the trait
 					if (max_votes > current_votes) {
-						beliefs[r][c][selected_feature] = trait_candidates[rand.nextInt(trait_candidatesN)];
+						traits[r][c][selected_feature] = trait_candidates[rand.nextInt(trait_candidatesN)];
 					}
 				}
 
@@ -132,7 +132,7 @@ public class E3 extends E2 {
 					mutant_feature = rand.nextInt(FEATURES);
 					// Don't change dead features
 					if (mutant_feature != DEAD_TRAIT) {
-						beliefs[r][c][mutant_feature] = rand.nextInt(TRAITS);
+						traits[r][c][mutant_feature] = rand.nextInt(TRAITS);
 					}
 				}
 			}

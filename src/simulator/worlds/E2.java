@@ -28,7 +28,7 @@ public class E2 extends E1 {
 
 	@Override
 	public void setup() {
-		votes = new int[FEATURES][TRAITS];
+		votes = new int[FEATURES][TRAITS+1];
 		feature_candidates = new int[FEATURES];
 		trait_candidates = new int[TRAITS];
 
@@ -49,7 +49,7 @@ public class E2 extends E1 {
 	
 	@Override
 	public void run_iterations() {
-		for (int ic = 0; ic < CHECKPOINT; ic++) {
+		for (int ic = 0; ic < SPEED; ic++) {
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
 				int r = rand.nextInt(ROWS);
 				int c = rand.nextInt(COLS);
@@ -68,8 +68,8 @@ public class E2 extends E1 {
 						int nr = neighboursX[r][c][n];
 						int nc = neighboursY[r][c][n];
 						for (int f = 0; f < FEATURES; f++) {
-							if (beliefs[nr][nc][f] != DEAD_TRAIT) {
-								votes[f][beliefs[nr][nc][f]]++;
+							if (traits[nr][nc][f] != DEAD_TRAIT) {
+								votes[f][traits[nr][nc][f]]++;
 							}
 						}
 					}
@@ -78,7 +78,7 @@ public class E2 extends E1 {
 				// get the candidates features
 				int feature_candidatesN = 0;
 				for (int f = 0; f < FEATURES; f++) {
-					int current_trait = beliefs[r][c][f];
+					int current_trait = traits[r][c][f];
 					int current_trait_votes = 0;
 					if (current_trait != DEAD_TRAIT) {
 						current_trait_votes = votes[f][current_trait];
@@ -94,7 +94,7 @@ public class E2 extends E1 {
 				// select the candidate
 				if (feature_candidatesN > 0) {
 					int selected_feature = feature_candidates[rand.nextInt(feature_candidatesN)];
-					int max_trait = beliefs[r][c][selected_feature];
+					int max_trait = traits[r][c][selected_feature];
 					int current_votes = 0;
 					if (max_trait != DEAD_TRAIT) {
 						current_votes = votes[selected_feature][max_trait];
@@ -116,7 +116,7 @@ public class E2 extends E1 {
 
 					// select the trait
 					if (max_votes > current_votes) {
-						beliefs[r][c][selected_feature] = trait_candidates[rand.nextInt(trait_candidatesN)];
+						traits[r][c][selected_feature] = trait_candidates[rand.nextInt(trait_candidatesN)];
 					}
 				}
 
@@ -125,7 +125,7 @@ public class E2 extends E1 {
 					mutant_feature = rand.nextInt(FEATURES);
 					// Don't change dead features
 					if (mutant_feature != DEAD_TRAIT) {
-						beliefs[r][c][mutant_feature] = rand.nextInt(TRAITS);
+						traits[r][c][mutant_feature] = rand.nextInt(TRAITS);
 					}
 				}
 			}

@@ -63,7 +63,7 @@ public abstract class Controller {
 	/**
 	 * Directory to save the CSV results of the simulations
 	 */
-	public static final String ITERATIONS_DIR = "iterations/";
+	public static final String PROGRESSIONS_DIR = "progressions/";
 
 	/**
 	 * Directory to save the final state of the simulations after any
@@ -118,7 +118,7 @@ public abstract class Controller {
 		}
 
 		results_dir = dir.getAbsolutePath() + "/";
-		(new File(results_dir + ITERATIONS_DIR)).mkdirs();
+		(new File(results_dir + PROGRESSIONS_DIR)).mkdirs();
 		(new File(results_dir + SIMULATIONS_DIR)).mkdirs();
 
 		File resultset_dir = new File(r_d + RESULTSET_DIR);

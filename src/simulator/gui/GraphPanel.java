@@ -161,7 +161,7 @@ public class GraphPanel extends JPanel {
 				by1 = (int) ((getMaxScore() - scores.get(i)) * yScale + padding);
 				g2.drawLine(bx0, by0, bx1, by1);
 
-				if (scores2.size() > 0) {
+				if (scores2.size() > i) {
 					g2.setColor(lineColor2);
 					rx0 = rx1;
 					ry0 = ry1;
@@ -170,7 +170,7 @@ public class GraphPanel extends JPanel {
 					g2.drawLine(rx0, ry0, rx1, ry1);
 				}
 
-				if (scores3.size() > 0) {
+				if (scores3.size() > i) {
 					g2.setColor(lineColor3);
 					gx0 = gx1;
 					gy0 = gy1;

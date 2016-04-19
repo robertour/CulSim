@@ -29,7 +29,7 @@ import simulator.gui.OutputArea;
 import simulator.gui.ParametersEventDialog;
 import simulator.control.events.Distribution;
 import simulator.control.events.Event;
-import simulator.control.events.Murder;
+import simulator.control.events.Genocide;
 import simulator.control.events.Invasion;
 import simulator.control.events.ParameterChange;
 
@@ -155,10 +155,10 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	/**
 	 * These are the informational spaces in the middle
 	 */
-	private static JLabel belief_space = new JLabel("");
-	private static JLabel alife_institutional_beliefs_space = new JLabel("");
+	private static JLabel cultural_space = new JLabel("");
+	private static JLabel alife_institutional_cultural_space = new JLabel("");
 	private static JLabel alife_institutions = new JLabel("");
-	private static JLabel institutional_beliefs_association = new JLabel("");
+	private static JLabel institutional_cultural_association = new JLabel("");
 
 	/**
 	 * This are the labels on the status bar
@@ -420,30 +420,30 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		splitGraphVsOutput.setLeftComponent(panelSpaces);
 		panelSpaces.setLayout(new GridLayout(2, 2, 10, 10));
 
-		JPanel panelBeliefSpace = new JPanel();
-		panelSpaces.add(panelBeliefSpace);
-		panelBeliefSpace.setLayout(new BorderLayout(0, 0));
+		JPanel panelCulturalSpace = new JPanel();
+		panelSpaces.add(panelCulturalSpace);
+		panelCulturalSpace.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblBeliefSpace = new JLabel("Cultural Space");
-		lblBeliefSpace.setHorizontalTextPosition(SwingConstants.CENTER);
-		lblBeliefSpace.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lblCulturalSpace = new JLabel("Cultural Space");
+		lblCulturalSpace.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblCulturalSpace.setHorizontalAlignment(SwingConstants.CENTER);
 
-		panelBeliefSpace.add(lblBeliefSpace, BorderLayout.NORTH);
-		panelBeliefSpace.add(belief_space, BorderLayout.CENTER);
-		belief_space.setBackground(Color.WHITE);
-		belief_space.setOpaque(true);
+		panelCulturalSpace.add(lblCulturalSpace, BorderLayout.NORTH);
+		panelCulturalSpace.add(cultural_space, BorderLayout.CENTER);
+		cultural_space.setBackground(Color.WHITE);
+		cultural_space.setOpaque(true);
 
-		JPanel panelInstBeliefSpace = new JPanel();
-		panelSpaces.add(panelInstBeliefSpace);
-		panelInstBeliefSpace.setLayout(new BorderLayout(0, 0));
+		JPanel panelInstCulturalSpace = new JPanel();
+		panelSpaces.add(panelInstCulturalSpace);
+		panelInstCulturalSpace.setLayout(new BorderLayout(0, 0));
 
-		JLabel lblCorrespondinInstitutionalBelief = new JLabel("Corresponding Institutional Cultural Space");
-		lblCorrespondinInstitutionalBelief.setHorizontalAlignment(SwingConstants.CENTER);
-		lblCorrespondinInstitutionalBelief.setHorizontalTextPosition(SwingConstants.CENTER);
-		panelInstBeliefSpace.add(lblCorrespondinInstitutionalBelief, BorderLayout.NORTH);
-		panelInstBeliefSpace.add(institutional_beliefs_association, BorderLayout.CENTER);
-		institutional_beliefs_association.setOpaque(true);
-		institutional_beliefs_association.setBackground(Color.WHITE);
+		JLabel lblCorrespondinInstitutionalCulture = new JLabel("Corresponding Institutional Cultural Space");
+		lblCorrespondinInstitutionalCulture.setHorizontalAlignment(SwingConstants.CENTER);
+		lblCorrespondinInstitutionalCulture.setHorizontalTextPosition(SwingConstants.CENTER);
+		panelInstCulturalSpace.add(lblCorrespondinInstitutionalCulture, BorderLayout.NORTH);
+		panelInstCulturalSpace.add(institutional_cultural_association, BorderLayout.CENTER);
+		institutional_cultural_association.setOpaque(true);
+		institutional_cultural_association.setBackground(Color.WHITE);
 
 		JPanel panelInstitutions = new JPanel();
 		panelSpaces.add(panelInstitutions);
@@ -454,9 +454,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
 		panelInstitutions.add(lblNewLabel, BorderLayout.NORTH);
-		panelInstitutions.add(alife_institutional_beliefs_space, BorderLayout.CENTER);
-		alife_institutional_beliefs_space.setBackground(Color.WHITE);
-		alife_institutional_beliefs_space.setOpaque(true);
+		panelInstitutions.add(alife_institutional_cultural_space, BorderLayout.CENTER);
+		alife_institutional_cultural_space.setBackground(Color.WHITE);
+		alife_institutional_cultural_space.setOpaque(true);
 
 		JPanel panelAlifeInstitutions = new JPanel();
 		panelSpaces.add(panelAlifeInstitutions);
@@ -574,7 +574,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		sliderSpeed.setMaximum(30);
 		panelProgress.add(sliderSpeed);
 
-		set_speed((int) CulturalParameters.sp_checkpoints.getValue());
+		set_speed((int) CulturalParameters.sp_speed.getValue());
 
 		JPanel eventsPanel = new JPanel();
 		panelSpeed.add(eventsPanel, BorderLayout.CENTER);
@@ -696,7 +696,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		genocidePanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (genocideDialog.get_distribution() != null) {
-					events.add(new Murder(genocideDialog.get_distribution()));
+					events.add(new Genocide(genocideDialog.get_distribution()));
 					update_event_set();
 				}
 			}
@@ -705,7 +705,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
 				if (genocideDialog.get_distribution() != null) {
-					events.add(new Murder(genocideDialog.get_distribution()));
+					events.add(new Genocide(genocideDialog.get_distribution()));
 				}
 				controller.add_events(events);
 			}
@@ -873,9 +873,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				}
 				lblSpeedValue.setText(speed + "");
 
-				ParametersEventDialog.checkpoints = speed;
+				ParametersEventDialog.speed = speed;
 				ParameterChange pc = new ParameterChange();
-				pc.checkpoints = speed;
+				pc.speed = speed;
 				ArrayList<Event> evs = new ArrayList<Event>();
 				evs.add(pc);
 				controller.add_events(evs);
@@ -969,9 +969,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	 * This method clean all the informational spaces
 	 */
 	public static void clean_informational_spaces() {
-		belief_space.setIcon(null);
-		institutional_beliefs_association.setIcon(null);
-		alife_institutional_beliefs_space.setIcon(null);
+		cultural_space.setIcon(null);
+		institutional_cultural_association.setIcon(null);
+		alife_institutional_cultural_space.setIcon(null);
 		alife_institutions.setIcon(null);
 		
 		energyPanel.clean();
@@ -984,25 +984,25 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	}
 
 	/**
-	 * Set the belief space image
+	 * Set the cultural space image
 	 * 
 	 * @param image
-	 *            image that contains the belief space
+	 *            image that contains the cultural space
 	 */
-	public static void set_belief_space(BufferedImage image) {
-		belief_space.setIcon(new ImageIcon(resize(image, belief_space.getWidth(), belief_space.getHeight())));
+	public static void set_cultural_space(BufferedImage image) {
+		cultural_space.setIcon(new ImageIcon(resize(image, cultural_space.getWidth(), cultural_space.getHeight())));
 	}
 
 	/**
-	 * Set the belief space associated to the institution
+	 * Set the cultural space associated to the institution
 	 * 
 	 * @param image
-	 *            the image that contains the belief space associated to the
+	 *            the image that contains the cultural space associated to the
 	 *            institution
 	 */
-	public static void set_institutional_beliefs_association(BufferedImage image) {
-		institutional_beliefs_association.setIcon(new ImageIcon(resize(image,
-				institutional_beliefs_association.getWidth(), institutional_beliefs_association.getHeight())));
+	public static void set_institutional_cultural_association(BufferedImage image) {
+		institutional_cultural_association.setIcon(new ImageIcon(resize(image,
+				institutional_cultural_association.getWidth(), institutional_cultural_association.getHeight())));
 	}
 
 	/**
@@ -1018,15 +1018,15 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	}
 
 	/**
-	 * Set the belief space of the alife institutions
+	 * Set the cultural space of the alife institutions
 	 * 
 	 * @param image
-	 *            the image that contains the belief space of the alife
+	 *            the image that contains the cultural space of the alife
 	 *            institutions
 	 */
-	public static void set_alife_institutional_beliefs_space(BufferedImage image) {
-		alife_institutional_beliefs_space.setIcon(new ImageIcon(resize(image,
-				alife_institutional_beliefs_space.getWidth(), alife_institutional_beliefs_space.getHeight())));
+	public static void set_alife_institutional_cultural_space(BufferedImage image) {
+		alife_institutional_cultural_space.setIcon(new ImageIcon(resize(image,
+				alife_institutional_cultural_space.getWidth(), alife_institutional_cultural_space.getHeight())));
 	}
 
 	/**

@@ -439,15 +439,13 @@ public class Distribution implements Serializable {
 	 * Creates a distribution based on a string that represents it
 	 * 
 	 * @param s
-	 *            in the form of (U,p), (W,x,y,radius) or (N,x,y,sd)
+	 *            in the form of "U@p", "W@x,y,radius", or "N@x,y,sd" or "R@x1,y1,x2,y2"
 	 * @return an instance of the Distribution class that represent the
 	 *         distribution represented in the string s
 	 */
 	public static Distribution parseDistribution(String s) {
-		if (s.charAt(0) != '(') {
-			throw new IllegalArgumentException("'(' missing at the begining of the distribution: " + s);
-		} else if (s.charAt(s.length() - 1) != ')') {
-			throw new IllegalArgumentException("')' missing at the end of the distribution: " + s);
+		if (s.charAt(0) != '@') {
+			throw new IllegalArgumentException("'@' missing at the begining of the distribution: " + s);
 		}
 
 		String[] params = s.substring(1, s.length() - 1).split(",");

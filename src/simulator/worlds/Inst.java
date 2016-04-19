@@ -114,7 +114,7 @@ public class Inst extends E1 {
 		institutions = new int[ROWS][COLS];
 		institutionsCenters = new int[ROWS][COLS];
 
-		institution_beliefs = new int[ROWS * COLS][FEATURES];
+		institution_traits = new int[ROWS * COLS][FEATURES];
 		institutionsN = new int[ROWS * COLS];
 
 		countryman_right_r = new int[ROWS][COLS];
@@ -129,7 +129,7 @@ public class Inst extends E1 {
 				institutionsCenters[r][c] = r * COLS + c;
 				institutionsN[r * COLS + c] = 1;
 				for (int f = 0; f < FEATURES; f++) {
-					institution_beliefs[r * COLS + c][f] = -1;
+					institution_traits[r * COLS + c][f] = -1;
 				}
 
 				countryman_right_r[r][c] = r;
@@ -154,7 +154,7 @@ public class Inst extends E1 {
 			int middle_trait = (int) Math.round(TRAITS / 2.0 - 0.01);
 
 			for (int f = 0; f < FEATURES; f++) {
-				institution_beliefs[institutions[nr][nc]][f] = middle_trait;
+				institution_traits[institutions[nr][nc]][f] = middle_trait;
 			}
 
 			for (int r = 0; r < ROWS; r++) {
@@ -173,7 +173,7 @@ public class Inst extends E1 {
 		super.reset();
 		institutions = null;
 		institutionsCenters = null;
-		institution_beliefs = null;
+		institution_traits = null;
 		institutionsN = null;
 		countryman_right_r = null;
 		countryman_right_c = null;
@@ -197,7 +197,7 @@ public class Inst extends E1 {
 	@Override
 	public void run_iterations() {
 
-		for (int ic = 0; ic < CHECKPOINT; ic++) {
+		for (int ic = 0; ic < SPEED; ic++) {
 
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
 
@@ -229,23 +229,23 @@ public class Inst extends E1 {
 
 				// Compare the agents
 				for (int f = 0; f < FEATURES; f++) {
-					if (beliefs[nr][nc][f] != DEAD_TRAIT) {
+					if (traits[nr][nc][f] != DEAD_TRAIT) {
 						non_death_features[non_death_traitsN] = f;
 						non_death_traitsN++;
-						if (beliefs[r][c][f] != beliefs[nr][nc][f]) {
+						if (traits[r][c][f] != traits[nr][nc][f]) {
 							mismatches[mismatchesN] = f;
 							mismatchesN++;
-							if (beliefs[r][c][f] != DEAD_TRAIT) {
+							if (traits[r][c][f] != DEAD_TRAIT) {
 								differences++;
 							}
 						}
 					} else {
 						differences++;
 					}
-					if (beliefs[r][c][f] == institution_beliefs[neighbors_institution][f]) {
+					if (traits[r][c][f] == institution_traits[neighbors_institution][f]) {
 						neighbors_institution_overlap++;
 					}
-					if (beliefs[r][c][f] == institution_beliefs[institution][f]) {
+					if (traits[r][c][f] == institution_traits[institution][f]) {
 						institution_overlap++;
 					}
 				}
@@ -263,16 +263,16 @@ public class Inst extends E1 {
 
 					// select the traits in play (agent's, neighbor's and
 					// institution's)
-					selected_trait = beliefs[nr][nc][selected_feature];
-					institution_trait = institution_beliefs[institution][selected_feature];
-					neighbors_institution_trait = institution_beliefs[neighbors_institution][selected_feature];
+					selected_trait = traits[nr][nc][selected_feature];
+					institution_trait = institution_traits[institution][selected_feature];
+					neighbors_institution_trait = institution_traits[neighbors_institution][selected_feature];
 
 					// When there is no institutional conflict because the
 					// institution favors the selected trait
 					// or because the trait is already different, then just use
 					// homophily
 					if (selected_trait == institution_trait
-							|| institution_trait != -1 && beliefs[r][c][selected_feature] != institution_trait) {
+							|| institution_trait != -1 && traits[r][c][selected_feature] != institution_trait) {
 
 						// check if there is actual interaction checking against
 						// the homophily and
@@ -285,7 +285,7 @@ public class Inst extends E1 {
 							//////////////////////
 							// CHANGE THE TRAIT //
 							//////////////////////
-							beliefs[r][c][selected_feature] = selected_trait;
+							traits[r][c][selected_feature] = selected_trait;
 						}
 
 					} else {
@@ -309,7 +309,7 @@ public class Inst extends E1 {
 							// then the cultural overlap
 							// will increase
 							if (institution_trait == selected_trait
-									&& beliefs[r][c][selected_feature] != institution_trait) {
+									&& traits[r][c][selected_feature] != institution_trait) {
 								institution_overlap++;
 							}
 							// otherwise, if the new trait is different from the
@@ -318,7 +318,7 @@ public class Inst extends E1 {
 							// institution then the cultural
 							// overlap will decrease
 							else if (institution_trait != selected_trait
-									&& beliefs[r][c][selected_feature] == institution_trait) {
+									&& traits[r][c][selected_feature] == institution_trait) {
 								institution_overlap--;
 							}
 
@@ -328,7 +328,7 @@ public class Inst extends E1 {
 							// then the institutional overlap
 							// will increase
 							if (neighbors_institution_trait == selected_trait
-									&& beliefs[r][c][selected_feature] != neighbors_institution_trait) {
+									&& traits[r][c][selected_feature] != neighbors_institution_trait) {
 								neighbors_institution_overlap++;
 							}
 							// otherwise, if the new trait is different from the
@@ -337,7 +337,7 @@ public class Inst extends E1 {
 							// institution then the institutional
 							// overlap will decrease
 							else if (neighbors_institution_trait != selected_trait
-									&& beliefs[r][c][selected_feature] == neighbors_institution_trait) {
+									&& traits[r][c][selected_feature] == neighbors_institution_trait) {
 								neighbors_institution_overlap--;
 							}
 
@@ -345,7 +345,7 @@ public class Inst extends E1 {
 							// institution hasn't been
 							// assigned yet, then it is an opportunity to be
 							// more similar
-							if (institution_beliefs[neighbors_institution][selected_feature] == -1) {
+							if (institution_traits[neighbors_institution][selected_feature] == -1) {
 								neighbors_institution_overlap++;
 							}
 
@@ -354,7 +354,7 @@ public class Inst extends E1 {
 							//////////////////////
 							// we change the trait after adjusting the overlaps
 							////////////////////// //
-							beliefs[r][c][selected_feature] = selected_trait;
+							traits[r][c][selected_feature] = selected_trait;
 
 							// when the agent doesn't have any similarity with
 							// the institutions then
@@ -437,8 +437,8 @@ public class Inst extends E1 {
 									// if there is no trait selected for the
 									// selected feature, then make the
 									// selected trait part of the institution
-									if (institution_beliefs[neighbors_institution][selected_feature] == -1) {
-										institution_beliefs[neighbors_institution][selected_feature] = selected_trait;
+									if (institution_traits[neighbors_institution][selected_feature] == -1) {
+										institution_traits[neighbors_institution][selected_feature] = selected_trait;
 									} // END of add a institutional trait to
 										// institution
 
@@ -457,13 +457,13 @@ public class Inst extends E1 {
 					mutant_feature = rand.nextInt(FEATURES);
 					// Don't change dead features
 					if (mutant_feature != DEAD_TRAIT) {
-						beliefs[r][c][mutant_feature] = rand.nextInt(TRAITS);
+						traits[r][c][mutant_feature] = rand.nextInt(TRAITS);
 					}
 				}
 
 			} // END of total agents
 
-			if (FREQ_DEM > 0 && (iteration * CHECKPOINT + ic + 1) % FREQ_DEM == 0) {
+			if (FREQ_DEM > 0 && (iteration * SPEED + ic + 1) % FREQ_DEM == 0) {
 				// log.print(IDENTIFIER,"Democratic Process");
 
 				// Democratic Process
@@ -496,8 +496,8 @@ public class Inst extends E1 {
 
 								// let the agent vote on all the active features
 								for (int f = 0; f < FEATURES; f++) {
-									if (beliefs[nr][nc][f] != DEAD_TRAIT) {
-										votes[f][beliefs[nr][nc][f]]++;
+									if (traits[nr][nc][f] != DEAD_TRAIT) {
+										votes[f][traits[nr][nc][f]]++;
 									}
 								}
 
@@ -528,8 +528,8 @@ public class Inst extends E1 {
 							// iterate over the active features
 							for (int f = 0; f < FEATURES; f++) {
 								culture_current_trait_votes = 0;
-								if (institution_beliefs[institution][f] != -1) {
-									culture_current_trait_votes = votes[f][institution_beliefs[institution][f]];
+								if (institution_traits[institution][f] != -1) {
+									culture_current_trait_votes = votes[f][institution_traits[institution][f]];
 								}
 								// search for the traits with most votes
 								for (int t = 0; t < TRAITS; t++) {
@@ -557,9 +557,9 @@ public class Inst extends E1 {
 								// (and only more) votes
 								// then randomly select one out of the winners
 								// and change the trait
-								if (institution_beliefs[institution][selected_feature] == -1
+								if (institution_traits[institution][selected_feature] == -1
 										|| max_difference_trait_votes > 0) {
-									institution_beliefs[institution][selected_feature] = max_traits[feature_trait_index];
+									institution_traits[institution][selected_feature] = max_traits[feature_trait_index];
 								}
 							}
 
@@ -573,7 +573,7 @@ public class Inst extends E1 {
 				hasnt_vote_flag = !hasnt_vote_flag;
 			}
 
-			if (FREQ_PROP > 0 && (iteration * CHECKPOINT + ic + 1) % FREQ_PROP == 0) {
+			if (FREQ_PROP > 0 && (iteration * SPEED + ic + 1) % FREQ_PROP == 0) {
 				// log.print(IDENTIFIER,"Prop Process");
 
 				// Propaganda Process
@@ -602,7 +602,7 @@ public class Inst extends E1 {
 								// count mismatches between the agent and the
 								// institution
 								for (int f = 0; f < FEATURES; f++) {
-									if (institution_beliefs[institution][f] != beliefs[nr][nc][f]) {
+									if (institution_traits[institution][f] != traits[nr][nc][f]) {
 										mismatchesN++;
 									}
 								}
@@ -611,10 +611,10 @@ public class Inst extends E1 {
 									// check if the propaganda has effect by
 									// measuring the similarity with the
 									// institution
-									if (institution_beliefs[institution][f] != -1
-											&& beliefs[nr][nc][f] != institution_beliefs[institution][f]
+									if (institution_traits[institution][f] != -1
+											&& traits[nr][nc][f] != institution_traits[institution][f]
 											&& rand.nextFloat() > mismatchesN / (float) FEATURES) {
-										beliefs[nr][nc][f] = institution_beliefs[institution][f];
+										traits[nr][nc][f] = institution_traits[institution][f];
 									}
 								}
 
@@ -866,7 +866,7 @@ public class Inst extends E1 {
 			for (int f = 0; f < FEATURES; f++) {
 				if (Math.random() < prob) {
 					this.removed_traits++;
-					institution_beliefs[institution][f] = -1;
+					institution_traits[institution][f] = -1;
 				}
 			}
 		}
@@ -878,7 +878,7 @@ public class Inst extends E1 {
 		if (institution != EMPTY && institutionsN[institution] > 0) {
 			this.removed_institutions++;
 			for (int f = 0; f < FEATURES; f++) {
-				institution_beliefs[institution][f] = -1;
+				institution_traits[institution][f] = -1;
 			}
 		}
 	}
@@ -942,7 +942,7 @@ public class Inst extends E1 {
 		if (institution != EMPTY && institutionsN[institution] > 0) {
 			this.converted_institutions++;
 			for (int f = 0; f < FEATURES; f++) {
-				institution_beliefs[institution][f] = TRAITS;
+				institution_traits[institution][f] = TRAITS;
 			}
 		}
 	}
@@ -954,7 +954,7 @@ public class Inst extends E1 {
 			for (int f = 0; f < FEATURES; f++) {
 				if (Math.random() < prob) {
 					this.converted_traits++;
-					institution_beliefs[institution][f] = TRAITS;
+					institution_traits[institution][f] = TRAITS;
 				}
 			}
 		}
@@ -965,7 +965,7 @@ public class Inst extends E1 {
 		int institution = abandon_institution(r, c);
 
 		for (int f = 0; f < FEATURES; f++) {
-			beliefs[r][c][f] = TRAITS;
+			traits[r][c][f] = TRAITS;
 		}
 
 		return institution;
@@ -976,7 +976,7 @@ public class Inst extends E1 {
 		this.invaders++;
 		move_to_institution(r, c, nr, nc);
 		for (int f = 0; f < FEATURES; f++) {
-			beliefs[r][c][f] = TRAITS;
+			traits[r][c][f] = TRAITS;
 		}
 	}
 
@@ -985,7 +985,7 @@ public class Inst extends E1 {
 		this.casualties++;
 		abandon_institution(r, c);
 		for (int f = 0; f < FEATURES; f++) {
-			beliefs[r][c][f] = DEAD_TRAIT;
+			traits[r][c][f] = DEAD_TRAIT;
 		}
 	}
 
@@ -1034,7 +1034,7 @@ public class Inst extends E1 {
 
 		// Remove the traits of the new (empty) institution
 		for (int f = 0; f < FEATURES; f++) {
-			institution_beliefs[institutions[r][c]][f] = INACTIVE_TRAIT;
+			institution_traits[institutions[r][c]][f] = INACTIVE_TRAIT;
 		}
 
 		return institution;
@@ -1101,26 +1101,26 @@ public class Inst extends E1 {
 	protected void update_gui() {
 		super.update_gui();
 		if (!Controller.IS_BATCH) {
-			display_institutional_beliefs_space();
+			display_institutional_cultural_space();
 		}
 	}
 
 	/**
-	 * Display the institutional belief state in the interface
+	 * Display the institutional cultural state in the interface
 	 */
-	private void display_institutional_beliefs_space() {
+	private void display_institutional_cultural_space() {
 		calculate_institutions_centers();
 
-		BufferedImage alife_institutional_beliefs_space_image = new BufferedImage(ROWS, COLS,
+		BufferedImage alife_institutional_cultural_space_image = new BufferedImage(ROWS, COLS,
 				BufferedImage.TYPE_INT_RGB);
-		String ohex_alife_institutions_beliefs_space_image = "";
+		String ohex_alife_institutions_cultural_space_image = "";
 
 		BufferedImage alife_insititutions_image = new BufferedImage(ROWS, COLS, BufferedImage.TYPE_INT_RGB);
 		String alife_institution_ohex;
 
-		BufferedImage institutonal_beliefs_association_image = new BufferedImage(ROWS, COLS,
+		BufferedImage institutonal_cultural_association_image = new BufferedImage(ROWS, COLS,
 				BufferedImage.TYPE_INT_RGB);
-		String institutonal_beliefs_association_ohex = "";
+		String institutonal_cultural_association_ohex = "";
 
 		int institution = 0;
 		int belonging_institution = 0;
@@ -1130,27 +1130,27 @@ public class Inst extends E1 {
 				institution = institutionsCenters[r][c];
 				belonging_institution = institutions[r][c];
 
-				ohex_alife_institutions_beliefs_space_image = "";
-				institutonal_beliefs_association_ohex = "";
+				ohex_alife_institutions_cultural_space_image = "";
+				institutonal_cultural_association_ohex = "";
 				alife_institution_ohex = "";
 
 				// Institution association
 				for (int f = 0; f < Math.min(FEATURES, 6); f++) {
-					institutonal_beliefs_association_ohex += get_color_for_trait(
-							institution_beliefs[belonging_institution][f]);
+					institutonal_cultural_association_ohex += get_color_for_trait(
+							institution_traits[belonging_institution][f]);
 				}
-				institutonal_beliefs_association_ohex = "#" + institutonal_beliefs_association_ohex;
+				institutonal_cultural_association_ohex = "#" + institutonal_cultural_association_ohex;
 
 				// Institution association
 				if (institution == EMPTY) {
-					ohex_alife_institutions_beliefs_space_image = "000000";
+					ohex_alife_institutions_cultural_space_image = "000000";
 				} else {
 					for (int f = 0; f < Math.min(FEATURES, 6); f++) {
-						ohex_alife_institutions_beliefs_space_image += get_color_for_trait(
-								institution_beliefs[institution][f]);
+						ohex_alife_institutions_cultural_space_image += get_color_for_trait(
+								institution_traits[institution][f]);
 					}
 				}
-				ohex_alife_institutions_beliefs_space_image = "#" + ohex_alife_institutions_beliefs_space_image;
+				ohex_alife_institutions_cultural_space_image = "#" + ohex_alife_institutions_cultural_space_image;
 
 				// Alife Institutions
 				if (institution == EMPTY) {
@@ -1160,17 +1160,17 @@ public class Inst extends E1 {
 				}
 
 				alife_insititutions_image.setRGB(r, c, Color.decode(alife_institution_ohex).getRGB());
-				alife_institutional_beliefs_space_image.setRGB(r, c,
-						Color.decode(ohex_alife_institutions_beliefs_space_image).getRGB());
-				institutonal_beliefs_association_image.setRGB(r, c,
-						Color.decode(institutonal_beliefs_association_ohex).getRGB());
+				alife_institutional_cultural_space_image.setRGB(r, c,
+						Color.decode(ohex_alife_institutions_cultural_space_image).getRGB());
+				institutonal_cultural_association_image.setRGB(r, c,
+						Color.decode(institutonal_cultural_association_ohex).getRGB());
 
 			}
 		}
 
-		CulturalSimulator.set_institutional_beliefs_association(institutonal_beliefs_association_image);
+		CulturalSimulator.set_institutional_cultural_association(institutonal_cultural_association_image);
 		CulturalSimulator.set_alife_institutions(alife_insititutions_image);
-		CulturalSimulator.set_alife_institutional_beliefs_space(alife_institutional_beliefs_space_image);
+		CulturalSimulator.set_alife_institutional_cultural_space(alife_institutional_cultural_space_image);
 	}
 
 	/**

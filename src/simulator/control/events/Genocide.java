@@ -9,7 +9,7 @@ import simulator.control.Simulation;
  * @author Roberto Ulloa
  * @version 1.0, April 2016
  */
-public class Murder extends Event {
+public class Genocide extends Event {
 	private static final long serialVersionUID = 3408040472593937200L;
 
 	/**
@@ -22,7 +22,7 @@ public class Murder extends Event {
 	 *            distribution, in which an event could occur with equal
 	 *            probability in each cell)
 	 */
-	public Murder(Distribution d) {
+	public Genocide(Distribution d) {
 		super(d);
 	}
 
