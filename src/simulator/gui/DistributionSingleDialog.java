@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.awt.event.ActionEvent;
+import java.awt.Dimension;
 
 /**
  * Interface that let you pick up and configure different distributions for one
@@ -70,6 +71,7 @@ public class DistributionSingleDialog extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.setPreferredSize(new Dimension(75, 25));
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						for (Iterator<Notifiable> i = notifiables.iterator(); i.hasNext();) {

@@ -37,6 +37,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.ImageIcon;
+import java.awt.Dimension;
 
 /**
  * Interface for setting the initial parameters of the simulation.
@@ -477,6 +478,7 @@ public class CulturalParameters extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.setPreferredSize(new Dimension(75, 25));
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						if (CulturalSimulator.want_to_continue(CulturalParameters.this)) {
@@ -494,6 +496,7 @@ public class CulturalParameters extends JDialog {
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
+				cancelButton.setPreferredSize(new Dimension(75, 25));
 				cancelButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						jfc_workspace.setCurrentDirectory(new File(Controller.WORKSPACE_DIR));

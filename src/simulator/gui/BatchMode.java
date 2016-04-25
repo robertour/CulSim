@@ -269,13 +269,12 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_catastrophic.add(scroll_pane);
 
 		ta_set_events = new JTextArea();
-		ta_set_events.setFont(new Font("Tahoma", Font.PLAIN, 9));
+		ta_set_events.setFont(new Font("Sans Serif", Font.PLAIN, 9));
 		ta_set_events.setEditable(false);
 		scroll_pane.setViewportView(ta_set_events);
 
 		JButton btnLoad = new JButton("Load");
 		btnLoad.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open.png")));
-		btnLoad.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnLoad.addActionListener(new ActionListener() {
 			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent e) {
@@ -301,7 +300,6 @@ public class BatchMode extends JDialog implements Notifiable {
 
 		JButton btnClearEvents = new JButton("Clear");
 		btnClearEvents.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/edit-clear-list.png")));
-		btnClearEvents.setBorder(new EmptyBorder(0, 0, 0, 0));
 		btnClearEvents.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				events.clear();

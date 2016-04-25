@@ -6,7 +6,9 @@ import java.awt.Graphics2D;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.text.DefaultCaret;
 
 import simulator.control.Controller;
@@ -50,6 +52,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 
 import javax.swing.JLabel;
@@ -198,7 +201,16 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			public void run() {
 
 				try {
-					UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+					
+					if (UIManager.getSystemLookAndFeelClassName().toLowerCase().contains("windows")){
+						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} else {
+						setUIFont (new javax.swing.plaf.FontUIResource("Tahoma",Font.PLAIN,11));
+						UIManager.put("Button.background",  Color.decode("#dddddd"));
+						UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+					}
+					
+					
 
 					CulturalSimulator frame = new CulturalSimulator();
 					frame.setVisible(true);
@@ -208,6 +220,21 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 	}
+	
+	
+	/**
+	 * Change the font of the components in the interface
+	 * @param font the desired font
+	 */
+	private static void setUIFont (javax.swing.plaf.FontUIResource f){
+	    Enumeration<Object> keys = UIManager.getDefaults().keys();
+	    while (keys.hasMoreElements()) {
+	      Object key = keys.nextElement();
+	      Object value = UIManager.get (key);
+	      if (value != null && value instanceof javax.swing.plaf.FontUIResource)
+	        UIManager.put (key, f);
+	      }
+	    } 
 
 	/**
 	 * Create the frame.
@@ -475,7 +502,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 		OutputArea output_area = new OutputArea();
 		output_area.setLineWrap(true);
-		output_area.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		output_area.setFont(new Font("Sans Serif", Font.PLAIN, 9));
 		output_area.setEditable(false);
 		scrollPane.setViewportView(output_area);
 		splitGraphVsOutput.setDividerLocation(500);
@@ -741,10 +768,10 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 		JScrollPane scrollEventSet = new JScrollPane();
 		scrollEventSet.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		panelSet.add(scrollEventSet, BorderLayout.NORTH);
+		panelSet.add(scrollEventSet, BorderLayout.CENTER);
 
 		taEventSet = new JTextArea();
-		taEventSet.setRows(5);
+		taEventSet.setRows(4);
 		taEventSet.setFont(new Font("Arial Narrow", Font.PLAIN, 10));
 		taEventSet.setEditable(false);
 		scrollEventSet.setViewportView(taEventSet);
@@ -753,7 +780,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		FlowLayout fl_eventSetControls = (FlowLayout) eventSetControls.getLayout();
 		fl_eventSetControls.setVgap(1);
 		fl_eventSetControls.setAlignment(FlowLayout.RIGHT);
-		panelSet.add(eventSetControls, BorderLayout.CENTER);
+		panelSet.add(eventSetControls, BorderLayout.SOUTH);
 
 		JButton btnOpenEventSet = new JButton("");
 		btnOpenEventSet.setToolTipText("Open events");

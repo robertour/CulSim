@@ -21,6 +21,7 @@ import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import java.awt.Dimension;
 
 /**
  * Interface to configure a parameter event in the simulation, i.e. an event
@@ -215,6 +216,7 @@ public class ParametersEventDialog extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.setPreferredSize(new Dimension(50, 25));
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						update_notifiables();
