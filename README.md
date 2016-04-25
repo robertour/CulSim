@@ -3,105 +3,66 @@ cultural-simulations
 
 This repository contains a set of java simulations for artificial societies. The simulations are related to the 
 emergence of differenct cultures (groups of agents with the same features), and how to estabilize them in the
-presence of noise, and destruction. It is a work in progress.
+presence of noise, and destruction. The code is very stable and an interface has been added. Here is a [user manual](https://github.com/robertour/cultural-simulations/wiki).
 
-Right now, this code replicate the work of 
-[Flache & Macy 2011](http://jcr.sagepub.com/content/early/2011/07/30/0022002711414371).
+The code implements several extensions to the seminal work of [Axelrod 1997](http://jcr.sagepub.com/content/41/2/203.short). It includes mutation, a source of perturbation to the cultural traits as proposed by [Klemm et. al 2003](http://arxiv.org/abs/cond-mat/0205188), multilateral social influence, initial suggested by [Parisi et. al  2003](http://jcr.sagepub.com/content/47/2/163.refs?patientinform-links=yes&legid=spjcr;47/2/163) and [Centola et. al 2007](http://jcr.sagepub.com/content/51/6/905.short), and finally adapted by [Flache & Macy 2011](http://jcr.sagepub.com/content/early/2011/07/30/0022002711414371) who also introduce another source of noise: selection error. Finally, it also includes institutions as we proposed in [Ulloa et. al.](http://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0153334), including institutional process such as propaganda and democracy.
 
-Flache & Marcy works presented a simulation that succesfully estabilize cultural groups that emerges bottom-up
-from the interaction of agentes
+Apart from that, now it includes catastrophic (or no so catastrophic) events that affects the simulation in execution times. These events simulates catastrophic events such as genocide, invasion, attacks to institutions content and structure, and loss of faith in institutions (apostasy), but also not necessarily catastrophic events such as change of noise, democracy or institutional influence rates.
 
-The repository consists of an eclipse project, and initially it contains 4 simulations, based in the original
-work and three experiments of Flache & Macy's paper.
-
-1. **Axelrod (Seminal Work) - Axelrod.class**: A replication of the seminal work of 
-[Axelrod 1997](http://jcr.sagepub.com/content/41/2/203.short).
-
-2. **Homophily with interpersonal influence - FlacheExperiment1.class **: A replication of the seminal work of 
-[Axelrod 1997](http://jcr.sagepub.com/content/41/2/203.short), with includes the modification of 
-[Klemm et. al 2003](http://arxiv.org/abs/cond-mat/0205188), in which the estability of the system is easily 
-perturbed by low levels of noise.
-
-3. **Social influence model without homophily - FlacheExperiment2.class **: A replication of the solution introduced by 
-[Parisi et. al 2003](http://jcr.sagepub.com/content/47/2/163.refs?patientinform-links=yes&legid=spjcr;47/2/163), 
-in which social influence is introduced to estabilize the simulation.
-
-4. ** Social influence model with homophily - FlacheExperiment1.class  **: A replication of the combination of the 
-ideas of [Parisi et. al 2003](http://jcr.sagepub.com/content/47/2/163.refs?patientinform-links=yes&legid=spjcr;47/2/163)
-and [Centola et. al 2007](http://jcr.sagepub.com/content/51/6/905.short)
-
-Apart from that, it contains my simulations ( ** Ulloa[##].class **). They contain some ideas for my PhD Thesis: 
-obtain stability (resilience to noise) of the culture with centralized repositories. Once I get interesting results, 
-I will be updating this documentation, for now the headers of each `.java` file has a brief explanation of the main
-ideas.
-
-----------
 
 How to use it?
 --------------
 
-There is no live GUI. That means there is no screen where you can see the agents. If you want a better visual
-understanding of the Axelrod model, I suggest you to start with any of the following implementations in Netlogo:
+The wiki (user manual) is [now available](https://github.com/robertour/cultural-simulations/wiki), and a GUI; the [Quick Start] (https://github.com/robertour/cultural-simulations/wiki/A.-Quick-Start) will introduce you very fast.
 
-	http://ccl.northwestern.edu/netlogo/models/community/Axelrod_Cultural_Dissemination
-	http://ccl.northwestern.edu/netlogo/models/community/cultura
-	http://ccl.northwestern.edu/netlogo/models/community/Dissemination%20of%20Culture
+There is also a [Batch Mode](https://github.com/robertour/cultural-simulations/wiki/I.-Batch-Mode) and a [Command Line Interface](https://github.com/robertour/cultural-simulations/wiki/J.-Command-Line-Interface) to run experimental designs. Statistical analysis of the resutls is possible through the [Output Files](https://github.com/robertour/cultural-simulations/wiki/H.-Output-Files).
 
-Right now, the interface allows you to select the Experimental Design File (`sample.csv` is an example provided) and the results folder. The Experimental Design File contains the following columns that you can play with:
-
-- REPETIONS: # of times the configuration is repeated, for statistical analysis
-- TYPE: The implementation. Possible values: [AXELROD|FLACHE_EXPERIMENT[1-3]|ULLOA[1-10|1B|1C]
-- ITERATIONS: # of desired checkpoints
-- CHECKPOINT: # of clicks (real iterations) before we collect some data. In each click COLS * ROWS randomly selected agents interact.  
-- BUFFERED_SIZE: the size of the buffers. Bigger is better to avoid I/O outputs
-- ROWS: # of rows of the world
-- COLS:  # of columns of the world
-- FEATURES: # of characteristics of the culture. Each feature represents a possible dimension of the culture, e.g. music
-- TRAITS: # of possible values of the culture. Each trait represent a possible value for a feature, e.g. rock
-- **ALPHA:**  institutional influence, if applies
-- **ALPHA_PRIME:** agent loyalty, if applies
-- **FREQ_PROC:** inverse frequency of an institutional process (either propaganda or democracy)
-- **FREQ_PROC2:** inverse frequency of a propaganda process that applies just when democracy is presence (EXPERIMENT F).
-- MUTATION: probability of a random change in the agent's vector after an interaction
-- SELECTION_ERROR: probability of making a mistake in the selection of the agent with which the interaction will be performed
-
-Then you have 1 button to start the simulation: `Start`.
-
-A folder `results` (or `results#` if `results` exist) is created, and it contains a file `results.csv` with the final results of each simulation. Also a folder called iterations that contains details of the iteration for
-each simulation.
-
-----------
 
 About this implementation
----------------------------------------
+--------------------------
 
-This code was created with the goal of running fast. Sacrifices were made to achieve this:
+This code was created with the goal of running fast, most of them apply to the Batch Mode or Command Line Interfacce:
 
-1. There is no GUI that shows the evolution of the agents. All is kept in memory and I/O 
-access is kept at the minimum.
+1. All is kept in memory and I/O access is kept at the minimum.
 
-2. Each simulation is run in a different core. There will be as many threads as your computer
-have running at the same time. If you have 4 cores, you will have 4 threads (simulations) 
-running simultaneously, and the rest waiting for them to finish.
+2. Each simulation is run in a different core. There will be as many threads as your computer have running at the same time. If you have 4 cores, you will have 4 threads (simulations) running simultaneously, and the rest waiting for them to finish.
 
-3. The use of objects in the simulation is avoided. Instead, direct Java Matrices is used.
-You will see a lot of confusing indexes, fun times!! In 10 years, you may have a powerful
-machine at home to make a Netlogo version, and yet be able to run it in your phone. For now,
-my laptop can not do any better. Yes, I tried Netlogo, it is just way to slow.
+3. The use of objects in the simulation is avoided in the classes that correspond to the core implementation of the simulation. Instead, direct Java Matrices is used. You will see a lot of confusing indexes, fun times!! I did my best to keep decent names for them without being extremely verbose, and it is very well documented.
  
-4. Modularization is avoided in order to reduce the number of method calls. This becomes
-significant when a code has to run for 102 400 000 times (in a 32x32)
+4. Modularization in the simulation core method is avoided in order to reduce the number of method calls. 
 
-5. As a consequence of the previous, the code is repetitive. Each class (that inherits
-from simulation) re-implement the wheel. You will find that most of the code in 
-`run_experiment` is very repetitive, i.e. I didn't factorize intentionally.
+5. As a consequence of the previous, the code is repetitive. Each class (that inherits from simulation) re-implement the wheel. You will find that most of the code in `run_experiment` is very repetitive, i.e. I didn't factorize intentionally.
 
 6. Buffered writers are used, so I/O is reduced and the output to files is not immediate.
 
-----------
 
 Installation
----------------
+-------------
 
-Just run the cultural-simulator.jar with `java -jar cultural-simulator.jar`. 
+Install Java 1.8, it might work in 1.7 but I am not sure. It also need to be tested with IcedTea because it was not working a few months ago; if it doesnt, Oracle will have to be.
 
+###### For **windows users**: 
+
+ * If you don't know how to use the terminal/command line, try:
+  1. Right click in the `culsim.jar` file
+  2. Open With...
+  3. Select "Java runtime environment"
+  4. After that double click should be enough.
+ 
+ * Alternatively, you can double click the `culsim.bat`
+ 
+ * If not the open the Windows CMD:
+  1. Go to the directory that contains the `culsim.jar`
+  2. Write  `java -jar culsim.jar`
+  3. Hit Enter
+
+###### For **Linux/Unix users**: 
+
+  1. Press `Ctrol+t`
+  2. Go to the directory that contains the `culsim.jar` and `culsim.sh`
+  2. Write `./culsim.sh` or `java -jar culsim.jar`
+  3. Hit Enter
+
+###### For **Mac users**: 
+
+  It should be the same as for Linux/Unix users, but I have no relation with macs, so please let me know.
