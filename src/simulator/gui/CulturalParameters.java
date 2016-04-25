@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.event.ActionListener;
@@ -97,12 +98,6 @@ public class CulturalParameters extends JDialog {
 	private JFileChooser jfc_workspace = new JFileChooser(Controller.WORKSPACE_DIR);
 
 	/**
-	 * Some preset configurations that allows the repetition of published
-	 * simulations
-	 */
-	private JComboBox<String> cb_presets;
-
-	/**
 	 * Save the workspace directory
 	 */
 	private JTextField tf_workspace_dir;
@@ -138,7 +133,7 @@ public class CulturalParameters extends JDialog {
 			JPanel panel_1 = new JPanel();
 			panel_1.setBorder(
 					new TitledBorder(null, "Configuration", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			panel_1.setBounds(10, 11, 655, 256);
+			panel_1.setBounds(10, 11, 655, 243);
 			contentPanel.add(panel_1);
 			panel_1.setLayout(null);
 			{
@@ -393,32 +388,11 @@ public class CulturalParameters extends JDialog {
 			try {
 				classSelector.setModel(new DefaultComboBoxModel<String>(getClasses(packs)));
 				{
-					JLabel lblLoadExample = new JLabel("Load Preset:");
-					lblLoadExample.setBounds(10, 221, 101, 23);
-					panel_1.add(lblLoadExample);
-				}
-				{
-					cb_presets = new JComboBox<String>();
-					cb_presets.setBounds(101, 221, 320, 23);
-					panel_1.add(cb_presets);
-					cb_presets.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							if (CulturalSimulator.want_to_continue(CulturalParameters.this)) {
-								if (cb_presets.getSelectedIndex() != 0) {
-									controller.load_parameters(
-											Controller.PRESETS_DIR + (String) cb_presets.getSelectedItem());
-								}
-							}
-						}
-					});
-					cb_presets.setModel(new DefaultComboBoxModel<String>(listFiles("./" + Controller.PRESETS_DIR)));
-				}
-				{
 					JButton btn_save = new JButton("Save");
 					btn_save.setToolTipText("Save configuration to file");
 					btn_save.setIcon(
 							new ImageIcon(CulturalParameters.class.getResource("/simulator/img/document-save.png")));
-					btn_save.setBounds(431, 221, 101, 23);
+					btn_save.setBounds(432, 208, 101, 23);
 					panel_1.add(btn_save);
 					{
 						File conf_dir = new File(Controller.WORKSPACE_DIR + Controller.CONFIGURATIONS_DIR);
@@ -430,17 +404,17 @@ public class CulturalParameters extends JDialog {
 						btn_load.setIcon(new ImageIcon(
 								CulturalParameters.class.getResource("/simulator/img/document-open.png")));
 						btn_load.setToolTipText("Load configuration from file");
-						btn_load.setBounds(542, 221, 101, 23);
+						btn_load.setBounds(543, 208, 101, 23);
 						panel_1.add(btn_load);
 						{
 							JLabel lblWorkspaceDirectory = new JLabel("Workspace:");
-							lblWorkspaceDirectory.setBounds(10, 278, 104, 20);
+							lblWorkspaceDirectory.setBounds(10, 275, 104, 20);
 							contentPanel.add(lblWorkspaceDirectory);
 						}
 
 						tf_workspace_dir = new JTextField();
 						tf_workspace_dir.setEditable(false);
-						tf_workspace_dir.setBounds(76, 278, 467, 20);
+						tf_workspace_dir.setBounds(76, 275, 467, 20);
 						contentPanel.add(tf_workspace_dir);
 						tf_workspace_dir.setColumns(10);
 						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + "\\");
@@ -455,7 +429,7 @@ public class CulturalParameters extends JDialog {
 								}
 							}
 						});
-						btnBrowse.setBounds(553, 277, 108, 23);
+						btnBrowse.setBounds(553, 274, 108, 23);
 						contentPanel.add(btnBrowse);
 						btn_load.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
@@ -495,7 +469,7 @@ public class CulturalParameters extends JDialog {
 				}
 			} catch (ClassNotFoundException | IOException e) {
 				e.printStackTrace();
-			}
+			} 
 		}
 		{
 			JPanel buttonPane = new JPanel();
@@ -602,43 +576,10 @@ public class CulturalParameters extends JDialog {
 						e.printStackTrace();
 					}
 							
-						
-					
 					
 				}
 			}
 		}
 	}
 
-	/**
-	 * List all the files under a directory
-	 * 
-	 * @param directoryName
-	 *            to be listed
-	 * @return the file names list
-	 */
-	private static String[] listFiles(String directoryName) {
-
-		ArrayList<String> filenames = new ArrayList<String>();
-
-		File directory = new File(directoryName);
-		if (!directory.exists()) {
-			directory.mkdirs();
-		}
-
-		File[] fList = directory.listFiles();
-
-		filenames.add("None");
-
-		for (File file : fList) {
-
-			if (file.isFile()) {
-				filenames.add(file.getName());
-			}
-
-		}
-
-		return filenames.toArray(new String[filenames.size()]);
-
-	}
 }

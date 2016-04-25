@@ -352,10 +352,14 @@ public class ControllerSingle extends Controller {
 						+ (new File(results_dir)).getName() + "-" + identifier + ".csv"), "utf-8"));
 
 		writer.write(Simulation.header());
+		writer.newLine();
 		writer2.write(Simulation.header());
+		writer2.newLine();
 
 		writer.write(simulation.get_results());
+		writer.newLine();
 		writer2.write(simulation.get_results());
+		writer2.newLine();
 
 		writer.close();
 		writer2.close();

@@ -63,6 +63,11 @@ public class Main {
 		int rep = -1;
 		boolean collecting_events_args = false;
 		ArrayList<Event> events = new ArrayList<Event>();
+		
+		if (args.length == 0){
+			CulturalSimulator.launch();
+			return;
+		}
 
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i].charAt(0)) {
@@ -165,14 +170,14 @@ public class Main {
 					sim_list.add(child.getAbsolutePath());
 				}
 			} else {
-				throw new IllegalArgumentException("The " + rd + ControllerBatch.SIMULATIONS_DIR
+				throw new IllegalArgumentException("The " + simulations_dir
 						+ " directory didn't contain any simulations. Please make sure you are "
 						+ "providing a directory with the results of a Batch process.");
 			}
 		} else {
-			throw new IllegalArgumentException("The " + rd + ControllerBatch.SIMULATIONS_DIR
-					+ " directory didn't contain any simulations. Please make sure you are "
-					+ "providing a directory with the results of a Batch process.");
+			throw new IllegalArgumentException("The " + simulations_dir
+					+ " directory doesn't exist. Please make sure you are providing a results"
+					+ " directory of previously executed experiment.");
 		}
 
 		try {

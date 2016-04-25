@@ -110,13 +110,11 @@ public class ParameterChange extends Event {
 	 * @return an event that was represented in the string
 	 */
 	public static ParameterChange parseParameterChange(String s) {
-		if (s.charAt(0) != '(') {
-			throw new IllegalArgumentException("'(' missing at the begining of the parameter specification: " + s);
-		} else if (s.charAt(s.length() - 1) != ')') {
-			throw new IllegalArgumentException("')' missing at the end of the parameter specification: " + s);
-		}
+		if (s.charAt(0) != '@') {
+			throw new IllegalArgumentException("'@' missing at the begining of the parameter specification: " + s);
+		} 
 
-		String[] params = s.substring(1, s.length() - 1).split(",");
+		String[] params = s.substring(1, s.length()).split(",");
 		if (params.length != 2) {
 			throw new IllegalArgumentException(s + " needs 2 arguments, " + params.length + " were given instead");
 		}
@@ -140,8 +138,8 @@ public class ParameterChange extends Event {
 			pc.propaganda = Integer.parseInt(params[1]);
 		else
 			throw new IllegalArgumentException("Invalid parameter: " + s + ". Options are "
-					+ "(parameter,y), where parameter can be iteration, speed, mutation, "
-					+ "selection, influence, loyalty, democracia, or propaganda");
+					+ "(parameter,y), where parameter can be iterations, speed, mutation, "
+					+ "selection, influence, loyalty, democracy, or propaganda");
 
 		return pc;
 

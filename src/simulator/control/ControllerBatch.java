@@ -172,15 +172,15 @@ public class ControllerBatch extends Controller {
 				simulation.BUFFERED_SIZE = Integer.parseInt(scanner.next());
 				simulation.ROWS = Integer.parseInt(scanner.next());
 				simulation.COLS = Integer.parseInt(scanner.next());
+				simulation.RADIUS = Integer.parseInt(scanner.next());
 				simulation.FEATURES = Integer.parseInt(scanner.next());
 				simulation.TRAITS = Integer.parseInt(scanner.next());
-				simulation.RADIUS = Integer.parseInt(scanner.next());
+				simulation.MUTATION = Float.parseFloat(scanner.next());
+				simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
 				simulation.ALPHA = Float.parseFloat(scanner.next());
 				simulation.ALPHA_PRIME = Float.parseFloat(scanner.next());
 				simulation.FREQ_DEM = Integer.parseInt(scanner.next());
 				simulation.FREQ_PROP = Integer.parseInt(scanner.next());
-				simulation.MUTATION = Float.parseFloat(scanner.next());
-				simulation.SELECTION_ERROR = Float.parseFloat(scanner.next());
 				simulation.log = log;
 
 				// Generate tasks per repetitions
@@ -213,10 +213,14 @@ public class ControllerBatch extends Controller {
 				new OutputStreamWriter(new FileOutputStream((new File(results_dir)).getParent() + "/" + RESULTSET_DIR
 						+ (new File(results_dir)).getName() + "-" + identifier + ".csv"), "utf-8"));
 		writer.write(Simulation.header());
+		writer.newLine();
 		writer2.write(Simulation.header());
+		writer2.newLine();
 		for (Simulation w : simulations) {
 			writer.write(w.get_results());
+			writer.newLine();
 			writer2.write(w.get_results());
+			writer2.newLine();
 		}
 		writer.close();
 		writer2.close();
@@ -232,12 +236,15 @@ public class ControllerBatch extends Controller {
 		BufferedWriter writer = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(results_dir + "events.txt"), "utf-8"));
 		if (events.size() > 0) {
-			writer.write("The following events have been set up for the scenarios: \n");
+			writer.write("The following events have been set up for the scenarios:");
+			writer.newLine();
 			for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
-				writer.write(iterator.next() + "\n");
+				writer.write(iterator.next().toString());
+				writer.newLine();
 			}
 		} else {
-			writer.write("No events were set up for the present scenario. \n");
+			writer.write("No events were set up for the present scenario.");
+			writer.newLine();
 		}
 		writer.close();
 	}

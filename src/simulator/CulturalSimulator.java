@@ -192,11 +192,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 	/**
 	 * This the event that launches the application
-	 * 
-	 * @param args
-	 *            no arguments defined
 	 */
-	public static void main(String[] args) {
+	public static void launch() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 

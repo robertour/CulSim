@@ -442,6 +442,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 			try {
 				writer.write(results());
+				writer.newLine();
 				log.print(IDENTIFIER, "Initial results were written. \n");
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -590,6 +591,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 							+ "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"),
 					BUFFERED_SIZE);
 			writer.write(header());
+			writer.newLine();
 			writer.flush();
 			writer.close();
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
@@ -638,6 +640,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			// write results of the current checkpoint
 			try {
 				writer.write(r);
+				writer.newLine();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -686,6 +689,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			// write results of the current checkpoint
 			try {
 				writer.write(r);
+				writer.newLine();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -828,7 +832,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Return a CSV header for the output
 	 * 
-	 * @return header fo the output files
+	 * @return header for the output files
 	 */
 	public static String header() {
 		return "id,timestamp,duration," + "model,random_initialization," + "iterations,speed,"
@@ -839,7 +843,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ "neumann_pos_sim,neumann_size_sim,neumann_traits_sim,"
 				+ "institutions,biggest_institution,pixel_institution_similarity," + "alife,foreign,"
 				+ "destroyed_institutions,stateless,apostates," + "removed_institutions,removed_traits,"
-				+ "converted_institutions,converted_traits," + "invaders,casualties," + "\n";
+				+ "converted_institutions,converted_traits," + "invaders,casualties";
 
 	}
 
@@ -861,7 +865,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ "," + neumann_similarity[TRAITS_SIM] + "," + alife_institutions + "," + biggest_institution + ","
 				+ institution_similarity + "," + alife_traits + "," + foreiners_traits + "," + destoyed_institutions
 				+ "," + stateless + "," + apostates + "," + removed_institutions + "," + removed_traits + ","
-				+ converted_institutions + "," + converted_traits + "," + invaders + "," + casualties + "\n";
+				+ converted_institutions + "," + converted_traits + "," + invaders + "," + casualties;
 	}
 
 	/**

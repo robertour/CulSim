@@ -448,7 +448,7 @@ public class Distribution implements Serializable {
 			throw new IllegalArgumentException("'@' missing at the begining of the distribution: " + s);
 		}
 
-		String[] params = s.substring(1, s.length() - 1).split(",");
+		String[] params = s.substring(1, s.length()).split(",");
 		if (params[0].length() != 1) {
 			throw new IllegalArgumentException(params[0] + " is not a valid distribution in " + s);
 		}

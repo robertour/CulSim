@@ -80,7 +80,7 @@ public abstract class Event implements Serializable {
 	 * A representation of the event.
 	 */
 	public String toString() {
-		return "Event: " + distribution.toString();
+		return distribution.toString();
 	}
 
 	/**
