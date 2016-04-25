@@ -198,12 +198,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			public void run() {
 
 				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 
-					UIManager.getDefaults().put("TabbedPane.contentBorderInsets", new Insets(1, 0, 0, 0));
-					UIManager.getDefaults().put("TabbedPane.tabAreaInsets", new Insets(0, 0, 0, 0));
-					UIManager.getDefaults().put("TabbedPane.tabsOverlapBorder", true);
-					UIManager.getDefaults().put("TabbedPane.lightHighlight", Color.BLACK);
 					CulturalSimulator frame = new CulturalSimulator();
 					frame.setVisible(true);
 				} catch (Exception e) {
