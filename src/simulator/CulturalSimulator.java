@@ -205,7 +205,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 					if (UIManager.getSystemLookAndFeelClassName().toLowerCase().contains("windows")){
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					} else {
-						setUIFont (new javax.swing.plaf.FontUIResource("Tahoma",Font.PLAIN,11));
+						setUIFont (new javax.swing.plaf.FontUIResource("Sans Serif",Font.PLAIN,11));
 						UIManager.put("Button.background",  Color.decode("#dddddd"));
 						UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
 					}
