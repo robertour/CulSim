@@ -142,6 +142,11 @@ public class ControllerBatch extends Controller {
 		// This is used to randomize the experiment.
 		Random rand = new Random();
 
+		File f = new File(csv_file);
+		if (!f.exists()){
+			throw new FileNotFoundException("The file " + f.getAbsolutePath() + "doesn't exist.");
+		}
+		
 		// Get scanner instance
 		Scanner scanner = new Scanner(new File(csv_file));
 
@@ -159,12 +164,16 @@ public class ControllerBatch extends Controller {
 				String type = scanner.next();
 				if (type.equals(E3.class.getSimpleName()))
 					simulation = new E3();
-				if (type.equals(Inst.class.getSimpleName()))
+				else if (type.equals(Inst.class.getSimpleName()))
 					simulation = new Inst();
-				if (type.equals(E1.class.getSimpleName()))
+				else if (type.equals(E1.class.getSimpleName()))
 					simulation = new E1();
-				if (type.equals(E2.class.getSimpleName()))
+				else if (type.equals(E2.class.getSimpleName()))
 					simulation = new E2();
+				else{
+					log.print(-1, "No class was recognized with the type: " + type + ". Please check your csv.");
+					System.exit(1);
+				}
 					
 				simulation.RANDOM_INITIALIZATION = Boolean.parseBoolean(scanner.next());
 				simulation.ITERATIONS = Integer.parseInt(scanner.next());
