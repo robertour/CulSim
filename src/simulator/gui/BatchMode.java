@@ -177,15 +177,18 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_conf_file.setLayout(null);
 
 		sp_repetitions = new JSpinner();
+		sp_repetitions.setToolTipText("How many times each configuration will be repeated?");
 		sp_repetitions.setModel(new SpinnerNumberModel(new Integer(10), new Integer(1), null, new Integer(1)));
 		sp_repetitions.setBounds(96, 152, 55, 20);
 		tab_conf_file.add(sp_repetitions);
 
 		JLabel lblRepetitions = new JLabel("Repetitions:");
+		lblRepetitions.setToolTipText("How many times each configuration will be repeated?");
 		lblRepetitions.setBounds(10, 155, 70, 14);
 		tab_conf_file.add(lblRepetitions);
 
 		JButton btnAddConfigurationFile = new JButton("Add Files");
+		btnAddConfigurationFile.setToolTipText("Add more configurations");
 		btnAddConfigurationFile.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open.png")));
 		btnAddConfigurationFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -211,6 +214,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_conf_file.add(btnAddConfigurationFile);
 
 		JButton btn_clearlist = new JButton("Clear");
+		btn_clearlist.setToolTipText("Clear the configuration list");
 		btn_clearlist.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/edit-clear-list.png")));
 		btn_clearlist.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -226,10 +230,12 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_conf_file.add(scrollPane_1);
 
 		JList<String> sel_conf_files = new JList<String>();
+		sel_conf_files.setToolTipText("Configurations of the simulations that are going to be tested. Usually saved with 'Simulation -> Parameters'");
 		scrollPane_1.setViewportView(sel_conf_files);
 		sel_conf_files.setModel(conf_list);
 
 		JLabel lblConfigurations = new JLabel("Configurations:");
+		lblConfigurations.setToolTipText("Configurations of the simulations that are going to be tested. Usually saved with 'Simulation -> Parameters'");
 		lblConfigurations.setLabelFor(scrollOutput);
 		lblConfigurations.setBounds(10, 13, 85, 14);
 		tab_conf_file.add(lblConfigurations);
@@ -252,6 +258,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_catastrophic.add(btnOpen);
 
 		tf_scenarios_dir = new JTextField();
+		tf_scenarios_dir.setToolTipText("This folder serves as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
 		tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath() + "\\");
 		tf_scenarios_dir.setEditable(false);
 		tf_scenarios_dir.setColumns(10);
@@ -260,11 +267,12 @@ public class BatchMode extends JDialog implements Notifiable {
 
 		JLabel lblFolderWithResults = new JLabel("Result Folder:");
 		lblFolderWithResults.setToolTipText(
-				"These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
+				"This folder serves as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
 		lblFolderWithResults.setBounds(10, 15, 70, 15);
 		tab_catastrophic.add(lblFolderWithResults);
 
 		JScrollPane scroll_pane = new JScrollPane();
+		scroll_pane.setToolTipText("The events that will be applied to the scenarios contained in the result folder");
 		scroll_pane.setBounds(97, 46, 377, 94);
 		tab_catastrophic.add(scroll_pane);
 
@@ -274,6 +282,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		scroll_pane.setViewportView(ta_set_events);
 
 		JButton btnLoad = new JButton("Load");
+		btnLoad.setToolTipText("Load events from file");
 		btnLoad.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/document-open.png")));
 		btnLoad.addActionListener(new ActionListener() {
 			@SuppressWarnings("unchecked")
@@ -299,6 +308,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_catastrophic.add(btnLoad);
 
 		JButton btnClearEvents = new JButton("Clear");
+		btnClearEvents.setToolTipText("Clean event set");
 		btnClearEvents.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/edit-clear-list.png")));
 		btnClearEvents.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -311,32 +321,37 @@ public class BatchMode extends JDialog implements Notifiable {
 
 		JLabel lblEvents = new JLabel("Events");
 		lblEvents.setToolTipText(
-				"These scenarios serve as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\".");
+				"The events that will be applied to the scenarios contained in the result folder");
 		lblEvents.setBounds(10, 47, 55, 15);
 		tab_catastrophic.add(lblEvents);
 
 		JLabel lblEventRepetitions = new JLabel("Event Repetitions:");
+		lblEventRepetitions.setToolTipText("How many times will the events be repeated in each scenario");
 		lblEventRepetitions.setBounds(10, 155, 99, 14);
 		tab_catastrophic.add(lblEventRepetitions);
 
 		sp_repetitions_catastroph = new JSpinner();
+		sp_repetitions_catastroph.setToolTipText("How many times will the events be repeated in each scenario");
 		sp_repetitions_catastroph
 				.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
 		sp_repetitions_catastroph.setBounds(107, 152, 55, 20);
 		tab_catastrophic.add(sp_repetitions_catastroph);
 
-		btn_play = new JToggleButton("Play");
+		btn_play = new JToggleButton("Start");
+		btn_play.setToolTipText("Start/Resume the simulations");
 		btn_play.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/media-playback-start.png")));
 		btn_play.setBounds(302, 230, 90, 25);
 		contentPane.add(btn_play);
 
 		btn_pause = new JToggleButton("Pause");
+		btn_pause.setToolTipText("Pause the simulations");
 		btn_pause.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/media-playback-pause.png")));
 		btn_pause.setBounds(402, 230, 90, 25);
 		contentPane.add(btn_pause);
 		btn_pause.setEnabled(false);
 
 		btn_stop = new JToggleButton("Stop");
+		btn_stop.setToolTipText("Stop the simulations");
 		btn_stop.setSelected(true);
 		btn_stop.setIcon(new ImageIcon(BatchMode.class.getResource("/simulator/img/media-playback-stop.png")));
 		btn_stop.setBounds(502, 230, 90, 25);

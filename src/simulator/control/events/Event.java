@@ -60,6 +60,7 @@ public abstract class Event implements Serializable {
 			rectangular_event(distribution.getRow(s), distribution.getCol(s), distribution.getRow2(s),
 					distribution.getCol2(s), s);
 		}
+		s.log.print(s.IDENTIFIER, "Event executed: " + this.toString() + "\n");
 	}
 
 	/**

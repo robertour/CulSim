@@ -308,7 +308,7 @@ public class ControllerSingle extends Controller {
 		simulation.results_dir = results_dir;
 		exec.submit(simulation);
 
-		log.print(simulation.IDENTIFIER, "Task submitted\n");
+		log.print(simulation.IDENTIFIER, "Simulation submitted.\n");
 
 		exec.shutdown();
 
@@ -380,16 +380,17 @@ public class ControllerSingle extends Controller {
 		 * messages in the the printable, and notify the end of the execution.
 		 */
 		public void run() {
-			log.print(-1, "Simulation Executor Started\n");
+			log.print(-1, "Simulation Executor Started.\n");
 			try {
 				exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				log.print(-1, "No errors reported by the thread execution\n");
+				log.print(-1, "Thread execution has finished.\n");
 			} catch (InterruptedException e) {
-				log.print(-1, "Simulation interrupted\n");
+				log.print(-1, "Simulation interrupted.\n");
 			}
 
 			try {
 				write_results();
+				log.print(-1, "Final results were written.\n");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -445,10 +445,12 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelCulturalSpace.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblCulturalSpace = new JLabel("Cultural Space");
+		lblCulturalSpace.setToolTipText("The cultural space displays a color dependind on the content of the cultural vector.");
 		lblCulturalSpace.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblCulturalSpace.setHorizontalAlignment(SwingConstants.CENTER);
 
 		panelCulturalSpace.add(lblCulturalSpace, BorderLayout.NORTH);
+		cultural_space.setToolTipText("The cultural space displays a color dependind on the content of the cultural vector.");
 		panelCulturalSpace.add(cultural_space, BorderLayout.CENTER);
 		cultural_space.setBackground(Color.WHITE);
 		cultural_space.setOpaque(true);
@@ -458,9 +460,11 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelInstCulturalSpace.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblCorrespondinInstitutionalCulture = new JLabel("Corresponding Institutional Cultural Space");
+		lblCorrespondinInstitutionalCulture.setToolTipText("Displays a color depending on the content of the cultural vector of the agent's institution.");
 		lblCorrespondinInstitutionalCulture.setHorizontalAlignment(SwingConstants.CENTER);
 		lblCorrespondinInstitutionalCulture.setHorizontalTextPosition(SwingConstants.CENTER);
 		panelInstCulturalSpace.add(lblCorrespondinInstitutionalCulture, BorderLayout.NORTH);
+		institutional_cultural_association.setToolTipText("Displays a color depending on the content of the cultural vector of the agent's institution.");
 		panelInstCulturalSpace.add(institutional_cultural_association, BorderLayout.CENTER);
 		institutional_cultural_association.setOpaque(true);
 		institutional_cultural_association.setBackground(Color.WHITE);
@@ -470,10 +474,12 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelInstitutions.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblNewLabel = new JLabel("Institutions");
+		lblNewLabel.setToolTipText("Displays a color depending on the content of the cultural vector of the institution, the institution is located in the center of the agents that belong to it.");
 		lblNewLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
 		panelInstitutions.add(lblNewLabel, BorderLayout.NORTH);
+		alife_institutional_cultural_space.setToolTipText("Displays a color depending on the content of the cultural vector of the institution, the institution is located in the center of the agents that belong to it.");
 		panelInstitutions.add(alife_institutional_cultural_space, BorderLayout.CENTER);
 		alife_institutional_cultural_space.setBackground(Color.WHITE);
 		alife_institutional_cultural_space.setOpaque(true);
@@ -483,9 +489,11 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelAlifeInstitutions.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblExistentInstitutions = new JLabel("Existent Institutions");
+		lblExistentInstitutions.setToolTipText("Displays the current exitent institutions in the center of the agents that belong to it.");
 		lblExistentInstitutions.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblExistentInstitutions.setHorizontalAlignment(SwingConstants.CENTER);
 		panelAlifeInstitutions.add(lblExistentInstitutions, BorderLayout.NORTH);
+		alife_institutions.setToolTipText("Displays the current exitent institutions in the center of the agents that belong to it.");
 		panelAlifeInstitutions.add(alife_institutions, BorderLayout.CENTER);
 		alife_institutions.setOpaque(true);
 		alife_institutions.setBackground(Color.WHITE);
@@ -519,7 +527,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		toolBar.setFloatable(false);
 
 		tglbtnPlay = new JToggleButton("");
-		tglbtnPlay.setToolTipText("Play the simulation");
+		tglbtnPlay.setToolTipText("Start or resume the simulation");
 		tglbtnPlay
 				.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/media-playback-start.png")));
 		tglbtnPlay.addActionListener(new PlayAL());
@@ -577,10 +585,12 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelProgress.add(panelSpeedLabels, BorderLayout.WEST);
 
 		JLabel lblSpeed = new JLabel("Speed: ");
+		lblSpeed.setToolTipText("Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
 		lblSpeed.setBorder(new EmptyBorder(0, 5, 0, 0));
 		panelSpeedLabels.add(lblSpeed);
 
 		lblSpeedValue = new JLabel("1000");
+		lblSpeedValue.setToolTipText("Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
 		panelSpeedLabels.add(lblSpeedValue);
 		lblSpeedValue.setPreferredSize(new Dimension(24, 20));
 		lblSpeedValue.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -588,6 +598,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		lblSpeedValue.setForeground(SystemColor.textHighlight);
 
 		sliderSpeed = new JSlider();
+		sliderSpeed.setToolTipText("Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
 		sliderSpeed.setMinimumSize(new Dimension(36, 20));
 		sliderSpeed.setPreferredSize(new Dimension(200, 20));
 		sliderSpeed.setMinimum(1);
@@ -783,7 +794,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelSet.add(eventSetControls, BorderLayout.SOUTH);
 
 		JButton btnOpenEventSet = new JButton("");
-		btnOpenEventSet.setToolTipText("Open events");
+		btnOpenEventSet.setToolTipText("Open event set");
 
 		File eve_dir = new File(Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);
 		;
@@ -824,7 +835,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		eventSetControls.add(btnOpenEventSet);
 
 		JButton btnSaveEventSet = new JButton("");
-		btnSaveEventSet.setToolTipText("Save events");
+		btnSaveEventSet.setToolTipText("Save event set");
 		btnSaveEventSet.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				File eve_dir = new File(Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);
@@ -854,7 +865,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		eventSetControls.add(btnSaveEventSet);
 
 		JButton btnRemoveEventSet = new JButton("");
-		btnRemoveEventSet.setToolTipText("Clear events");
+		btnRemoveEventSet.setToolTipText("Clear event set");
 		btnRemoveEventSet.setSize(new Dimension(33, 9));
 		btnRemoveEventSet.setMargin(new Insets(2, 2, 2, 2));
 		btnRemoveEventSet
@@ -868,7 +879,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		});
 
 		JButton btnExecuteEventSet = new JButton("");
-		btnExecuteEventSet.setToolTipText("Apply events");
+		btnExecuteEventSet.setToolTipText("Apply event set");
 		btnExecuteEventSet.setMargin(new Insets(2, 2, 2, 2));
 		btnExecuteEventSet
 				.setIcon(new ImageIcon(CulturalSimulator.class.getResource("/simulator/img/go-jump-locationbar.png")));

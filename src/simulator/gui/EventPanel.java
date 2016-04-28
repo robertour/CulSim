@@ -61,6 +61,7 @@ public class EventPanel extends JPanel implements Notifiable {
 		this.confDialog = confDialog;
 
 		ta_desc = new JTextArea();
+		ta_desc.setToolTipText("Description of the event");
 		ta_desc.setLineWrap(true);
 		add(ta_desc, BorderLayout.NORTH);
 		ta_desc.setForeground(SystemColor.textHighlight);

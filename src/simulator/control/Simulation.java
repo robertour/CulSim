@@ -416,37 +416,37 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		if (generation == 0) {
 			try {
 				simulation_setup();
-				log.print(IDENTIFIER, "Simulation setup is ready. \n");
+				log.print(IDENTIFIER, "Simulation setup is ready.\n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print(IDENTIFIER, "simulation_setup() failed");
+				log.print(IDENTIFIER, "simulation_setup() failed.\n");
 				failed = true;
 			}
 
 			try {
 				setup();
-				log.print(IDENTIFIER, TYPE + " setup ready. \n");
+				log.print(IDENTIFIER, TYPE + " setup ready.\n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print(IDENTIFIER, TYPE + " setup() failed");
+				log.print(IDENTIFIER, TYPE + " setup() failed.\n");
 				failed = true;
 			}
 			try {
 				save_state();
-				log.print(IDENTIFIER, "Initial state has been saved. \n");
+				log.print(IDENTIFIER, "Initial state has been saved.\n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print(IDENTIFIER, "save_state() failed");
+				log.print(IDENTIFIER, "save_state() failed.\n");
 				failed = true;
 			}
 
 			try {
 				writer.write(results());
 				writer.newLine();
-				log.print(IDENTIFIER, "Initial results were written. \n");
+				log.print(IDENTIFIER, "Initial results were written.\n");
 			} catch (IOException e) {
 				e.printStackTrace();
-				log.print(IDENTIFIER, "writer.write(results()); failed");
+				log.print(IDENTIFIER, "writer.write(results()); failed.\n");
 				failed = true;
 			}
 		} else {
@@ -464,7 +464,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print(IDENTIFIER, "run_experiment(); failed");
+			log.print(IDENTIFIER, "run_experiment(); failed.\n");
 			failed = true;
 		}
 		endTime = System.currentTimeMillis();
@@ -474,7 +474,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print(IDENTIFIER, "system.gc(); failed");
+			log.print(IDENTIFIER, "system.gc(); failed.\n");
 			failed = true;
 		}
 
@@ -754,7 +754,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				try {
 					monitor.wait();
 				} catch (InterruptedException e) {
-					log.print(IDENTIFIER, "Error while trying to wait" + "\n");
+					log.print(IDENTIFIER, "Error while trying to wait." + "\n");
 				}
 			}
 		}
@@ -785,14 +785,14 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			reset();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print(IDENTIFIER, "reset(); failed");
+			log.print(IDENTIFIER, "reset(); failed.\n");
 			failed = true;
 		}
 		try {
 			System.gc();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.print(IDENTIFIER, "system.gc(); failed");
+			log.print(IDENTIFIER, "system.gc(); failed.\n");
 			failed = true;
 		}
 	}
@@ -1279,6 +1279,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 					Event event = (Event) iterator.next();
 					event.execute(this);
+					
 				}
 				update_gui();
 			} else {

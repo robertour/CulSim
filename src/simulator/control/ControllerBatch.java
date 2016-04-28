@@ -215,7 +215,6 @@ public class ControllerBatch extends Controller {
 
 	@Override
 	public void write_results() throws IOException {
-
 		BufferedWriter writer = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(results_dir + identifier + ".csv"), "utf-8"));
 		BufferedWriter writer2 = new BufferedWriter(
@@ -274,7 +273,7 @@ public class ControllerBatch extends Controller {
 			exec.submit(w);
 		}
 
-		log.print(-1, "All Tasks Submitted\n");
+		log.print(-1, "All Tasks Submitted.\n");
 
 		exec.shutdown();
 
@@ -337,7 +336,7 @@ public class ControllerBatch extends Controller {
 		 * simulations.
 		 */
 		public void run() {
-			log.print(-1, "Simulation Executor Started\n");
+			log.print(-1, "Simulation Executor Started.\n");
 			try {
 				write_events();
 			} catch (IOException e) {
@@ -345,12 +344,13 @@ public class ControllerBatch extends Controller {
 			}
 			try {
 				exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-				log.print(-1, "The threads were finished and no errors where reported\n");
+				log.print(-1, "Thread execution has finished.\n");
 			} catch (InterruptedException e) {
-				log.print(-1, "Simulation interrupted\n");
+				log.print(-1, "Simulation interrupted.\n");
 			}
 			try {
 				write_results();
+				log.print(-1, "Final results written.\n");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
