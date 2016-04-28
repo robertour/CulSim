@@ -39,7 +39,7 @@ This code was created with the goal of running fast, most of them apply to the B
 Installation
 -------------
 
-Install Java 1.8, it might work in 1.7 but I am not sure. It also need to be tested with IcedTea because it was not working a few months ago; if it doesnt, Oracle will have to be.
+Install Java 1.7 or 1.8. It also need to be tested with IcedTea because it was not working a few months ago; if it doesnt, Oracle will have to be.
 
 ###### For **windows users**: 
 
