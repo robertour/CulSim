@@ -958,11 +958,13 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		} catch (IOException e1) {
 			controller.initialize_simulation();
 			controller.save_simulation("./simulation.parameters");
+			parametersDialog.refresh_dialog();
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 			output_area.append("Implemented model (Class Name) not found. A new simulation with default parameters will be created.");
 			controller.initialize_simulation();
 			controller.save_simulation("./simulation.parameters");
+			parametersDialog.refresh_dialog();
 		}
 
 		DefaultCaret caret = (DefaultCaret) output_area.getCaret();
