@@ -181,7 +181,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	public static ControllerSingle controller;
 	private ArrayList<Event> events = new ArrayList<Event>();
 	private static int speed;
-	
+
 	/**
 	 * These are the graph panels on the right
 	 */
@@ -201,15 +201,17 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			public void run() {
 
 				try {
-					
-					if (UIManager.getSystemLookAndFeelClassName().toLowerCase().contains("windows")){
+
+					if (UIManager.getSystemLookAndFeelClassName().toLowerCase().contains("windows")) {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					} else {
-						setUIFont (new javax.swing.plaf.FontUIResource("Sans Serif",Font.PLAIN,11));
-						UIManager.put("Button.background",  Color.decode("#eeeeee"));
-						UIManager.put("ToggleButton.background",  Color.decode("#eeeeee"));
-						UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
-						UIManager.put("ToggleButton.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
+						setUIFont(new javax.swing.plaf.FontUIResource("Sans Serif", Font.PLAIN, 11));
+						UIManager.put("Button.background", Color.decode("#eeeeee"));
+						UIManager.put("ToggleButton.background", Color.decode("#eeeeee"));
+						UIManager.put("Button.border", new CompoundBorder(new LineBorder(new Color(200, 200, 200)),
+								new EmptyBorder(2, 2, 2, 2)));
+						UIManager.put("ToggleButton.border", new CompoundBorder(
+								new LineBorder(new Color(200, 200, 200)), new EmptyBorder(2, 2, 2, 2)));
 					}
 
 					CulturalSimulator frame = new CulturalSimulator();
@@ -220,21 +222,22 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			}
 		});
 	}
-	
-	
+
 	/**
 	 * Change the font of the components in the interface
-	 * @param font the desired font
+	 * 
+	 * @param font
+	 *            the desired font
 	 */
-	private static void setUIFont (javax.swing.plaf.FontUIResource f){
-	    Enumeration<Object> keys = UIManager.getDefaults().keys();
-	    while (keys.hasMoreElements()) {
-	      Object key = keys.nextElement();
-	      Object value = UIManager.get (key);
-	      if (value != null && value instanceof javax.swing.plaf.FontUIResource)
-	        UIManager.put (key, f);
-	      }
-	    } 
+	private static void setUIFont(javax.swing.plaf.FontUIResource f) {
+		Enumeration<Object> keys = UIManager.getDefaults().keys();
+		while (keys.hasMoreElements()) {
+			Object key = keys.nextElement();
+			Object value = UIManager.get(key);
+			if (value != null && value instanceof javax.swing.plaf.FontUIResource)
+				UIManager.put(key, f);
+		}
+	}
 
 	/**
 	 * Create the frame.
@@ -403,24 +406,25 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 		energyPanel = new GraphLabeledPanel("Energy");
 		panelGraphs.add(energyPanel);
-		energyPanel.setCounterLabels("Energy","","Similarity");
-		
+		energyPanel.setCounterLabels("Energy", "", "Similarity");
+
 		culturesPanel = new GraphLabeledPanel("Cultures");
 		panelGraphs.add(culturesPanel);
-		culturesPanel.setCounterLabels("Cultures","Biggest culture","Similarity");
-		
+		culturesPanel.setCounterLabels("Cultures", "Biggest culture", "Similarity");
+
 		neumannPanel = new GraphLabeledPanel("Neumann's");
 		panelGraphs.add(neumannPanel);
-		neumannPanel.setCounterLabels("Neumann's cultures","Neumann's biggest culture","Neumann's similarity");
+		neumannPanel.setCounterLabels("Neumann's cultures", "Neumann's biggest culture", "Neumann's similarity");
 
 		cultureSimilarityPanel = new GraphLabeledPanel("Culture's Sim");
 		panelGraphs.add(cultureSimilarityPanel);
-		cultureSimilarityPanel.setCounterLabels("Position similarity","Size similarity","Traits similarity");
+		cultureSimilarityPanel.setCounterLabels("Position similarity", "Size similarity", "Traits similarity");
 
 		neumannSimilarityPanel = new GraphLabeledPanel("Neumann's Sim");
 		panelGraphs.add(neumannSimilarityPanel);
-		neumannSimilarityPanel.setCounterLabels("Neumann's position similarity","Neumann's size similarity","Neumann's traits similarity");
-		
+		neumannSimilarityPanel.setCounterLabels("Neumann's position similarity", "Neumann's size similarity",
+				"Neumann's traits similarity");
+
 		institutionsPanel = new GraphLabeledPanel("Institutions");
 		panelGraphs.add(institutionsPanel);
 		institutionsPanel.setCounterLabels("Institutions", "Biggest", "Institution's similarity");
@@ -445,12 +449,14 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelCulturalSpace.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblCulturalSpace = new JLabel("Cultural Space");
-		lblCulturalSpace.setToolTipText("The cultural space displays a color dependind on the content of the cultural vector.");
+		lblCulturalSpace
+				.setToolTipText("The cultural space displays a color dependind on the content of the cultural vector.");
 		lblCulturalSpace.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblCulturalSpace.setHorizontalAlignment(SwingConstants.CENTER);
 
 		panelCulturalSpace.add(lblCulturalSpace, BorderLayout.NORTH);
-		cultural_space.setToolTipText("The cultural space displays a color dependind on the content of the cultural vector.");
+		cultural_space
+				.setToolTipText("The cultural space displays a color dependind on the content of the cultural vector.");
 		panelCulturalSpace.add(cultural_space, BorderLayout.CENTER);
 		cultural_space.setBackground(Color.WHITE);
 		cultural_space.setOpaque(true);
@@ -460,11 +466,13 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelInstCulturalSpace.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblCorrespondinInstitutionalCulture = new JLabel("Corresponding Institutional Cultural Space");
-		lblCorrespondinInstitutionalCulture.setToolTipText("Displays a color depending on the content of the cultural vector of the agent's institution.");
+		lblCorrespondinInstitutionalCulture.setToolTipText(
+				"Displays a color depending on the content of the cultural vector of the agent's institution.");
 		lblCorrespondinInstitutionalCulture.setHorizontalAlignment(SwingConstants.CENTER);
 		lblCorrespondinInstitutionalCulture.setHorizontalTextPosition(SwingConstants.CENTER);
 		panelInstCulturalSpace.add(lblCorrespondinInstitutionalCulture, BorderLayout.NORTH);
-		institutional_cultural_association.setToolTipText("Displays a color depending on the content of the cultural vector of the agent's institution.");
+		institutional_cultural_association.setToolTipText(
+				"Displays a color depending on the content of the cultural vector of the agent's institution.");
 		panelInstCulturalSpace.add(institutional_cultural_association, BorderLayout.CENTER);
 		institutional_cultural_association.setOpaque(true);
 		institutional_cultural_association.setBackground(Color.WHITE);
@@ -474,12 +482,14 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelInstitutions.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblNewLabel = new JLabel("Institutions");
-		lblNewLabel.setToolTipText("Displays a color depending on the content of the cultural vector of the institution, the institution is located in the center of the agents that belong to it.");
+		lblNewLabel.setToolTipText(
+				"Displays a color depending on the content of the cultural vector of the institution, the institution is located in the center of the agents that belong to it.");
 		lblNewLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
 		panelInstitutions.add(lblNewLabel, BorderLayout.NORTH);
-		alife_institutional_cultural_space.setToolTipText("Displays a color depending on the content of the cultural vector of the institution, the institution is located in the center of the agents that belong to it.");
+		alife_institutional_cultural_space.setToolTipText(
+				"Displays a color depending on the content of the cultural vector of the institution, the institution is located in the center of the agents that belong to it.");
 		panelInstitutions.add(alife_institutional_cultural_space, BorderLayout.CENTER);
 		alife_institutional_cultural_space.setBackground(Color.WHITE);
 		alife_institutional_cultural_space.setOpaque(true);
@@ -489,11 +499,13 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelAlifeInstitutions.setLayout(new BorderLayout(0, 0));
 
 		JLabel lblExistentInstitutions = new JLabel("Existent Institutions");
-		lblExistentInstitutions.setToolTipText("Displays the current exitent institutions in the center of the agents that belong to it.");
+		lblExistentInstitutions.setToolTipText(
+				"Displays the current exitent institutions in the center of the agents that belong to it.");
 		lblExistentInstitutions.setHorizontalTextPosition(SwingConstants.CENTER);
 		lblExistentInstitutions.setHorizontalAlignment(SwingConstants.CENTER);
 		panelAlifeInstitutions.add(lblExistentInstitutions, BorderLayout.NORTH);
-		alife_institutions.setToolTipText("Displays the current exitent institutions in the center of the agents that belong to it.");
+		alife_institutions.setToolTipText(
+				"Displays the current exitent institutions in the center of the agents that belong to it.");
 		panelAlifeInstitutions.add(alife_institutions, BorderLayout.CENTER);
 		alife_institutions.setOpaque(true);
 		alife_institutions.setBackground(Color.WHITE);
@@ -585,12 +597,14 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		panelProgress.add(panelSpeedLabels, BorderLayout.WEST);
 
 		JLabel lblSpeed = new JLabel("Speed: ");
-		lblSpeed.setToolTipText("Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
+		lblSpeed.setToolTipText(
+				"Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
 		lblSpeed.setBorder(new EmptyBorder(0, 5, 0, 0));
 		panelSpeedLabels.add(lblSpeed);
 
 		lblSpeedValue = new JLabel("1000");
-		lblSpeedValue.setToolTipText("Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
+		lblSpeedValue.setToolTipText(
+				"Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
 		panelSpeedLabels.add(lblSpeedValue);
 		lblSpeedValue.setPreferredSize(new Dimension(24, 20));
 		lblSpeedValue.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -598,7 +612,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		lblSpeedValue.setForeground(SystemColor.textHighlight);
 
 		sliderSpeed = new JSlider();
-		sliderSpeed.setToolTipText("Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
+		sliderSpeed.setToolTipText(
+				"Number of iterations in which a checkpoing is done. A checkpoint will check for events, update the interface, save current results to files, among others.");
 		sliderSpeed.setMinimumSize(new Dimension(36, 20));
 		sliderSpeed.setPreferredSize(new Dimension(200, 20));
 		sliderSpeed.setMinimum(1);
@@ -613,7 +628,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		eventsPanel.setBorder(null);
 		eventsPanel.setLayout(new BorderLayout(0, 0));
 
-		structureDialog = new DistributionDoubleDialog(new Distribution(0.5, 0.5, 0.8), null, "Apostasy", "Destruction", this);
+		structureDialog = new DistributionDoubleDialog(new Distribution(0.5, 0.5, 0.8), null, "Apostasy", "Destruction",
+				this);
 		contentDialog = new DistributionDoubleDialog(new Distribution(1.0), null, "Partial", "Full", this);
 		conversionDialog = new DistributionDoubleDialog(null, new Distribution(0.5, 0.5, 0.2), "Partial", "Full", this);
 		invasionDialog = new DistributionSingleDialog(new Distribution(0.5, 0.5, 0.2), "Invasion", this);
@@ -763,7 +779,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		});
 		parametersDialog.addComponentListener(new ComponentAdapter() {
 			@Override
-			public void componentShown(ComponentEvent e){
+			public void componentShown(ComponentEvent e) {
 				controller.restore_parameters_to_interface();
 				parametersDialog.refresh_dialog();
 			}
@@ -797,7 +813,6 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		btnOpenEventSet.setToolTipText("Open event set");
 
 		File eve_dir = new File(Controller.WORKSPACE_DIR + Controller.EVENTS_DIR);
-		;
 		if (!eve_dir.exists()) {
 			eve_dir.mkdirs();
 		}
@@ -922,13 +937,15 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		statusBarPanel.setLayout(new GridLayout(2, 1, 0, 0));
 
 		l_start_identification = new JLabel("S:");
-		l_start_identification.setToolTipText("<html><p width=\"900\">"+Simulation.get_identification_description()+"</p></html>");
+		l_start_identification.setToolTipText(
+				"<html><p width=\"900\">" + Simulation.get_identification_description() + "</p></html>");
 		l_start_identification.setForeground(SystemColor.textHighlight);
 		l_start_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		statusBarPanel.add(l_start_identification);
 
 		l_current_identification = new JLabel("C:");
-		l_current_identification.setToolTipText("<html><p width=\"900\">"+Simulation.get_identification_description()+"</p></html>");
+		l_current_identification.setToolTipText(
+				"<html><p width=\"900\">" + Simulation.get_identification_description() + "</p></html>");
 		l_current_identification.setForeground(SystemColor.textHighlight);
 		l_current_identification.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		statusBarPanel.add(l_current_identification);
@@ -936,9 +953,14 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		batch_mode_dialog = new BatchMode(this);
 
 		try {
-			controller.load_simulation("./simulation.parameters");
+			controller.load_parameters("./simulation.parameters");
 			parametersDialog.refresh_dialog();
 		} catch (IOException e1) {
+			controller.initialize_simulation();
+			controller.save_simulation("./simulation.parameters");
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+			output_area.append("Implemented model (Class Name) not found. A new simulation with default parameters will be created.");
 			controller.initialize_simulation();
 			controller.save_simulation("./simulation.parameters");
 		}
@@ -1004,11 +1026,11 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		institutional_cultural_association.setIcon(null);
 		alife_institutional_cultural_space.setIcon(null);
 		alife_institutions.setIcon(null);
-		
+
 		energyPanel.clean();
 		culturesPanel.clean();
 		institutionsPanel.clean();
-		neumannPanel.clean();		
+		neumannPanel.clean();
 		neumannSimilarityPanel.clean();
 		cultureSimilarityPanel.clean();
 		traitPanel.clean();

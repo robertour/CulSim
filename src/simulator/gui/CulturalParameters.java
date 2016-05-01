@@ -443,7 +443,11 @@ public class CulturalParameters extends JDialog {
 									if (CulturalSimulator.want_to_continue(jfc_load)) {
 
 										String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
-										controller.load_parameters(conf_file);
+										try {
+											controller.load_parameters(conf_file);
+										} catch (ClassNotFoundException | IOException e1) {
+											e1.printStackTrace();
+										}
 									}
 
 								}

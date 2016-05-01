@@ -33,18 +33,28 @@ public class GraphLabeledPanel extends JPanel {
 	}
 
 	public void addScores(double s1, double s2, double s3){
-		DecimalFormat df = new DecimalFormat(".##");
+		DecimalFormat df = new DecimalFormat(".00");
+		DecimalFormat df2 = new DecimalFormat(".0");
 		String counters = "";
 		if (s1 >= 0){
 			graph.scores.add(s1);
-			counters += "<span color='blue'>"+df.format(s1)+"</span>";
+			if (s1 <1 ){
+				counters += "<span color='blue'>"+df.format(s1)+"</span>";
+			} else {
+				counters += "<span color='blue'>"+df2.format(s1)+"</span>";
+			}
+			
 		} 
 		if (s2 >= 0){
 			graph.scores2.add(s2);
 			if (!counters.equals("")){
 				counters += "/";
 			}
-			counters += "<span color='red'>"+df.format(s2)+"</span>";
+			if (s2 <1 ){
+				counters += "<span color='blue'>"+df.format(s2)+"</span>";
+			} else {
+				counters += "<span color='blue'>"+df2.format(s2)+"</span>";
+			}
 			
 		} 
 		if (s3 >= 0){
@@ -52,7 +62,11 @@ public class GraphLabeledPanel extends JPanel {
 			if (!counters.equals("")){
 				counters += "/";
 			}
-			counters += "<span color='green'>"+df.format(s3)+"</span>";
+			if (s3 <1 ){
+				counters += "<span color='blue'>"+df.format(s3)+"</span>";
+			} else {
+				counters += "<span color='blue'>"+df2.format(s3)+"</span>";
+			}
 		} 
 		lcounters.setText("<html>"+counters+"</html>");
 		graph.update();

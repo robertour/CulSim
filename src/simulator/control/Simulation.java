@@ -14,6 +14,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,9 +26,26 @@ import simulator.CulturalSimulator;
 import simulator.control.events.Event;
 
 /**
- * TODO comment this class. Describe the general model.
+ * This class represents an agent-based system that simulates how cultures
+ * emerges in space where individuals are represented by agents that live in a
+ * grid. Each agent have a cultural vector that represents its own culture. A
+ * cultural vector is a list of cultural features with assigned cultural traits,
+ * e.g. the cultural feature music could have the cultural trait jazz assigned.
+ * This is all represented with numeric vectors
+ * 
+ * When two agents (1) have exactly the same cultural features in the cultural
+ * vector and (2) are are adjacent neighbors in the grid then they belong to the
+ * same culture. Over time, agents influence each other, transmitting their
+ * cultural traits to other neighboring agents in a Neumann neighborhood of
+ * radius r.
+ * 
+ * The different subclasses of this class establish different rules in which the
+ * neighbors can interact in order to transmit each other information. More
+ * details can be found on those subclasses and in the documentation in general.
+ * 
  * 
  * @author Roberto Ulloa
+ * @version 1.0, April 2016
  *
  */
 public abstract class Simulation implements Callable<String>, Serializable {
@@ -726,9 +744,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 	/**
 	 * Start the execution of iterations, as many as the speed parameter
-	 * indicates (checkpoint). Please read the subclass documentation for specific details
-	 * regarding implementation. The subclasses define the way the agents
-	 * interact with each other.
+	 * indicates (checkpoint). Please read the subclass documentation for
+	 * specific details regarding implementation. The subclasses define the way
+	 * the agents interact with each other.
 	 */
 	protected abstract void run_iterations();
 
@@ -874,19 +892,21 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * @return an identification of the system
 	 */
 	public String get_identification() {
+		DecimalFormat df = new DecimalFormat(".00");
+		
 		return TYPE + "(" + (RANDOM_INITIALIZATION ? "R" : "S") + ") " + ROWS + "x" + COLS + "(" + RADIUS + "): "
 				+ "F/T:" + FEATURES + "/" + TRAITS + " | " + "M/S:" + MUTATION + "/" + SELECTION_ERROR + " | "
 				+ "a/a\':" + ALPHA + "/" + ALPHA_PRIME + " | " + "D/P:" + FREQ_DEM + "/" + FREQ_PROP + " @ " + epoch
 				+ "|" + generation + "|" + iteration + " (" + "E: " + energy + " | " + "PS: " + pixel_similarity + " | "
 				+ "Cultures: " + cultureN + "/" + biggest_culture + "/"
-				+ String.format("%.1g", culture_similarity[FULL_SIM]) + "="
-				+ String.format("%.1g", culture_similarity[POS_SIM]) + "*"
-				+ String.format("%.1g", culture_similarity[SIZE_SIM]) + "*"
-				+ String.format("%.1g", culture_similarity[TRAITS_SIM]) + " | " + "Neumann's: " + culture_neumannN + "/"
-				+ biggest_neumann_culture + "/" + String.format("%.1g", neumann_similarity[FULL_SIM]) + "="
-				+ String.format("%.1g", neumann_similarity[POS_SIM]) + "*"
-				+ String.format("%.1g", neumann_similarity[SIZE_SIM]) + "*"
-				+ String.format("%.1g", neumann_similarity[TRAITS_SIM]) + " | " + "Inst: " + alife_institutions + "/"
+				+ df.format(culture_similarity[FULL_SIM]) + "="
+				+ df.format(culture_similarity[POS_SIM]) + "*"
+				+ df.format(culture_similarity[SIZE_SIM]) + "*"
+				+ df.format(culture_similarity[TRAITS_SIM]) + " | " + "Neumann's: " + culture_neumannN + "/"
+				+ biggest_neumann_culture + "/" + df.format(neumann_similarity[FULL_SIM]) + "="
+				+ df.format(neumann_similarity[POS_SIM]) + "*"
+				+ df.format(neumann_similarity[SIZE_SIM]) + "*"
+				+ df.format(neumann_similarity[TRAITS_SIM]) + " | " + "Inst: " + alife_institutions + "/"
 				+ biggest_institution + "/" + institution_similarity + " | " + "Traits: " + foreiners_traits + "/"
 				+ alife_institutions + ")";
 	}
@@ -1279,7 +1299,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 					Event event = (Event) iterator.next();
 					event.execute(this);
-					
+
 				}
 				update_gui();
 			} else {

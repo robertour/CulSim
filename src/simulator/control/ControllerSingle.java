@@ -156,25 +156,19 @@ public class ControllerSingle extends Controller {
 	 * @param simfile
 	 *            the file that contains the simulation
 	 */
-	public void load_parameters(String simfile) {
+	public void load_parameters(String simfile) throws FileNotFoundException, IOException, ClassNotFoundException {
 		if (simulation != null) {
 			simulation.clean(); // clean the memory
 		}
-		try {
-			FileInputStream fis = new FileInputStream(simfile);
-			GZIPInputStream gis = new GZIPInputStream(fis);
-			ObjectInputStream ois = new ObjectInputStream(gis);
-			simulation = ((Simulation) ois.readObject()).clone();
-			is_saved = true;
-			ois.close();
-			CulturalSimulator.clean_informational_spaces();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+		
+		FileInputStream fis = new FileInputStream(simfile);
+		GZIPInputStream gis = new GZIPInputStream(fis);
+		ObjectInputStream ois = new ObjectInputStream(gis);
+		simulation = ((Simulation) ois.readObject()).clone();
+		is_saved = true;
+		ois.close();
+		CulturalSimulator.clean_informational_spaces();
+
 		restore_parameters_to_interface();
 	}
 
