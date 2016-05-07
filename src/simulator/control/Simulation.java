@@ -24,6 +24,7 @@ import java.util.zip.GZIPOutputStream;
 
 import simulator.CulturalSimulator;
 import simulator.control.events.Event;
+import simulator.gui.ParametersEventDialog;
 
 /**
  * This class represents an agent-based system that simulates how cultures
@@ -1270,6 +1271,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				event.execute(this);
 			}
 			events.clear();
+			if (!Controller.IS_BATCH){
+				ParametersEventDialog.refresh_dialog();
+			}
 			executing_events = false;
 		}
 	}

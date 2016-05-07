@@ -35,7 +35,7 @@ public class ParametersEventDialog extends JDialog {
 	private static final long serialVersionUID = -8199562513877809300L;
 
 	private final JPanel contentPanel = new JPanel();
-	private ArrayList<Notifiable> notifiables = new ArrayList<Notifiable>();
+	private static ArrayList<Notifiable> notifiables = new ArrayList<Notifiable>();
 
 	/**
 	 * Copy of the current values of the parameters in the simulation.
@@ -52,14 +52,14 @@ public class ParametersEventDialog extends JDialog {
 	/**
 	 * The new values that the user has set up for the simulation
 	 */
-	private JSpinner sp_selection_error;
-	private JSpinner sp_influence;
-	private JSpinner sp_loyalty;
-	private JSpinner sp_democracy;
-	private JSpinner sp_propaganda;
-	private JSpinner sp_iterations;
-	private JSpinner sp_speed;
-	private JSpinner sp_mutation;
+	private static JSpinner sp_selection_error;
+	private static JSpinner sp_influence;
+	private static JSpinner sp_loyalty;
+	private static JSpinner sp_democracy;
+	private static JSpinner sp_propaganda;
+	private static JSpinner sp_iterations;
+	private static JSpinner sp_speed;
+	private static JSpinner sp_mutation;
 
 	/**
 	 * Create the Dialog with the respective title and owner for the modal
@@ -276,7 +276,7 @@ public class ParametersEventDialog extends JDialog {
 	/**
 	 * A method to update the elements that need to be notified
 	 */
-	private void update_notifiables() {
+	private static void update_notifiables() {
 		for (Iterator<Notifiable> i = notifiables.iterator(); i.hasNext();) {
 			Notifiable notifiable = (Notifiable) i.next();
 			notifiable.update();
@@ -286,7 +286,7 @@ public class ParametersEventDialog extends JDialog {
 	/**
 	 * Refresh the interface with the parameters of the simulation
 	 */
-	public void refresh_dialog() {
+	public static void refresh_dialog() {
 		sp_iterations.setValue(iterations);
 		sp_speed.setValue(speed);
 		sp_mutation.setValue(mutation);

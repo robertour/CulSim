@@ -61,7 +61,9 @@ public class ControllerSingle extends Controller {
 	 */
 	public ControllerSingle(Printable printable, Notifiable notifiable) {
 		super(notifiable);
-		log = printable;
+		if (printable != null){
+			log = printable;
+		}
 	}
 
 	/**
@@ -157,19 +159,12 @@ public class ControllerSingle extends Controller {
 	 *            the file that contains the simulation
 	 */
 	public void load_parameters(String simfile) throws FileNotFoundException, IOException, ClassNotFoundException {
-		if (simulation != null) {
-			simulation.clean(); // clean the memory
-		}
-		
 		FileInputStream fis = new FileInputStream(simfile);
 		GZIPInputStream gis = new GZIPInputStream(fis);
 		ObjectInputStream ois = new ObjectInputStream(gis);
 		simulation = ((Simulation) ois.readObject()).clone();
 		is_saved = true;
 		ois.close();
-		CulturalSimulator.clean_informational_spaces();
-
-		restore_parameters_to_interface();
 	}
 
 	/**
@@ -241,6 +236,7 @@ public class ControllerSingle extends Controller {
 		ParametersEventDialog.loyalty = simulation.ALPHA_PRIME;
 		ParametersEventDialog.democracy = simulation.FREQ_DEM;
 		ParametersEventDialog.propaganda = simulation.FREQ_PROP;
+		ParametersEventDialog.refresh_dialog();
 		CulturalSimulator.set_speed(simulation.SPEED);
 
 		CulturalSimulator.l_start_identification.setText("S: " + simulation.get_identification());
@@ -248,16 +244,21 @@ public class ControllerSingle extends Controller {
 	}
 
 	/**
-	 * Load the parameters from the interface
+	 * Clean the current simulation instance
 	 */
-	public void load_parameters_from_interface() {
+	public void clean_simulation(){
 		if (simulation != null) {
 			simulation.clean();
 		}
+	}
+	
+	/**
+	 * Load the parameters from the interface
+	 */
+	public void load_parameters_from_interface() {
 
 		int ind = CulturalParameters.classSelector.getSelectedIndex();
 		try {
-
 			simulation = (Simulation) CulturalParameters.classes.get(ind).newInstance();
 			simulation.RANDOM_INITIALIZATION = CulturalParameters.cb_random_initialization.isSelected();
 			simulation.ITERATIONS = (int) CulturalParameters.sp_iterations.getValue();
@@ -267,19 +268,14 @@ public class ControllerSingle extends Controller {
 			simulation.COLS = (int) CulturalParameters.sp_cols.getValue();
 			simulation.FEATURES = (int) CulturalParameters.sp_features.getValue();
 			simulation.TRAITS = (int) CulturalParameters.sp_traits.getValue();
-			;
 			simulation.RADIUS = (int) CulturalParameters.sp_radious.getValue();
-			;
 			simulation.ALPHA = (float) CulturalParameters.sp_influence.getValue();
 			simulation.ALPHA_PRIME = (float) CulturalParameters.sp_loyalty.getValue();
 			simulation.FREQ_DEM = (int) CulturalParameters.sp_democracy.getValue();
-			;
 			simulation.FREQ_PROP = (int) CulturalParameters.sp_propaganda.getValue();
-			;
 			simulation.MUTATION = (float) CulturalParameters.sp_mutation.getValue();
 			simulation.SELECTION_ERROR = (float) CulturalParameters.sp_sel_error.getValue();
-			CulturalSimulator.clean_informational_spaces();
-			restore_parameters_to_interface();
+			
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

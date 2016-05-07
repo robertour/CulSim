@@ -108,7 +108,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	/**
 	 * Output area of the simulation
 	 */
-	private OutputArea output_area;
+	public static OutputArea printer;
 
 	/**
 	 * The buttons that control the simulation
@@ -278,10 +278,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		mntmSafeWorldState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_simulation_state.showSaveDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					if (want_to_continue(jfc_simulation_state)) {
-						String conf_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
-						controller.save_simulation(conf_file);
-					}
+					String conf_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
+					controller.save_simulation(conf_file);
 				}
 			}
 		});
@@ -617,7 +615,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		sliderSpeed.setMinimumSize(new Dimension(36, 20));
 		sliderSpeed.setPreferredSize(new Dimension(200, 20));
 		sliderSpeed.setMinimum(1);
-		sliderSpeed.setMaximum(30);
+		sliderSpeed.setMaximum(29);
 		panelProgress.add(sliderSpeed);
 
 		set_speed((int) CulturalParameters.sp_speed.getValue());
@@ -781,7 +779,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			@Override
 			public void componentShown(ComponentEvent e) {
 				controller.restore_parameters_to_interface();
-				parametersDialog.refresh_dialog();
+				ParametersEventDialog.refresh_dialog();
 			}
 		});
 		parametersDialog.addNotifiable(parameterEventPanel);
@@ -910,21 +908,26 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 
 		sliderSpeed.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
+				int sp = speed;
+				
 				if (sliderSpeed.getValue() < 10) {
-					speed = sliderSpeed.getValue();
+					sp = sliderSpeed.getValue();
 				} else if (sliderSpeed.getValue() < 20) {
-					speed = 10 * (sliderSpeed.getValue() - 9);
+					sp = 10 * (sliderSpeed.getValue() - 9);
 				} else if (sliderSpeed.getValue() < 30) {
-					speed = 100 * (sliderSpeed.getValue() - 19);
+					sp = 100 * (sliderSpeed.getValue() - 19);
 				}
-				lblSpeedValue.setText(speed + "");
-
-				ParametersEventDialog.speed = speed;
-				ParameterChange pc = new ParameterChange();
-				pc.speed = speed;
-				ArrayList<Event> evs = new ArrayList<Event>();
-				evs.add(pc);
-				controller.add_events(evs);
+				lblSpeedValue.setText(sp + "");
+				
+			    if (!sliderSpeed.getValueIsAdjusting()) {
+	
+					ParametersEventDialog.speed = speed = sp;
+					ParameterChange pc = new ParameterChange();
+					pc.speed = speed;
+					ArrayList<Event> evs = new ArrayList<Event>();
+					evs.add(pc);
+					controller.add_events(evs);
+			    }
 			}
 		});
 
@@ -953,18 +956,21 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		batch_mode_dialog = new BatchMode(this);
 
 		try {
+			controller.clean_simulation();
 			controller.load_parameters("./simulation.parameters");
-			parametersDialog.refresh_dialog();
+			clean_informational_spaces();
+			controller.restore_parameters_to_interface();
+			ParametersEventDialog.refresh_dialog();
 		} catch (IOException e1) {
 			controller.initialize_simulation();
 			controller.save_simulation("./simulation.parameters");
-			parametersDialog.refresh_dialog();
+			ParametersEventDialog.refresh_dialog();
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 			output_area.append("Implemented model (Class Name) not found. A new simulation with default parameters will be created.");
 			controller.initialize_simulation();
 			controller.save_simulation("./simulation.parameters");
-			parametersDialog.refresh_dialog();
+			ParametersEventDialog.refresh_dialog();
 		}
 
 		DefaultCaret caret = (DefaultCaret) output_area.getCaret();
@@ -1126,7 +1132,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 					mnSimulation.setEnabled(false);
 
 				} else {
-					output_area.append("Warning: GUI in an unstable state");
+					printer.append("Warning: GUI in an unstable state");
 				}
 			}
 

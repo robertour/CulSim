@@ -45,7 +45,7 @@ import java.awt.Dimension;
  * @author Roberto Ulloa
  * @version 1.0, April 2016
  */
-public class CulturalParameters extends JDialog {
+public class CulturalParameters extends JDialog implements Notifiable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -440,16 +440,14 @@ public class CulturalParameters extends JDialog {
 									jfc_load.setCurrentDirectory(conf_dir);
 								}
 								if (jfc_load.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
-									if (CulturalSimulator.want_to_continue(jfc_load)) {
-
-										String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
-										try {
-											controller.load_parameters(conf_file);
-										} catch (ClassNotFoundException | IOException e1) {
-											e1.printStackTrace();
-										}
+									String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
+									try {
+										ControllerSingle controllerTemp = new ControllerSingle(CulturalSimulator.printer, CulturalParameters.this);
+										controllerTemp.load_parameters(conf_file);
+										controllerTemp.restore_parameters_to_interface();
+									} catch (ClassNotFoundException | IOException e1) {
+										e1.printStackTrace();
 									}
-
 								}
 							}
 						});
@@ -462,12 +460,10 @@ public class CulturalParameters extends JDialog {
 								jfc_load.setCurrentDirectory(conf_dir);
 							}
 							if (jfc_load.showSaveDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
-								// This will overwrite the controller in the simulation. 
-								if (CulturalSimulator.want_to_continue(jfc_load)) {
-									String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
-									controller.load_parameters_from_interface();
-									controller.save_simulation(conf_file);
-								}
+								String conf_file = jfc_load.getSelectedFile().getAbsolutePath();
+								ControllerSingle controllerTemp = new ControllerSingle(CulturalSimulator.printer, null);
+								controllerTemp.load_parameters_from_interface();
+								controllerTemp.save_simulation(conf_file);
 							}
 						}
 					});
@@ -489,7 +485,10 @@ public class CulturalParameters extends JDialog {
 							if (jfc_workspace.getSelectedFile() != null){
 								Controller.WORKSPACE_DIR = jfc_workspace.getSelectedFile().getAbsolutePath() + "\\";
 							}
+							controller.clean_simulation();
 							controller.load_parameters_from_interface();
+							CulturalSimulator.clean_informational_spaces();
+							controller.restore_parameters_to_interface();
 							CulturalParameters.this.setVisible(false);
 						}
 					}
@@ -587,6 +586,12 @@ public class CulturalParameters extends JDialog {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void update() {
+		CulturalSimulator.printer.print(-1, "Update in Cultural Parameters during loading or saving");
+		
 	}
 
 }
