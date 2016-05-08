@@ -28,7 +28,7 @@ public class Genocide extends Event {
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (simulation.getRand().nextDouble() < p) {
+		if (distribution.rand.nextDouble() < p) {
 			simulation.kill_individual(r, c);
 		}
 	}

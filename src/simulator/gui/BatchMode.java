@@ -96,7 +96,7 @@ public class BatchMode extends JDialog implements Notifiable {
 	 * Number of repetitions of the different configurations
 	 */
 	private JSpinner sp_repetitions;
-	private JSpinner sp_repetitions_catastroph;
+	private JSpinner sp_repetitions_events;
 
 	/**
 	 * Controls of the simulations
@@ -330,12 +330,12 @@ public class BatchMode extends JDialog implements Notifiable {
 		lblEventRepetitions.setBounds(10, 155, 99, 14);
 		tab_catastrophic.add(lblEventRepetitions);
 
-		sp_repetitions_catastroph = new JSpinner();
-		sp_repetitions_catastroph.setToolTipText("How many times will the events be repeated in each scenario");
-		sp_repetitions_catastroph
+		sp_repetitions_events = new JSpinner();
+		sp_repetitions_events.setToolTipText("How many times will the events be repeated in each scenario");
+		sp_repetitions_events
 				.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
-		sp_repetitions_catastroph.setBounds(107, 152, 55, 20);
-		tab_catastrophic.add(sp_repetitions_catastroph);
+		sp_repetitions_events.setBounds(107, 152, 55, 20);
+		tab_catastrophic.add(sp_repetitions_events);
 
 		btn_play = new JToggleButton("Start");
 		btn_play.setToolTipText("Start/Resume the simulations");
@@ -395,7 +395,7 @@ public class BatchMode extends JDialog implements Notifiable {
 
 							if (tp_batch_mode.getSelectedComponent() == tab_conf_file) {
 								try {
-									controller.load_simulations(file_list, null, (int) sp_repetitions.getValue());
+									controller.load_configurations(file_list, null, (int) sp_repetitions.getValue());
 								} catch (ClassNotFoundException | IOException e) {
 									e.printStackTrace();
 								}
@@ -428,7 +428,7 @@ public class BatchMode extends JDialog implements Notifiable {
 								}
 								try {
 									controller.load_simulations(sim_list, events,
-											(int) sp_repetitions_catastroph.getValue());
+											(int) sp_repetitions_events.getValue());
 								} catch (ClassNotFoundException | IOException e) {
 									e.printStackTrace();
 								}

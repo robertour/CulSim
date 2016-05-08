@@ -2,6 +2,7 @@ package simulator.worlds;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 
 import simulator.CulturalSimulator;
 import simulator.control.Controller;
@@ -191,7 +192,7 @@ public class Inst extends E1 {
 	
 	@Override
 	public String getModelDescription(){
-		return TYPE + ": Institutions including homophily Axelrod (1997) - Ulloa(2016)";
+		return MODEL + ": Institutions including homophily Axelrod (1997) - Ulloa(2016)";
 	}
 
 	@Override
@@ -860,11 +861,11 @@ public class Inst extends E1 {
 	}
 
 	@Override
-	public void remove_partial_institution_content(int r, int c, double prob) {
+	public void remove_partial_institution_content(int r, int c, double prob, Random rand) {
 		int institution = institutionsCenters[r][c];
 		if (institution != EMPTY && institutionsN[institution] > 0) {
 			for (int f = 0; f < FEATURES; f++) {
-				if (Math.random() < prob) {
+				if (rand.nextDouble() < prob) {
 					this.removed_traits++;
 					institution_traits[institution][f] = -1;
 				}
@@ -948,11 +949,11 @@ public class Inst extends E1 {
 	}
 
 	@Override
-	public void convert_partial_institution(int r, int c, double prob) {
+	public void convert_partial_institution(int r, int c, double prob, Random rand) {
 		int institution = institutionsCenters[r][c];
 		if (institution != EMPTY && institutionsN[institution] > 0) {
 			for (int f = 0; f < FEATURES; f++) {
-				if (Math.random() < prob) {
+				if (rand.nextDouble() < prob) {
 					this.converted_traits++;
 					institution_traits[institution][f] = TRAITS;
 				}

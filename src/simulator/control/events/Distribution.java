@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import java.io.Serializable;
+import java.util.Random;
 
 import simulator.control.Simulation;
 
@@ -105,6 +106,17 @@ public class Distribution implements Serializable {
 	 * The radius of the NEUMANN distribution
 	 */
 	private int radius = 6;
+
+	/**
+	 * Random number generation for the events. It will change each time the
+	 * event is executed.
+	 */
+	protected Random rand = null;
+
+	/**
+	 * The seed of the random number generator
+	 */
+	protected long seed = -1L;
 
 	/**
 	 * Creates a UNIFORM distribution
@@ -238,7 +250,7 @@ public class Distribution implements Serializable {
 	 */
 	public int getRow(Simulation sim) {
 		if (calculated_row_ratio < 0) {
-			calculated_row_ratio = sim.getRand().nextDouble();
+			calculated_row_ratio = rand.nextDouble();
 		}
 		return (int) Math.round(calculated_row_ratio * (sim.ROWS - 1));
 	}
@@ -255,7 +267,7 @@ public class Distribution implements Serializable {
 	 */
 	public int getCol(Simulation sim) {
 		if (calculated_col_ratio < 0) {
-			calculated_col_ratio = sim.getRand().nextDouble();
+			calculated_col_ratio = rand.nextDouble();
 		}
 		return (int) Math.round(calculated_col_ratio * (sim.COLS - 1));
 	}
@@ -270,7 +282,7 @@ public class Distribution implements Serializable {
 	 */
 	public int getRow2(Simulation sim) {
 		if (calculated_row2_ratio < 0) {
-			calculated_row2_ratio = sim.getRand().nextDouble();
+			calculated_row2_ratio = rand.nextDouble();
 		}
 		return (int) Math.round(calculated_row2_ratio * (sim.ROWS - 1));
 	}
@@ -286,7 +298,7 @@ public class Distribution implements Serializable {
 	 */
 	public int getCol2(Simulation sim) {
 		if (calculated_col2_ratio < 0) {
-			calculated_col2_ratio = sim.getRand().nextDouble();
+			calculated_col2_ratio = rand.nextDouble();
 		}
 		return (int) Math.round(calculated_col2_ratio * (sim.COLS - 1));
 	}
@@ -396,6 +408,15 @@ public class Distribution implements Serializable {
 	}
 
 	/**
+	 * Return the seed associated to the current distribution
+	 * 
+	 * @return the seed of the distribution of the event
+	 */
+	public long get_seed() {
+		return seed;
+	}
+
+	/**
 	 * Probability density function for the standardized Normal distribution
 	 * 
 	 * @author tico
@@ -439,7 +460,8 @@ public class Distribution implements Serializable {
 	 * Creates a distribution based on a string that represents it
 	 * 
 	 * @param s
-	 *            in the form of "U@p", "W@x,y,radius", or "N@x,y,sd" or "R@x1,y1,x2,y2"
+	 *            in the form of "U@p", "W@x,y,radius", or "N@x,y,sd" or
+	 *            "R@x1,y1,x2,y2"
 	 * @return an instance of the Distribution class that represent the
 	 *         distribution represented in the string s
 	 */
@@ -485,4 +507,5 @@ public class Distribution implements Serializable {
 					+ ". Options are (U,p), (W,x,y,radious), N(x,y,center), and R(x1,y1,x2,y2)");
 		}
 	}
+
 }

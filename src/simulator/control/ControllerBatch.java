@@ -97,7 +97,7 @@ public class ControllerBatch extends Controller {
 	 * @param events
 	 *            the list of events that will be executed in the simuations
 	 * @param repetitions
-	 *            the number of times each simulation on a file will be executed
+	 *            the number of times each event set will be executed
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws FileNotFoundException
@@ -118,6 +118,45 @@ public class ControllerBatch extends Controller {
 					s.events(events);
 				}
 				simulations.add(s);
+			}
+		}
+	}
+	
+	/**
+	 * Load the simulation configuration store in the simulation files as many times as
+	 * specified in repetitions and add them to the simulation list. It also add
+	 * the events that will be happening in all the loaded simulations.
+	 * 
+	 * @param sim_files
+	 *            the list of simulation files
+	 * @param events
+	 *            the list of events that will be executed in the simuations
+	 * @param repetitions
+	 *            the number of times each simulation with the provided configuration will be executed
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws FileNotFoundException
+	 */
+	public void load_configurations(ArrayList<String> sim_files, ArrayList<Event> events, int repetitions)
+			throws FileNotFoundException, ClassNotFoundException, IOException {
+		simulations = new ArrayList<Simulation>();
+		IS_BATCH = true;
+		if (events != null) {
+			this.events = events;
+		}
+
+		for (Iterator<String> iterator = sim_files.iterator(); iterator.hasNext();) {
+			String simstate_file = (String) iterator.next();
+			Simulation s = this.load_simulation(simstate_file);
+			s.starter.clean();
+			s.clean();
+			for (int j = 0; j < repetitions; j++) {
+				// A new random seed is generated
+				Simulation clone = s.clone();
+				if (events != null) {
+					clone.events(events);
+				}
+				simulations.add(clone);
 			}
 		}
 	}
@@ -247,7 +286,8 @@ public class ControllerBatch extends Controller {
 			writer.write("The following events have been set up for the scenarios:");
 			writer.newLine();
 			for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
-				writer.write(iterator.next().toString());
+				Event ev = iterator.next();
+				writer.write(ev.toString() + ev.seedToString());
 				writer.newLine();
 			}
 		} else {

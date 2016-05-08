@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import java.io.Serializable;
+import java.util.Random;
 
 import simulator.control.Simulation;
 
@@ -40,29 +41,45 @@ public abstract class Event implements Serializable {
 	}
 
 	/**
-	 * It execute the event accordint to the respective distribution of the
+	 * It execute the event according to the respective distribution of the
 	 * event.
 	 * 
 	 * @param s
 	 *            simulation in which the event will be executed
 	 */
 	public void execute(Simulation s) {
+
 		if (distribution == null) {
 			trigger(-1, -1, -1, s);
-		} else if (distribution.getType() == Distribution.UNIFORM) {
-			uniform_event(distribution.getProbability(), s);
-		} else if (distribution.getType() == Distribution.NORMAL) {
-			normal_event(distribution.getDiagonalNormalDistribution(s), distribution.getRow(s), distribution.getCol(s),
-					s);
-		} else if (distribution.getType() == Distribution.NEUMANN) {
-			neumann_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadius(), s);
-		} else if (distribution.getType() == Distribution.RECTANGULAR) {
-			rectangular_event(distribution.getRow(s), distribution.getCol(s), distribution.getRow2(s),
-					distribution.getCol2(s), s);
+		} else {
+			distribution.rand = new Random();
+			distribution.seed = distribution.rand.nextLong();
+			distribution.rand.setSeed(distribution.seed);
+			if (distribution.getType() == Distribution.UNIFORM) {
+				uniform_event(distribution.getProbability(), s);
+			} else if (distribution.getType() == Distribution.NORMAL) {
+				normal_event(distribution.getDiagonalNormalDistribution(s), distribution.getRow(s),
+						distribution.getCol(s), s);
+			} else if (distribution.getType() == Distribution.NEUMANN) {
+				neumann_event(distribution.getRow(s), distribution.getCol(s), distribution.getRadius(), s);
+			} else if (distribution.getType() == Distribution.RECTANGULAR) {
+				rectangular_event(distribution.getRow(s), distribution.getCol(s), distribution.getRow2(s),
+						distribution.getCol2(s), s);
+			}
 		}
-		if (s.log != null){
-			s.log.print(s.IDENTIFIER, "Event executed: " + this.toString() + "\n");
+		if (s.log != null) {
+
+			s.log.print(s.IDENTIFIER, "Event executed: " + this.toString() + seedToString());
 		}
+	}
+
+	/**
+	 * Return the seed of the distribution in a string
+	 * 
+	 * @return the seed of the distribution in a string
+	 */
+	public String seedToString() {
+		return " Seed: " + ((distribution == null) ? "n/a" : (distribution.get_seed() + ""));
 	}
 
 	/**

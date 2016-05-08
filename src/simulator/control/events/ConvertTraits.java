@@ -28,7 +28,7 @@ public class ConvertTraits extends Event {
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		simulation.convert_partial_institution(r, c, p);
+		simulation.convert_partial_institution(r, c, p, distribution.rand);
 	}
 	
 	@Override

@@ -31,7 +31,7 @@ public class RemoveInstitutionsPartialContent extends Event {
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		simulation.remove_partial_institution_content(r, c, p);
+		simulation.remove_partial_institution_content(r, c, p, distribution.rand);
 	}
 
 	@Override

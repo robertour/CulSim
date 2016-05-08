@@ -55,7 +55,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * String text to identify the type of simulation
 	 */
-	public String TYPE = null;
+	public String MODEL = null;
 	/**
 	 * Buffered size to avoid writing each time.
 	 */
@@ -164,7 +164,11 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Random number generator
 	 */
-	protected Random rand = new Random();
+	protected Random rand = null;
+	/**
+	 * Stores the seed that produced this simulation
+	 */
+	protected long seed = -1L;
 	/**
 	 * This indicates how many times the generation have been saved and
 	 * restarted
@@ -378,9 +382,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 
 	public Simulation() {
-		TYPE = this.getClass().getSimpleName().toUpperCase();
+		MODEL = this.getClass().getSimpleName().toUpperCase();
 		monitor = new Object();
 		save_state();
+
 	}
 
 	/**
@@ -425,7 +430,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		try {
 			writer = new BufferedWriter(
 					new OutputStreamWriter(new FileOutputStream(results_dir + Controller.PROGRESSIONS_DIR + IDENTIFIER
-							+ "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv", true), "utf-8"),
+							+ "_" + MODEL + "_" + ROWS + "x" + COLS + ".csv", true), "utf-8"),
 					BUFFERED_SIZE);
 		} catch (UnsupportedEncodingException | FileNotFoundException e) {
 			e.printStackTrace();
@@ -443,10 +448,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 			try {
 				setup();
-				log.print(IDENTIFIER, TYPE + " setup ready.\n");
+				log.print(IDENTIFIER, MODEL + " setup ready.\n");
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.print(IDENTIFIER, TYPE + " setup() failed.\n");
+				log.print(IDENTIFIER, MODEL + " setup() failed.\n");
 				failed = true;
 			}
 			try {
@@ -539,7 +544,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	private void simulation_setup() {
 
-		TYPE = this.getClass().getSimpleName().toUpperCase();
+		MODEL = this.getClass().getSimpleName().toUpperCase();
 		NEIGHBOURS = RADIUS * RADIUS + (RADIUS + 1) * (RADIUS + 1) - 1;
 		TOTAL_AGENTS = ROWS * COLS;
 		BETA = 1 - ALPHA;
@@ -552,6 +557,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 		flags = new boolean[ROWS][COLS];
 		cultures = new int[ROWS][COLS];
+		
+		rand = new Random();
+		seed = rand.nextLong();
+		rand.setSeed(seed);
 
 		int middle_trait = (int) Math.round(TRAITS / 2.0 - 0.01);
 
@@ -606,7 +615,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		try {
 			writer = new BufferedWriter(
 					new OutputStreamWriter(new FileOutputStream(results_dir + Controller.PROGRESSIONS_DIR + IDENTIFIER
-							+ "_" + TYPE + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"),
+							+ "_" + MODEL + "_" + ROWS + "x" + COLS + ".csv"), "utf-8"),
 					BUFFERED_SIZE);
 			writer.write(header());
 			writer.newLine();
@@ -827,7 +836,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			clone.RANDOM_INITIALIZATION = this.RANDOM_INITIALIZATION;
 			clone.ITERATIONS = this.ITERATIONS;
 			clone.SPEED = this.SPEED;
-			clone.TYPE = this.TYPE;
+			clone.MODEL = this.MODEL;
 			clone.ROWS = this.ROWS;
 			clone.COLS = this.COLS;
 			clone.FEATURES = this.FEATURES;
@@ -853,7 +862,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * @return header for the output files
 	 */
 	public static String header() {
-		return "id,timestamp,duration," + "model,random_initialization," + "iterations,speed,"
+		return "id,timestamp,duration,seed," + "model,random_initialization," + "iterations,speed,"
 				+ "rows,cols,radius,features,traits," + "mutation,selection_error,"
 				+ "institutional_influence,agent_loyalty,democracy,propaganda," + "epoch,generation,iteration,"
 				+ "energy,pixel_similarity," + "cultures,biggest_culture,full_sim," + "pos_sim,size_sim,traits_sim,"
@@ -871,14 +880,15 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * @return a CSV line with current results
 	 */
 	public String get_results() {
+
 		return IDENTIFIER + "," + new java.sql.Timestamp(startTime) + ","
-				+ ((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," + TYPE + ","
-				+ RANDOM_INITIALIZATION + "," + ITERATIONS + "," + SPEED + "," + ROWS + "," + COLS + "," + RADIUS + ","
-				+ FEATURES + "," + TRAITS + "," + MUTATION + "," + SELECTION_ERROR + "," + ALPHA + "," + ALPHA_PRIME
-				+ "," + FREQ_DEM + "," + FREQ_PROP + "," + epoch + "," + generation + "," + iteration + "," + energy
-				+ "," + pixel_similarity + "," + cultureN + "," + biggest_culture + "," + culture_similarity[FULL_SIM]
-				+ "," + culture_similarity[POS_SIM] + "," + culture_similarity[SIZE_SIM] + ","
-				+ culture_similarity[TRAITS_SIM] + "," + culture_neumannN + "," + biggest_neumann_culture + ","
+				+ ((endTime == 0) ? (System.currentTimeMillis() - startTime) : (endTime - startTime)) + "," + seed + ","
+				+ MODEL + "," + RANDOM_INITIALIZATION + "," + ITERATIONS + "," + SPEED + "," + ROWS + "," + COLS + ","
+				+ RADIUS + "," + FEATURES + "," + TRAITS + "," + MUTATION + "," + SELECTION_ERROR + "," + ALPHA + ","
+				+ ALPHA_PRIME + "," + FREQ_DEM + "," + FREQ_PROP + "," + epoch + "," + generation + "," + iteration
+				+ "," + energy + "," + pixel_similarity + "," + cultureN + "," + biggest_culture + ","
+				+ culture_similarity[FULL_SIM] + "," + culture_similarity[POS_SIM] + "," + culture_similarity[SIZE_SIM]
+				+ "," + culture_similarity[TRAITS_SIM] + "," + culture_neumannN + "," + biggest_neumann_culture + ","
 				+ neumann_similarity[FULL_SIM] + "," + neumann_similarity[POS_SIM] + "," + neumann_similarity[SIZE_SIM]
 				+ "," + neumann_similarity[TRAITS_SIM] + "," + alife_institutions + "," + biggest_institution + ","
 				+ institution_similarity + "," + alife_traits + "," + foreiners_traits + "," + destoyed_institutions
@@ -893,19 +903,16 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	public String get_identification() {
 		DecimalFormat df = new DecimalFormat(".00");
-		
-		return TYPE + "(" + (RANDOM_INITIALIZATION ? "R" : "S") + ") " + ROWS + "x" + COLS + "(" + RADIUS + "): "
+
+		return MODEL + "(" + (RANDOM_INITIALIZATION ? "R" : "S") + ") " + ROWS + "x" + COLS + "(" + RADIUS + "): "
 				+ "F/T:" + FEATURES + "/" + TRAITS + " | " + "M/S:" + MUTATION + "/" + SELECTION_ERROR + " | "
 				+ "a/a\':" + ALPHA + "/" + ALPHA_PRIME + " | " + "D/P:" + FREQ_DEM + "/" + FREQ_PROP + " @ " + epoch
 				+ "|" + generation + "|" + iteration + " (" + "E: " + energy + " | " + "PS: " + pixel_similarity + " | "
-				+ "Cultures: " + cultureN + "/" + biggest_culture + "/"
-				+ df.format(culture_similarity[FULL_SIM]) + "="
-				+ df.format(culture_similarity[POS_SIM]) + "*"
-				+ df.format(culture_similarity[SIZE_SIM]) + "*"
+				+ "Cultures: " + cultureN + "/" + biggest_culture + "/" + df.format(culture_similarity[FULL_SIM]) + "="
+				+ df.format(culture_similarity[POS_SIM]) + "*" + df.format(culture_similarity[SIZE_SIM]) + "*"
 				+ df.format(culture_similarity[TRAITS_SIM]) + " | " + "Neumann's: " + culture_neumannN + "/"
 				+ biggest_neumann_culture + "/" + df.format(neumann_similarity[FULL_SIM]) + "="
-				+ df.format(neumann_similarity[POS_SIM]) + "*"
-				+ df.format(neumann_similarity[SIZE_SIM]) + "*"
+				+ df.format(neumann_similarity[POS_SIM]) + "*" + df.format(neumann_similarity[SIZE_SIM]) + "*"
 				+ df.format(neumann_similarity[TRAITS_SIM]) + " | " + "Inst: " + alife_institutions + "/"
 				+ biggest_institution + "/" + institution_similarity + " | " + "Traits: " + foreiners_traits + "/"
 				+ alife_institutions + ")";
@@ -1270,7 +1277,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				event.execute(this);
 			}
 			events.clear();
-			if (!Controller.IS_BATCH){
+			if (!Controller.IS_BATCH) {
 				CulturalSimulator.controller.restore_parameters_to_interface();
 			}
 			executing_events = false;
@@ -1302,7 +1309,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 					Event event = (Event) iterator.next();
 					event.execute(this);
-					if (!Controller.IS_BATCH){
+					if (!Controller.IS_BATCH) {
 						CulturalSimulator.controller.restore_parameters_to_interface();
 					}
 
@@ -1325,8 +1332,11 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 *            belongs to it)
 	 * @param prob
 	 *            probability of a trait of being deleted
+	 * @param r
+	 *            random generator
+	 * 
 	 */
-	public void remove_partial_institution_content(int r, int c, double prob) {
+	public void remove_partial_institution_content(int r, int c, double prob, Random rand) {
 	}
 
 	/**
@@ -1377,8 +1387,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 *            belongs to it)
 	 * @param prob
 	 *            probability of a trait of being converted
+	 * @param r
+	 *            random generator
 	 */
-	public void convert_partial_institution(int r, int c, double prob) {
+	public void convert_partial_institution(int r, int c, double prob, Random rand) {
 	}
 
 	/**
@@ -1517,17 +1529,6 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			}
 		}
 		return color;
-	}
-
-	/**
-	 * Return the random generator. Don't change but use it in order to generate
-	 * events related to the simulation, so it keeps a unique seed associated to
-	 * the simulation.
-	 * 
-	 * @return the generator.
-	 */
-	public Random getRand() {
-		return rand;
 	}
 
 }

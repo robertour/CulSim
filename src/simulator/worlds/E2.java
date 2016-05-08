@@ -44,7 +44,7 @@ public class E2 extends E1 {
 
 	@Override
 	public String getModelDescription(){
-		return TYPE + ": Multilateral social influence without homophily - Experiment 2, Flache(2011)";
+		return MODEL + ": Multilateral social influence without homophily - Experiment 2, Flache(2011)";
 	}
 	
 	@Override

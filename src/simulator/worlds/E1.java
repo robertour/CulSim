@@ -53,7 +53,7 @@ public class E1 extends Simulation {
 	
 	@Override
 	public String getModelDescription(){
-		return TYPE + ": Homophily (Axelrod, 1997) including mutation and selection error - Experiment 1, Flache(2011)";
+		return MODEL + ": Homophily (Axelrod, 1997) including mutation and selection error - Experiment 1, Flache(2011)";
 	}
 	
 	@Override
