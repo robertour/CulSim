@@ -30,6 +30,10 @@ import simulator.CulturalSimulator;
 import simulator.control.Controller;
 import simulator.control.ControllerSingle;
 import simulator.control.Simulation;
+import simulator.worlds.E1;
+import simulator.worlds.E2;
+import simulator.worlds.E3;
+import simulator.worlds.Inst;
 
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -536,14 +540,30 @@ public class CulturalParameters extends JDialog implements Notifiable {
 			String path = packageName.replace('.', '/');
 			Enumeration<URL> resources = classLoader.getResources(path);
 			List<File> dirs = new ArrayList<File>();
-			while (resources.hasMoreElements()) {
-				URL resource = resources.nextElement();
-				dirs.add(new File(resource.getFile()));
+			if (resources.hasMoreElements()){
+				while (resources.hasMoreElements()) {
+					URL resource = resources.nextElement();
+					dirs.add(new File(resource.getFile()));
+				}
+	
+				for (File directory : dirs) {
+					findClasses(directory, packageName);
+				}
+			} else {
+				Simulation sim = new E1();
+				prettyNames.add(sim.getModelDescription());
+				classes.add(sim.getClass());
+				sim = new E2();
+				prettyNames.add(sim.getModelDescription());
+				classes.add(sim.getClass());
+				sim = new E3();
+				prettyNames.add(sim.getModelDescription());
+				classes.add(sim.getClass());
+				sim = new Inst();
+				prettyNames.add(sim.getModelDescription());
+				classes.add(sim.getClass());
 			}
-
-			for (File directory : dirs) {
-				findClasses(directory, packageName);
-			}
+			
 		}
 
 		return prettyNames.toArray(new String[prettyNames.size()]);
@@ -585,7 +605,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 					
 				}
 			}
-		}
+		} 
 	}
 
 	@Override
