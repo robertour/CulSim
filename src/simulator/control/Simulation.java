@@ -854,7 +854,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	public static String header() {
 		return "id,timestamp,duration," + "model,random_initialization," + "iterations,speed,"
-				+ "rows,cols,radius,traits,features," + "mutation,selection_error,"
+				+ "rows,cols,radius,features,traits," + "mutation,selection_error,"
 				+ "institutional_influence,agent_loyalty,democracy,propaganda," + "epoch,generation,iteration,"
 				+ "energy,pixel_similarity," + "cultures,biggest_culture,full_sim," + "pos_sim,size_sim,traits_sim,"
 				+ "neumann_cultures,biggest_neumann_culture,neumann_full_sim,"
