@@ -69,7 +69,7 @@ public abstract class Event implements Serializable {
 		}
 		if (s.log != null) {
 
-			s.log.print(s.IDENTIFIER, "Event executed: " + this.toString() + seedToString());
+			s.log.print(s.IDENTIFIER, "Event executed: " + this.toString() + seedToString() + "\n");
 		}
 	}
 
