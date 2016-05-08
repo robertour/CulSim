@@ -250,7 +250,7 @@ public class BatchMode extends JDialog implements Notifiable {
 			public void actionPerformed(ActionEvent arg0) {
 				jfc_scenarios.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				if (jfc_scenarios.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					tf_scenarios_dir.setText(jfc_scenarios.getSelectedFile().getAbsolutePath() + "\\");
+					tf_scenarios_dir.setText(jfc_scenarios.getSelectedFile().getAbsolutePath() + File.separator);
 				}
 			}
 		});
@@ -259,7 +259,7 @@ public class BatchMode extends JDialog implements Notifiable {
 
 		tf_scenarios_dir = new JTextField();
 		tf_scenarios_dir.setToolTipText("This folder serves as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
-		tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath() + "\\");
+		tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath() + File.separator);
 		tf_scenarios_dir.setEditable(false);
 		tf_scenarios_dir.setColumns(10);
 		tf_scenarios_dir.setBounds(97, 10, 377, 25);

@@ -422,7 +422,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 						tf_workspace_dir.setBounds(76, 275, 467, 20);
 						contentPanel.add(tf_workspace_dir);
 						tf_workspace_dir.setColumns(10);
-						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + "\\");
+						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + File.separator);
 
 						JButton btnBrowse = new JButton("Browse");
 						btnBrowse.setIcon(new ImageIcon(
@@ -430,7 +430,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 						btnBrowse.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent e) {
 								if (jfc_workspace.showOpenDialog(contentPanel) == JFileChooser.APPROVE_OPTION) {
-									tf_workspace_dir.setText(jfc_workspace.getSelectedFile().getAbsolutePath() + "\\");
+									tf_workspace_dir.setText(jfc_workspace.getSelectedFile().getAbsolutePath() + File.separator);
 								}
 							}
 						});
@@ -487,7 +487,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 					public void actionPerformed(ActionEvent e) {
 						if (CulturalSimulator.want_to_continue(CulturalParameters.this)) {
 							if (jfc_workspace.getSelectedFile() != null){
-								Controller.WORKSPACE_DIR = jfc_workspace.getSelectedFile().getAbsolutePath() + "\\";
+								Controller.WORKSPACE_DIR = jfc_workspace.getSelectedFile().getAbsolutePath() + File.separator;
 							}
 							controller.clean_simulation();
 							controller.load_parameters_from_interface();
@@ -507,7 +507,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 				cancelButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						jfc_workspace.setCurrentDirectory(new File(Controller.WORKSPACE_DIR));
-						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + "\\");
+						tf_workspace_dir.setText(jfc_workspace.getCurrentDirectory().getAbsolutePath() + File.separator);
 						controller.restore_parameters_to_interface();
 						CulturalParameters.this.setVisible(false);
 					}
