@@ -102,7 +102,7 @@ public class ParametersEventDialog extends JDialog {
 
 		sp_iterations = new JSpinner();
 		sp_iterations
-				.setModel(new SpinnerNumberModel(new Integer(1000000), new Integer(1000), null, new Integer(1000)));
+				.setModel(new SpinnerNumberModel(new Integer(1000000), new Integer(1), null, new Integer(1)));
 		sp_iterations.setToolTipText("How many iterations would you let the simulation run for? ");
 		sp_iterations.setBounds(90, 20, 80, 20);
 		panel_8.add(sp_iterations);

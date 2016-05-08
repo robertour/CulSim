@@ -285,7 +285,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 				sp_iterations = new JSpinner();
 				sp_iterations.setToolTipText("How many iterations would you let the simulation run for? ");
 				sp_iterations.setModel(
-						new SpinnerNumberModel(new Integer(1000000), new Integer(1000), null, new Integer(1000)));
+						new SpinnerNumberModel(new Integer(1000000), new Integer(1), null, new Integer(1)));
 				sp_iterations.setBounds(67, 43, 73, 20);
 				panel_2.add(sp_iterations);
 

@@ -38,8 +38,6 @@ import simulator.control.events.ParameterChange;
 import javax.swing.ImageIcon;
 
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -295,7 +293,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 					if (want_to_continue(jfc_simulation_state)) {
 						String simstate_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
 						try {
-							controller.load_simulation(simstate_file);
+							controller.load_simulation(simstate_file, printer);
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
@@ -402,7 +400,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		JPanel panelGraphControls = new JPanel();
 		panelGraphs.add(panelGraphControls);
 
-		energyPanel = new GraphLabeledPanel("Energy");
+		energyPanel = new GraphLabeledPanel("Energy/Similarity");
 		panelGraphs.add(energyPanel);
 		energyPanel.setCounterLabels("Energy", "", "Similarity");
 
@@ -775,13 +773,13 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				controller.add_events(events);
 			}
 		});
-		parametersDialog.addComponentListener(new ComponentAdapter() {
+		/*parametersDialog.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
 				controller.restore_parameters_to_interface();
 				ParametersEventDialog.refresh_dialog();
 			}
-		});
+		});*/
 		parametersDialog.addNotifiable(parameterEventPanel);
 		eventPanels.add(parameterEventPanel);
 
@@ -909,7 +907,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		sliderSpeed.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				int sp = speed;
-				
+
 				if (sliderSpeed.getValue() < 10) {
 					sp = sliderSpeed.getValue();
 				} else if (sliderSpeed.getValue() < 20) {
@@ -918,16 +916,16 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 					sp = 100 * (sliderSpeed.getValue() - 19);
 				}
 				lblSpeedValue.setText(sp + "");
-				
-			    if (!sliderSpeed.getValueIsAdjusting()) {
-	
+
+				if (!sliderSpeed.getValueIsAdjusting()) {
+
 					ParametersEventDialog.speed = speed = sp;
 					ParameterChange pc = new ParameterChange();
 					pc.speed = speed;
 					ArrayList<Event> evs = new ArrayList<Event>();
 					evs.add(pc);
 					controller.add_events(evs);
-			    }
+				}
 			}
 		});
 
@@ -967,7 +965,8 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 			ParametersEventDialog.refresh_dialog();
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
-			output_area.append("Implemented model (Class Name) not found. A new simulation with default parameters will be created.");
+			output_area.append(
+					"Implemented model (Class Name) not found. A new simulation with default parameters will be created.");
 			controller.initialize_simulation();
 			controller.save_simulation("./simulation.parameters");
 			ParametersEventDialog.refresh_dialog();

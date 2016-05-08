@@ -124,9 +124,12 @@ public class ControllerSingle extends Controller {
 	 *            the file where the simulation is saved
 	 * @throws IOException
 	 */
-	public void load_simulation(String simfile) throws IOException {
+	public void load_simulation(String simfile, Printable printable) throws IOException {
 		if (simulation != null) {
 			simulation.clean(); // clean the memory
+		}
+		if (printable != null){
+			log = printable;
 		}
 		try {
 
@@ -143,6 +146,9 @@ public class ControllerSingle extends Controller {
 				simulation.save_state();
 				simulation.results();
 				simulation.update_gui();
+			}
+			if (printable != null){
+				log = printable;
 			}
 			restore_parameters_to_interface();
 		} catch (ClassNotFoundException e) {
@@ -201,8 +207,9 @@ public class ControllerSingle extends Controller {
 			simulation.clean();
 			simulation = simulation.starter;
 			simulation.save_state();
-			CulturalSimulator.clean_informational_spaces();
 			simulation.results();
+			restore_parameters_to_interface();
+			CulturalSimulator.clean_informational_spaces();			
 			simulation.update_gui();
 		}
 	}

@@ -51,9 +51,9 @@ public class GraphLabeledPanel extends JPanel {
 				counters += "/";
 			}
 			if (s2 <1 ){
-				counters += "<span color='blue'>"+df.format(s2)+"</span>";
+				counters += "<span color='red'>"+df.format(s2)+"</span>";
 			} else {
-				counters += "<span color='blue'>"+df2.format(s2)+"</span>";
+				counters += "<span color='red'>"+df2.format(s2)+"</span>";
 			}
 			
 		} 
@@ -63,9 +63,9 @@ public class GraphLabeledPanel extends JPanel {
 				counters += "/";
 			}
 			if (s3 <1 ){
-				counters += "<span color='blue'>"+df.format(s3)+"</span>";
+				counters += "<span color='green'>"+df.format(s3)+"</span>";
 			} else {
-				counters += "<span color='blue'>"+df2.format(s3)+"</span>";
+				counters += "<span color='green'>"+df2.format(s3)+"</span>";
 			}
 		} 
 		lcounters.setText("<html>"+counters+"</html>");
