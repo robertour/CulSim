@@ -44,10 +44,11 @@ Install Java 1.7 or 1.8. It also need to be tested with IcedTea because it was n
 ###### For **windows users**: 
 
  * If you don't know how to use the terminal/command line, try:
-  1. Right click in the `culsim.jar` file
-  2. Open With...
-  3. Select "Java runtime environment"
-  4. After that double click should be enough.
+  1. Download the `culsim.jar` file from [here](https://github.com/robertour/CulSim/commit/1c45dc3c8d5cfb2051afe1d8aa70264facdad046)
+  2. Right click in the `culsim.jar` file
+  3. Open With...
+  4. Select "Java runtime environment" (if the option doesn't appear, please [install Java 7 first](https://www.java.com/en/download/help/windows_manual_download.xml))
+  5. After that double click should be enough.
  
  * Alternatively, you can double click the `culsim.bat`
  
