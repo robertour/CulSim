@@ -1,9 +1,12 @@
 cultural-simulations
 =================
 
+Summary
+-------
+
 This repository contains a set of java simulations for artificial societies. The simulations are related to the 
-emergence of differenct cultures (groups of agents with the same features), and how to estabilize them in the
-presence of noise, and destruction. The code is very stable and an interface has been added. Here is a [user manual](https://github.com/robertour/cultural-simulations/wiki).
+emergence of different cultures (groups of agents with the same features), and how to estabilize them in the
+presence of noise, and destruction. 
 
 The code implements several extensions to the seminal work of [Axelrod 1997](http://jcr.sagepub.com/content/41/2/203.short). It includes mutation, a source of perturbation to the cultural traits as proposed by [Klemm et. al 2003](http://arxiv.org/abs/cond-mat/0205188), multilateral social influence, initial suggested by [Parisi et. al  2003](http://jcr.sagepub.com/content/47/2/163.refs?patientinform-links=yes&legid=spjcr;47/2/163) and [Centola et. al 2007](http://jcr.sagepub.com/content/51/6/905.short), and finally adapted by [Flache & Macy 2011](http://jcr.sagepub.com/content/early/2011/07/30/0022002711414371) who also introduce another source of noise: selection error. Finally, it also includes institutions as we proposed in [Ulloa et. al.](http://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0153334), including institutional process such as propaganda and democracy.
 
