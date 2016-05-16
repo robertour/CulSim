@@ -5,7 +5,9 @@ Content
 -------
 
 1. [Summary](#user-content-summary)
-2. [Installation](#user-content-installation)
+2. [How to use it?](#user-content-how-to-use-it)
+3. [Installation](#user-content-installation)
+4. [About this implementation](#user-content-about-this-implementation)
 
 Summary
 -------
@@ -25,24 +27,6 @@ How to use it?
 The wiki (user manual) is [now available](https://github.com/robertour/cultural-simulations/wiki), and a GUI; the [Quick Start] (https://github.com/robertour/cultural-simulations/wiki/A.-Quick-Start) will introduce you very fast.
 
 There is also a [Batch Mode](https://github.com/robertour/cultural-simulations/wiki/I.-Batch-Mode) and a [Command Line Interface](https://github.com/robertour/cultural-simulations/wiki/J.-Command-Line-Interface) to run experimental designs. Statistical analysis of the resutls is possible through the [Output Files](https://github.com/robertour/cultural-simulations/wiki/H.-Output-Files).
-
-
-About this implementation
---------------------------
-
-This code was created with the goal of running fast, most of them apply to the Batch Mode or Command Line Interfacce:
-
-1. All is kept in memory and I/O access is kept at the minimum.
-
-2. Each simulation is run in a different core. There will be as many threads as your computer have running at the same time. If you have 4 cores, you will have 4 threads (simulations) running simultaneously, and the rest waiting for them to finish.
-
-3. The use of objects in the simulation is avoided in the classes that correspond to the core implementation of the simulation. Instead, direct Java Matrices is used. You will see a lot of confusing indexes, fun times!! I did my best to keep decent names for them without being extremely verbose, and it is very well documented.
- 
-4. Modularization in the simulation core method is avoided in order to reduce the number of method calls. 
-
-5. As a consequence of the previous, the code is repetitive. Each class (that inherits from simulation) re-implement the wheel. You will find that most of the code in `run_experiment` is very repetitive, i.e. I didn't factorize intentionally.
-
-6. Buffered writers are used, so I/O is reduced and the output to files is not immediate.
 
 
 Installation
@@ -76,3 +60,21 @@ Install Java 1.7 or 1.8. It also need to be tested with IcedTea because it was n
 ###### For **Mac users**: 
 
   It should be the same as for Linux/Unix users, but I have no relation with macs, so please let me know.
+
+
+About this implementation
+--------------------------
+
+This code was created with the goal of running fast, most of them apply to the Batch Mode or Command Line Interfacce:
+
+1. All is kept in memory and I/O access is kept at the minimum.
+
+2. Each simulation is run in a different core. There will be as many threads as your computer have running at the same time. If you have 4 cores, you will have 4 threads (simulations) running simultaneously, and the rest waiting for them to finish.
+
+3. The use of objects in the simulation is avoided in the classes that correspond to the core implementation of the simulation. Instead, direct Java Matrices is used. You will see a lot of confusing indexes, fun times!! I did my best to keep decent names for them without being extremely verbose, and it is very well documented.
+ 
+4. Modularization in the simulation core method is avoided in order to reduce the number of method calls. 
+
+5. As a consequence of the previous, the code is repetitive. Each class (that inherits from simulation) re-implement the wheel. You will find that most of the code in `run_experiment` is very repetitive, i.e. I didn't factorize intentionally.
+
+6. Buffered writers are used, so I/O is reduced and the output to files is not immediate.
