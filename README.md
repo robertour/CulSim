@@ -1,9 +1,6 @@
 cultural-simulations
 =================
 
-Content
--------
-
 1. [Summary](#user-content-summary)
 2. [How to use it?](#user-content-how-to-use-it)
 3. [Installation](#user-content-installation)
