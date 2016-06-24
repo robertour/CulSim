@@ -388,9 +388,9 @@ public class Distribution implements Serializable {
 			return new NeumannDistribution(Double.parseDouble(params[1]),
 					Double.parseDouble(params[2]), Integer.parseInt(params[3]));
 		case 'N':
-			if (params.length != 4) {
+			if (params.length != 5) {
 				throw new IllegalArgumentException(
-						"Normal distribution accepts exactly 3 parameters after the 'N' in "
+						"Normal distribution accepts exactly 4 parameters after the 'N' in "
 								+ s);
 			}
 			return new AproxNormalDistribution(Double.parseDouble(params[1]),
@@ -398,9 +398,9 @@ public class Distribution implements Serializable {
 					Double.parseDouble(params[3]),
 					Double.parseDouble(params[4]));
 		case 'E':
-			if (params.length != 4) {
+			if (params.length != 5) {
 				throw new IllegalArgumentException(
-						"Normal distribution accepts exactly 3 parameters after the 'N' in "
+						"Normal distribution accepts exactly 4 parameters after the 'N' in "
 								+ s);
 			}
 			return new EstNormalDistribution(Double.parseDouble(params[1]),
