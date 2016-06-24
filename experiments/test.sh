@@ -1,4 +1,5 @@
 #!/bin/sh
+set -xv
 
 if [ -d "./workspace/div/" ]; then
   echo "The /worspace/div/ directory exists. Please remove (or backup before continuing)"

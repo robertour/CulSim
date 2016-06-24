@@ -1,4 +1,6 @@
 #!/bin/sh
+set -xv
+
 directory=$1
 distribution=$2
 iter=$3

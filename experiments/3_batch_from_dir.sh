@@ -1,4 +1,6 @@
 #!/bin/sh
+set -xv
+
 directory=$1
 value=$2
 id_param=$3
