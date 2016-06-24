@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * This event introduces foreign agents (invaders) in the simulation. An invader
@@ -40,16 +41,16 @@ public class Invasion extends Event {
 	}
 
 	@Override
-	public void execute(Simulation simulation) {
+	protected void pre_execute(Simulation simulation) {
+		super.pre_execute(simulation);
 		i_r = distribution.getRow(simulation);
 		i_c = distribution.getCol(simulation);
 		simulation.pre_invasion(i_r, i_c);
-		super.execute(simulation);
 	}
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (distribution.rand.nextDouble() < p) {
+		if (distribution.getRand().nextDouble() < p) {
 			simulation.invade(r, c, i_r, i_c);
 		}
 	}

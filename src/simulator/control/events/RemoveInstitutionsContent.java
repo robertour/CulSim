@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * This event remove the institutions full content, i.e. all the traits in the
@@ -28,7 +29,7 @@ public class RemoveInstitutionsContent extends Event {
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (distribution.rand.nextDouble() < p) {
+		if (distribution.getRand().nextDouble() < p) {
 			simulation.remove_full_institution_content(r, c);
 		}
 	}

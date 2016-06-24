@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import simulator.control.events.Distribution;
+import simulator.control.events.distributions.Distribution;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class DistributionDoubleDialog extends JDialog {
 		this.title1 = title1;
 		this.title2 = title2;
 
-		setBounds(100, 100, 396, 544);
+		setBounds(100, 100, 800, 435);
 		getContentPane().setLayout(new BorderLayout());
 		JPanel contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

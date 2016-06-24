@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * This event convert institutions. An institution is converted when all 
@@ -28,7 +29,7 @@ public class ConvertInstitutions extends Event {
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (distribution.rand.nextDouble() < p){
+		if (distribution.getRand().nextDouble() < p){
 			simulation.convert_full_institution(r, c);
 		}
 	}

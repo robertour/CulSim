@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * When a probabilistic distribution is used, this event convert some
@@ -28,7 +29,7 @@ public class ConvertTraits extends Event {
 	
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		simulation.convert_partial_institution(r, c, p, distribution.rand);
+		simulation.convert_partial_institution(r, c, p, distribution.getRand());
 	}
 	
 	@Override

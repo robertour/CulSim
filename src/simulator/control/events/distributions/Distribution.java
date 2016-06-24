@@ -1,25 +1,26 @@
-package simulator.control.events;
+package simulator.control.events.distributions;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.Random;
 
 import simulator.control.Simulation;
 
 /**
  * This class represent the shape in which an event is distributed. The name
- * Distribution might get confusion with probabilistic distribution. Although
+ * Distribution might cause confusion with probabilistic distribution. Although
  * there is some relation with it, it shouldn't be interpreted strictly since
  * some of the distributions might actually be deterministic.
  * 
- * Currently three distributions are available: UNIFORM, in which all events
- * occur with equal probability in every cell; NORMAL, in which the probability
- * is distributed normally in the grid; NEUMANN, in which the events are
- * distributed in a Neumann neighborhood; and RECTANGULAR, in which the events
- * are distributed in a rectangle.
+ * Currently four distributions are available: UNIFORM, in which all events
+ * occur with equal probability in every cell; APROX. NORMAL and EST. NORMAL, in
+ * which the probability is distributed normally in the grid given; NEUMANN, in
+ * which the events are distributed in a Neumann neighborhood; and RECTANGULAR,
+ * in which the events are distributed in a rectangle.
  * 
  * @author Roberto Ulloa
- * @version 1.0, April 2016
- *
+ * @version 1.1, June 2016
+ * 
  */
 public class Distribution implements Serializable {
 	private static final long serialVersionUID = -3545632412211320724L;
@@ -40,36 +41,41 @@ public class Distribution implements Serializable {
 	 * Identifies a RECTANGULAR distribution
 	 */
 	public static final int RECTANGULAR = 3;
+	/**
+	 * Identifies a NORMAL distribution
+	 */
+	public static final int NORMAL_EXPECTED = 4;
 
 	/**
 	 * Identifies the current distribution
 	 */
-	private int type = -1;
+	protected int type = -1;
+
 	/**
 	 * The probability of an event to occur
 	 */
-	private double probability = 0.1;
+	protected double probability = 0.1;
 
 	/**
 	 * If different of -1, the calculated_row_ratio will use this value. If
 	 * equal to -1, the calculated_row_ratio will be picked up at random.
 	 */
-	private double row_ratio = 0.5;
+	protected double row_ratio = 0.5;
 	/**
 	 * If different of -1, the calculated_col_ratio will use this value. If
 	 * equal to -1, the calculated_col_ratio will be picked up at random.
 	 */
-	private double col_ratio = 0.5;
+	protected double col_ratio = 0.5;
 	/**
 	 * If different of -1, the calculated_row2_ratio will use this value. If
 	 * equal to -1, the calculated_row3_ratio will be picked up at random.
 	 */
-	private double row2_ratio = 0.9;
+	protected double row2_ratio = 0.9;
 	/**
 	 * If different of -1, the calculated_col2_ratio will use this value. If
 	 * equal to -1, the calculated_col_ratio will be picked up at random.
 	 */
-	private double col2_ratio = 0.5;
+	protected double col2_ratio = 0.5;
 
 	/**
 	 * A row that indicates one position where the event is located represented
@@ -78,7 +84,7 @@ public class Distribution implements Serializable {
 	 * which the event is centered. For RECTANGULAR distribution, it represents
 	 * the row of the initial position of the rectangle.
 	 */
-	private double calculated_row_ratio = -1;
+	protected double calculated_row_ratio = -1;
 	/**
 	 * A column that indicates one position where the event is located
 	 * represented as a ratio of the total columns to keep the events scalable
@@ -87,25 +93,37 @@ public class Distribution implements Serializable {
 	 * distribution, it represents the column of the initial position of the
 	 * rectangle.
 	 */
-	private double calculated_col_ratio = -1;
+	protected double calculated_col_ratio = -1;
 	/**
 	 * For RECTANGULAR distribution, it represents the row of the final position
 	 * of the rectangle.
 	 */
-	private double calculated_row2_ratio = -1;
+	protected double calculated_row2_ratio = -1;
 	/**
 	 * For RECTANGULAR distribution, it represents the column of the final
 	 * position of the rectangle.
 	 */
-	private double calculated_col2_ratio = -1;
+	protected double calculated_col2_ratio = -1;
+
+	/**
+	 * Maximum probabilistic value that the normal "density" function can take.
+	 * The value o on the center. Use -1 to ignore and simply use the standard
+	 * normal distribution on the range -1 to 1
+	 */
+	protected double ceil = 1.0;
+	/**
+	 * Ratio (%) of entities that will receive the event. It is used to estimate
+	 * a standard deviation that satisfies the condition.
+	 */
+	protected double expected = 0.3;
 	/**
 	 * The standard deviation of the NORMAL distribution
 	 */
-	private double sd = 0.1;
+	protected double sd = 0.1;
 	/**
 	 * The radius of the NEUMANN distribution
 	 */
-	private int radius = 6;
+	protected int radius = 6;
 
 	/**
 	 * Random number generation for the events. It will change each time the
@@ -119,106 +137,12 @@ public class Distribution implements Serializable {
 	protected long seed = -1L;
 
 	/**
-	 * Creates a UNIFORM distribution
+	 * Return the radius of the distribution (for NEUMANN distribution only)
 	 * 
-	 * @param probability
-	 *            the probability of the event to occur in any particular cell.
+	 * @return the radius of the NEUMANN distribution
 	 */
-	public Distribution(double probability) throws IllegalArgumentException {
-		if (probability < 0 && probability > 1) {
-			throw new IllegalArgumentException(
-					"Invalid argument in Uniform Distribution: probability has to be between 0 and 1.");
-		}
-		this.type = UNIFORM;
-		this.probability = probability;
-	}
-
-	/**
-	 * Creates a RECTANGULAR distribution
-	 * 
-	 * @param row_ratio
-	 *            the initial row of the event (as a ratio of the rows)
-	 * @param col_ratio
-	 *            the initial column of the event (as a ratio of the columns)
-	 * @param row2_ratio
-	 *            the final row of the event (as a ratio of the rows)
-	 * @param col2_ratio
-	 *            the final column of the event (as a ratio of the columns)
-	 */
-	public Distribution(double row_ratio, double col_ratio, double row2_ratio, double col2_ratio)
-			throws IllegalArgumentException {
-		if (row_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: x cannot be bigger than 1.");
-		}
-		if (col_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: y cannot be bigger than 1.");
-		}
-		if (row2_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: x2 cannot be bigger than 1.");
-		}
-		if (col2_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: y2 cannot be bigger than 1.");
-		}
-
-		this.type = RECTANGULAR;
-		this.row_ratio = this.calculated_row_ratio = row_ratio;
-		this.col_ratio = this.calculated_col_ratio = col_ratio;
-		this.row2_ratio = this.calculated_row2_ratio = row2_ratio;
-		this.col2_ratio = this.calculated_col2_ratio = col2_ratio;
-
-	}
-
-	/**
-	 * Creates a NORMAL distribution
-	 * 
-	 * @param row_ratio
-	 *            the center row of the event (as a ratio of the rows)
-	 * @param col_ratio
-	 *            the center column of the event (as a ratio of the columns)
-	 * @param sd
-	 *            the standard deviation used to distribute the probabilities
-	 */
-	public Distribution(double row_ratio, double col_ratio, double sd) throws IllegalArgumentException {
-		if (row_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: x cannot be bigger than 1.");
-		}
-		if (col_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: y cannot be bigger than 1.");
-		}
-		if (sd < 0) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: sd cannot be negative.");
-		}
-
-		this.type = NORMAL;
-		this.row_ratio = this.calculated_row_ratio = row_ratio;
-		this.col_ratio = this.calculated_col_ratio = col_ratio;
-		this.sd = sd;
-	}
-
-	/**
-	 * Creates a NEUMANN (non-probabilistic) distribution of events
-	 * 
-	 * @param row_ratio
-	 *            the center row of the event (as a ratio of the rows)
-	 * @param col_ratio
-	 *            the center column of the event (as a ratio of the columns)
-	 * @param r
-	 *            the radius of the NEUMANN distribution
-	 */
-	public Distribution(double row_ratio, double col_ratio, int r) throws IllegalArgumentException {
-		if (row_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: x cannot be bigger than 1.");
-		}
-		if (col_ratio > 1) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: y cannot be bigger than 1.");
-		}
-		if (r < 0) {
-			throw new IllegalArgumentException("Invalid argument in NORMAL distribution: r cannot be negative.");
-		}
-		this.type = NEUMANN;
-		this.row_ratio = this.calculated_row_ratio = row_ratio;
-		this.col_ratio = this.calculated_col_ratio = col_ratio;
-		this.radius = r;
+	public int getRadius() {
+		return radius;
 	}
 
 	/**
@@ -240,7 +164,7 @@ public class Distribution implements Serializable {
 	}
 
 	/**
-	 * Calculates the exact row (center for UNIFORM or NEUMAN, initIal position
+	 * Calculates the exact row (center for UNIFORM or NEUMAN, initial position
 	 * for RECTANGULAR) of the event according to the world size of the
 	 * simulation.
 	 * 
@@ -304,6 +228,26 @@ public class Distribution implements Serializable {
 	}
 
 	/**
+	 * Return the maximum possible value of the normal distribution, i.e. the on
+	 * that occurs in the center of the distribution
+	 * 
+	 * @return the ceil of the distribution
+	 */
+	public double getCeil() {
+		return ceil;
+	}
+
+	/**
+	 * Return the ration (%) of entities that will receive the event. It is used
+	 * to estimate a standard deviation that satisfies the condition.
+	 * 
+	 * @return expected number of entities that will be affected by the event
+	 */
+	public double getExpected() {
+		return expected;
+	}
+
+	/**
 	 * Return the standard deviation of the distribution (for NORMAL
 	 * distribution only)
 	 * 
@@ -311,28 +255,6 @@ public class Distribution implements Serializable {
 	 */
 	public double getSd() {
 		return sd;
-	}
-
-	/**
-	 * Return the radius of the distribution (for NEUMANN distribution only)
-	 * 
-	 * @return the radius of the NEUMANN distribution
-	 */
-	public int getRadius() {
-		return radius;
-	}
-
-	/**
-	 * Returns a NormalProbabilityDensityFuntion to calculate the way in which
-	 * the event is distributed for the NORMAL distribution
-	 * 
-	 * @param s
-	 *            the simulation in which the event will be executed
-	 * @return the NormalProbabilityDensityFuntion describing how the event will
-	 *         be distributed
-	 */
-	public NormalProbabilityDensityFuntion getDiagonalNormalDistribution(Simulation s) {
-		return new NormalProbabilityDensityFuntion(getSd() * (Math.pow(s.ROWS * s.ROWS + s.COLS * s.COLS, 0.5) / 2));
 	}
 
 	/**
@@ -391,20 +313,21 @@ public class Distribution implements Serializable {
 	}
 
 	/**
-	 * Creates a String representation of the distribution.
+	 * Return the random number generator
+	 * 
+	 * @return random number generator
 	 */
-	public String toString() {
-		String r = "";
-		if (getType() == UNIFORM) {
-			r += "Uniform: p=" + getProbability() + "";
-		} else if (getType() == NORMAL) {
-			r += "Normal: C=" + getRow_ratio() + "," + getCol_ratio() + " SD=" + getSd();
-		} else if (getType() == NEUMANN) {
-			r += "Neumann: C=" + getRow_ratio() + "," + getCol_ratio() + " R=" + getRadius();
-		} else if (getType() == RECTANGULAR) {
-			r += "Rect: p1=" + getRow_ratio() + "," + getCol_ratio() + " p2=" + getRow2_ratio() + "," + getCol2_ratio();
-		}
-		return r;
+	public Random getRand() {
+		return rand;
+	}
+
+	/**
+	 * Reset the random seed
+	 */
+	public void reset_rand() {
+		rand = new Random();
+		seed = rand.nextLong();
+		rand.setSeed(seed);
 	}
 
 	/**
@@ -415,96 +338,90 @@ public class Distribution implements Serializable {
 	public long get_seed() {
 		return seed;
 	}
+	
 
 	/**
-	 * Probability density function for the standardized Normal distribution
-	 * 
-	 * @author tico
+	 * Transform a double in a legible string
+	 * @param d the double that should be converted into string
+	 * @return a string representing the double
 	 */
-	public class NormalProbabilityDensityFuntion implements Serializable {
-		private static final long serialVersionUID = -8284063229856075731L;
-
-		/**
-		 * Variance of the probability density function.
-		 */
-		private double var;
-		/**
-		 * Coefficient of the probability density function
-		 */
-		private double coef;
-
-		/**
-		 * Constructor
-		 * 
-		 * @param sd
-		 *            the standard distribution of the normal distribution.
-		 */
-		public NormalProbabilityDensityFuntion(double sd) {
-			this.coef = 1 / (sd * Math.pow(2 * Math.PI, 0.5));
-			this.var = sd * sd;
-		}
-
-		/**
-		 * Returns the density of the function at any the point x
-		 * 
-		 * @param x
-		 *            the value in the x axis
-		 * @return the density
-		 */
-		public double density(double x) {
-			return coef * Math.exp(-(x * x) / (2 * var));
-		}
+	protected String _s (double d){
+		final DecimalFormat df = new DecimalFormat(".0");
+		return  df.format(d);	
+		
 	}
 
 	/**
 	 * Creates a distribution based on a string that represents it
 	 * 
 	 * @param s
-	 *            in the form of "U@p", "W@x,y,radius", or "N@x,y,sd" or
-	 *            "R@x1,y1,x2,y2"
+	 *            in the form of "U@p", "W@x,y,radius", or "N@x,y,ceil,sd",
+	 *            "E@x,y,ceil,expected" or "R@x1,y1,x2,y2"
 	 * @return an instance of the Distribution class that represent the
 	 *         distribution represented in the string s
 	 */
 	public static Distribution parseDistribution(String s) {
 		if (s.charAt(0) != '@') {
-			throw new IllegalArgumentException("'@' missing at the begining of the distribution: " + s);
+			throw new IllegalArgumentException(
+					"'@' missing at the begining of the distribution: " + s);
 		}
 
 		String[] params = s.substring(1, s.length()).split(",");
 		if (params[0].length() != 1) {
-			throw new IllegalArgumentException(params[0] + " is not a valid distribution in " + s);
+			throw new IllegalArgumentException(params[0]
+					+ " is not a valid distribution in " + s);
 		}
 		switch (params[0].charAt(0)) {
 		case 'U':
 			if (params.length != 2) {
 				throw new IllegalArgumentException(
-						"Uniform distribution accepts exactly one parameter after the 'U' in " + s);
+						"Uniform distribution accepts exactly one parameter after the 'U' in "
+								+ s);
 			}
-			return new Distribution(Double.parseDouble(params[1]));
+			return new UniformDistribution(Double.parseDouble(params[1]));
 		case 'W':
 			if (params.length != 4) {
 				throw new IllegalArgumentException(
-						"Neumann's distribution accepts exactly 3 parameters after the 'W' in " + s);
+						"Neumann's distribution accepts exactly 3 parameters after the 'W' in "
+								+ s);
 			}
-			return new Distribution(Double.parseDouble(params[1]), Double.parseDouble(params[2]),
-					Integer.parseInt(params[3]));
+			return new NeumannDistribution(Double.parseDouble(params[1]),
+					Double.parseDouble(params[2]), Integer.parseInt(params[3]));
 		case 'N':
 			if (params.length != 4) {
 				throw new IllegalArgumentException(
-						"Normal distribution accepts exactly 3 parameters after the 'N' in " + s);
+						"Normal distribution accepts exactly 3 parameters after the 'N' in "
+								+ s);
 			}
-			return new Distribution(Double.parseDouble(params[1]), Double.parseDouble(params[2]),
-					Double.parseDouble(params[3]));
+			return new AproxNormalDistribution(Double.parseDouble(params[1]),
+					Double.parseDouble(params[2]),
+					Double.parseDouble(params[3]),
+					Double.parseDouble(params[4]));
+		case 'E':
+			if (params.length != 4) {
+				throw new IllegalArgumentException(
+						"Normal distribution accepts exactly 3 parameters after the 'N' in "
+								+ s);
+			}
+			return new EstNormalDistribution(Double.parseDouble(params[1]),
+					Double.parseDouble(params[2]),
+					Double.parseDouble(params[3]),
+					Double.parseDouble(params[4]));
 		case 'R':
 			if (params.length != 5) {
 				throw new IllegalArgumentException(
-						"Rectangular distribution accepts exactly 4 parameters after the 'R' in " + s);
+						"Rectangular distribution accepts exactly 4 parameters after the 'R' in "
+								+ s);
 			}
-			return new Distribution(Double.parseDouble(params[1]), Double.parseDouble(params[2]),
-					Double.parseDouble(params[3]));
+			return new RectangularDistribution(Double.parseDouble(params[1]),
+					Double.parseDouble(params[2]),
+					Double.parseDouble(params[3]),
+					Double.parseDouble(params[4]));
 		default:
-			throw new IllegalArgumentException("Invalid distribution: " + s
-					+ ". Options are (U,p), (W,x,y,radious), N(x,y,center), and R(x1,y1,x2,y2)");
+			throw new IllegalArgumentException(
+					"Invalid distribution: "
+							+ s
+							+ ". Options are (U,p), (W,x,y,radious), N(x,y,center), and R(x1,y1,x2,y2)");
 		}
 	}
 

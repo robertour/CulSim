@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * An apostate agent is an agent that decides to voluntarily abandon the
@@ -30,7 +31,7 @@ public class Apostasy extends Event {
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (distribution.rand.nextDouble() < p) {
+		if (distribution.getRand().nextDouble() < p) {
 			simulation.apostasy(r, c);
 		}
 	}

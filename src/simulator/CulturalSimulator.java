@@ -29,11 +29,13 @@ import simulator.gui.GraphLabeledPanel;
 import simulator.gui.Notifiable;
 import simulator.gui.OutputArea;
 import simulator.gui.ParametersEventDialog;
-import simulator.control.events.Distribution;
 import simulator.control.events.Event;
-import simulator.control.events.Genocide;
+import simulator.control.events.Decimation;
 import simulator.control.events.Invasion;
 import simulator.control.events.ParameterChange;
+import simulator.control.events.distributions.AproxNormalDistribution;
+import simulator.control.events.distributions.EstNormalDistribution;
+import simulator.control.events.distributions.UniformDistribution;
 
 import javax.swing.ImageIcon;
 
@@ -143,7 +145,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	private DistributionDoubleDialog contentDialog;
 	private DistributionDoubleDialog conversionDialog;
 	private DistributionSingleDialog invasionDialog;
-	private DistributionSingleDialog genocideDialog;
+	private DistributionSingleDialog decimationDialog;
 	private ParametersEventDialog parametersDialog;
 
 	/**
@@ -624,12 +626,11 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		eventsPanel.setBorder(null);
 		eventsPanel.setLayout(new BorderLayout(0, 0));
 
-		structureDialog = new DistributionDoubleDialog(new Distribution(0.5, 0.5, 0.8), null, "Apostasy", "Destruction",
-				this);
-		contentDialog = new DistributionDoubleDialog(new Distribution(1.0), null, "Partial", "Full", this);
-		conversionDialog = new DistributionDoubleDialog(null, new Distribution(0.5, 0.5, 0.2), "Partial", "Full", this);
-		invasionDialog = new DistributionSingleDialog(new Distribution(0.5, 0.5, 0.2), "Invasion", this);
-		genocideDialog = new DistributionSingleDialog(new Distribution(0.5, 0.5, 0.2), "Genocide", this);
+		structureDialog = new DistributionDoubleDialog(new AproxNormalDistribution(0.5, 0.5, 1.0, 0.5), null, "Apostasy", "Destruction", this);
+		contentDialog = new DistributionDoubleDialog(new UniformDistribution(1.0), null, "Partial", "Full", this);
+		conversionDialog = new DistributionDoubleDialog(null, new EstNormalDistribution(0.5, 0.5, 1.0, 0.3), "Partial", "Full", this);
+		invasionDialog = new DistributionSingleDialog(new AproxNormalDistribution(0.5, 0.5, 1.0, 0.2), "Invasion", this);
+		decimationDialog = new DistributionSingleDialog(new EstNormalDistribution(0.5, 0.5, 0.85, 0.5), "Decimation", this);
 		parametersDialog = new ParametersEventDialog("Parameter Change Event", this);
 
 		JPanel eventPanels = new JPanel();
@@ -735,26 +736,26 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		});
 		invasionDialog.addNotifiable(invasionPanelSet);
 		eventPanels.add(invasionPanelSet);
-		EventPanel genocidePanelSet = new EventPanel("Genocide", genocideDialog);
-		genocidePanelSet.addAddActionListener(new ActionListener() {
+		EventPanel decimationPanelSet = new EventPanel("Decimation", decimationDialog);
+		decimationPanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (genocideDialog.get_distribution() != null) {
-					events.add(new Genocide(genocideDialog.get_distribution()));
+				if (decimationDialog.get_distribution() != null) {
+					events.add(new Decimation(decimationDialog.get_distribution()));
 					update_event_set();
 				}
 			}
 		});
-		genocidePanelSet.addApplyActionListener(new ActionListener() {
+		decimationPanelSet.addApplyActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
-				if (genocideDialog.get_distribution() != null) {
-					events.add(new Genocide(genocideDialog.get_distribution()));
+				if (decimationDialog.get_distribution() != null) {
+					events.add(new Decimation(decimationDialog.get_distribution()));
 				}
 				controller.add_events(events);
 			}
 		});
-		genocideDialog.addNotifiable(genocidePanelSet);
-		eventPanels.add(genocidePanelSet);
+		decimationDialog.addNotifiable(decimationPanelSet);
+		eventPanels.add(decimationPanelSet);
 		EventPanel parameterEventPanel = new EventPanel("Parameter Change Event", parametersDialog);
 		parameterEventPanel.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

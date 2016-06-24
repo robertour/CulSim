@@ -79,7 +79,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Total agents in the world
 	 */
-	protected int TOTAL_AGENTS = ROWS * COLS;
+	public int TOTAL_AGENTS = ROWS * COLS;
 	/**
 	 * Number of FEATURES of the cultural space
 	 */
@@ -274,7 +274,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Number of individuals that has been killed
 	 */
-	protected int casualties = 0;
+	public int casualties = 0;
 	/**
 	 * Number of invaders that have been introduced to the system
 	 */

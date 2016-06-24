@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * When a probabilistic distribution is used, this event remove some
@@ -31,7 +32,7 @@ public class RemoveInstitutionsPartialContent extends Event {
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		simulation.remove_partial_institution_content(r, c, p, distribution.rand);
+		simulation.remove_partial_institution_content(r, c, p, distribution.getRand());
 	}
 
 	@Override

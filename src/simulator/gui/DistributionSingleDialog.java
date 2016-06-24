@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import simulator.control.events.Distribution;
+import simulator.control.events.distributions.Distribution;
 
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class DistributionSingleDialog extends JDialog {
 
 		setTitle("Distribution Dialog");
 
-		setBounds(100, 100, 214, 543);
+		setBounds(100, 100, 397, 414);
 		getContentPane().setLayout(new BorderLayout());
 		JPanel contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

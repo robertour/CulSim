@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * This event "kills" agents in the simulation. An agent is killed by removing
@@ -9,7 +10,7 @@ import simulator.control.Simulation;
  * @author Roberto Ulloa
  * @version 1.0, April 2016
  */
-public class Genocide extends Event {
+public class Decimation extends Event {
 	private static final long serialVersionUID = 3408040472593937200L;
 
 	/**
@@ -22,13 +23,13 @@ public class Genocide extends Event {
 	 *            distribution, in which an event could occur with equal
 	 *            probability in each cell)
 	 */
-	public Genocide(Distribution d) {
+	public Decimation(Distribution d) {
 		super(d);
 	}
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (distribution.rand.nextDouble() < p) {
+		if (distribution.getRand().nextDouble() < p) {
 			simulation.kill_individual(r, c);
 		}
 	}

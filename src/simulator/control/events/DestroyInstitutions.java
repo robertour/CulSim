@@ -1,6 +1,7 @@
 package simulator.control.events;
 
 import simulator.control.Simulation;
+import simulator.control.events.distributions.Distribution;
 
 /**
  * This event removes all the agents that belongs to an institution. This agents
@@ -29,7 +30,7 @@ public class DestroyInstitutions extends Event {
 
 	@Override
 	public void trigger(int r, int c, double p, Simulation simulation) {
-		if (distribution.rand.nextDouble() < p) {
+		if (distribution.getRand().nextDouble() < p) {
 			simulation.destoy_institution(r, c);
 		}
 	}
