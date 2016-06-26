@@ -647,7 +647,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		culture_stats = null;
 		neumann_stats = null;
 		if (starter != null){
-			starter.clean();
+			starter.reset();
 		}
 	}
 
