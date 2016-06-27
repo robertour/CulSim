@@ -72,7 +72,7 @@ public class DistributionDoubleDialog extends JDialog {
 		this.title1 = title1;
 		this.title2 = title2;
 
-		setBounds(100, 100, 800, 435);
+		setBounds(100, 100, 805, 459);
 		getContentPane().setLayout(new BorderLayout());
 		JPanel contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

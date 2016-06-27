@@ -54,7 +54,7 @@ public class DistributionSingleDialog extends JDialog {
 
 		setTitle("Distribution Dialog");
 
-		setBounds(100, 100, 397, 414);
+		setBounds(100, 100, 414, 456);
 		getContentPane().setLayout(new BorderLayout());
 		JPanel contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
