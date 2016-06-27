@@ -1,8 +1,10 @@
 package simulator;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -56,9 +58,11 @@ public class Main {
 	 *            repetitions (for the "by directory" mode); -evs, to send the
 	 *            event sets that should be executed
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		String experimental_file = null;
 		String results_directory = null;
+		String events_file = null; 
 		String identifier = "results";
 		int rep = -1;
 		boolean collecting_events_args = false;
@@ -85,6 +89,9 @@ public class Main {
 				} else if (argu.equals("rd")) {
 					results_directory = args[i + 1];
 					i++;
+				} else if (argu.equals("evs_file")){
+					events_file = args[i + 1];
+					i++;
 				} else if (argu.equals("id")) {
 					identifier = args[i + 1];
 					i++;
@@ -95,7 +102,6 @@ public class Main {
 					} catch (Exception e) {
 						throw new IllegalArgumentException("Invalid argument for -r: " + args[i + 1]);
 					}
-
 				} else if (argu.equals("evs")) {
 					collecting_events_args = true;
 				} else {
@@ -120,6 +126,16 @@ public class Main {
 			printer.print(-1, "WARNING: no experimental file or results directory has been specified,"
 					+ " 'sample.csv' will be used as experimental file.");
 			experimental_file = "sample.csv";
+		}
+		
+		if (events_file != null ){
+			try {
+				ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(events_file));
+				events.addAll((ArrayList<Event>) inFile.readObject());
+				inFile.close();
+			} catch (ClassNotFoundException | IOException e) {
+				printer.print(-1, "Problem reading the specified event file (-evs_file): " + events_file);
+			}
 		}
 
 		if (events.size() > 0) {

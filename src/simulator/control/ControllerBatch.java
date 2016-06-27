@@ -389,6 +389,11 @@ public class ControllerBatch extends Controller {
 				log.print(-1, "Simulation interrupted.\n");
 			}
 			try {
+				write_events();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			try {
 				write_results();
 				log.print(-1, "Final results written.\n");
 			} catch (IOException e) {
