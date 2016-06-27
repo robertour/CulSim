@@ -464,7 +464,7 @@ public class Inst extends E1 {
 
 			} // END of total agents
 
-			if (FREQ_DEM > 0 && (iteration * SPEED + ic + 1) % FREQ_DEM == 0) {
+			if (FREQ_DEM > 0 && (iteration + ic + 1) % FREQ_DEM == 0) {
 				// log.print(IDENTIFIER,"Democratic Process");
 
 				// Democratic Process
@@ -574,7 +574,7 @@ public class Inst extends E1 {
 				hasnt_vote_flag = !hasnt_vote_flag;
 			}
 
-			if (FREQ_PROP > 0 && (iteration * SPEED + ic + 1) % FREQ_PROP == 0) {
+			if (FREQ_PROP > 0 && (iteration + ic + 1) % FREQ_PROP == 0) {
 				// log.print(IDENTIFIER,"Prop Process");
 
 				// Propaganda Process
