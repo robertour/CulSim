@@ -213,7 +213,11 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Number of cultures
 	 */
-	private int cultureN;
+	private int cultures_all_N;
+	/**
+	 * Number of cultures that at least has 3 members
+	 */
+	private int cultures_at_least_3_N;
 	/**
 	 * Number of alife institutions
 	 */
@@ -229,7 +233,11 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Number of Neumann cultures
 	 */
-	protected int culture_neumannN;
+	protected int culture_neumann_all_N;
+	/**
+	 * Number of Neumann cultures
+	 */
+	protected int culture_neumann_at_least_3_N;
 	/**
 	 * Energy of the System
 	 */
@@ -557,7 +565,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 		flags = new boolean[ROWS][COLS];
 		cultures = new int[ROWS][COLS];
-		
+
 		rand = new Random();
 		seed = rand.nextLong();
 		rand.setSeed(seed);
@@ -646,7 +654,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		cultures = null;
 		culture_stats = null;
 		neumann_stats = null;
-		if (starter != null){
+		if (starter != null) {
 			starter.reset();
 		}
 	}
@@ -868,8 +876,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		return "id,timestamp,duration,seed," + "model,random_initialization," + "iterations,speed,"
 				+ "rows,cols,radius,features,traits," + "mutation,selection_error,"
 				+ "institutional_influence,agent_loyalty,democracy,propaganda," + "epoch,generation,iteration,"
-				+ "energy,pixel_similarity," + "cultures,biggest_culture,full_sim," + "pos_sim,size_sim,traits_sim,"
-				+ "neumann_cultures,biggest_neumann_culture,neumann_full_sim,"
+				+ "energy,pixel_similarity," + "cultures,cultures_at_least_3,biggest_culture,full_sim,"
+				+ "pos_sim,size_sim,traits_sim,"
+				+ "neumann_cultures,neumann_cultures_at_least_3,biggest_neumann_culture,neumann_full_sim,"
 				+ "neumann_pos_sim,neumann_size_sim,neumann_traits_sim,"
 				+ "institutions,biggest_institution,pixel_institution_similarity," + "alife,foreign,"
 				+ "destroyed_institutions,stateless,apostates," + "removed_institutions,removed_traits,"
@@ -889,9 +898,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ MODEL + "," + RANDOM_INITIALIZATION + "," + ITERATIONS + "," + SPEED + "," + ROWS + "," + COLS + ","
 				+ RADIUS + "," + FEATURES + "," + TRAITS + "," + MUTATION + "," + SELECTION_ERROR + "," + ALPHA + ","
 				+ ALPHA_PRIME + "," + FREQ_DEM + "," + FREQ_PROP + "," + epoch + "," + generation + "," + iteration
-				+ "," + energy + "," + pixel_similarity + "," + cultureN + "," + biggest_culture + ","
-				+ culture_similarity[FULL_SIM] + "," + culture_similarity[POS_SIM] + "," + culture_similarity[SIZE_SIM]
-				+ "," + culture_similarity[TRAITS_SIM] + "," + culture_neumannN + "," + biggest_neumann_culture + ","
+				+ "," + energy + "," + pixel_similarity + "," + cultures_all_N + "," + cultures_at_least_3_N + ","
+				+ biggest_culture + "," + culture_similarity[FULL_SIM] + "," + culture_similarity[POS_SIM] + ","
+				+ culture_similarity[SIZE_SIM] + "," + culture_similarity[TRAITS_SIM] + "," + culture_neumann_all_N
+				+ "," + culture_neumann_at_least_3_N + "," + +biggest_neumann_culture + ","
 				+ neumann_similarity[FULL_SIM] + "," + neumann_similarity[POS_SIM] + "," + neumann_similarity[SIZE_SIM]
 				+ "," + neumann_similarity[TRAITS_SIM] + "," + alife_institutions + "," + biggest_institution + ","
 				+ institution_similarity + "," + alife_traits + "," + foreiners_traits + "," + destoyed_institutions
@@ -910,15 +920,15 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		return MODEL + "(" + (RANDOM_INITIALIZATION ? "R" : "S") + ") " + ROWS + "x" + COLS + "(" + RADIUS + "): "
 				+ "F/T:" + FEATURES + "/" + TRAITS + " | " + "M/S:" + MUTATION + "/" + SELECTION_ERROR + " | "
 				+ "a/a\':" + ALPHA + "/" + ALPHA_PRIME + " | " + "D/P:" + FREQ_DEM + "/" + FREQ_PROP + " @ " + epoch
-				+ "|" + generation + "|" + iteration + " (" + "E: " + energy + " | " + "PS: " + pixel_similarity + " | "
-				+ "Cultures: " + cultureN + "/" + biggest_culture + "/" + df.format(culture_similarity[FULL_SIM]) + "="
-				+ df.format(culture_similarity[POS_SIM]) + "*" + df.format(culture_similarity[SIZE_SIM]) + "*"
-				+ df.format(culture_similarity[TRAITS_SIM]) + " | " + "Neumann's: " + culture_neumannN + "/"
-				+ biggest_neumann_culture + "/" + df.format(neumann_similarity[FULL_SIM]) + "="
-				+ df.format(neumann_similarity[POS_SIM]) + "*" + df.format(neumann_similarity[SIZE_SIM]) + "*"
-				+ df.format(neumann_similarity[TRAITS_SIM]) + " | " + "Inst: " + alife_institutions + "/"
-				+ biggest_institution + "/" + institution_similarity + " | " + "Traits: " + foreiners_traits + "/"
-				+ alife_institutions + ")";
+				+ "|" + generation + "|" + iteration + " (" + "E:" + energy + " | " + "PS:" + pixel_similarity + " | "
+				+ "Cultures:" + cultures_all_N + "(" + cultures_at_least_3_N + ")/" + biggest_culture + "/"
+				+ df.format(culture_similarity[FULL_SIM]) + "=" + df.format(culture_similarity[POS_SIM]) + "*"
+				+ df.format(culture_similarity[SIZE_SIM]) + "*" + df.format(culture_similarity[TRAITS_SIM]) + " | "
+				+ "Neumann's:" + culture_neumann_all_N + "(" + culture_neumann_at_least_3_N + ")/" + biggest_neumann_culture + "/"
+				+ df.format(neumann_similarity[FULL_SIM]) + "=" + df.format(neumann_similarity[POS_SIM]) + "*"
+				+ df.format(neumann_similarity[SIZE_SIM]) + "*" + df.format(neumann_similarity[TRAITS_SIM]) + " | "
+				+ "Inst:" + alife_institutions + "/" + biggest_institution + "/" + institution_similarity + " | "
+				+ "Traits:" + foreiners_traits + "/" + alife_institutions + ")";
 	}
 
 	/**
@@ -931,8 +941,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		return "Based model(Random(R) or Static (S)) RowsxColumns(Radius): "
 				+ "Features/Traits:F/T | Mutation/Sel. Error:M/S | "
 				+ "Inst. Influence/Agent Loyalty:a/a\' | Democracy/Propaganda:D/P " + "@ Epoch|Generation|Iteration "
-				+ "(Energy: E | Pixel Similarity: PS | Cultures: total/" + "biggest/similarity="
-				+ "position similarity*" + "size similarity*" + "traits similarity | " + "Neumann's: total/"
+				+ "(Energy: E | Pixel Similarity: PS | Cultures: total(>3)/biggest/similarity="
+				+ "position similarity*" + "size similarity*" + "traits similarity | " + "Neumann's: total(>3)/"
 				+ "biggest/similarity=" + "position similarity*" + "size similarity*" + "traits similarity | "
 				+ "Institutions: total/" + "biggest/institution_similarity | " + "Traits: foreigners/alife)";
 	}
@@ -962,7 +972,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	private void calculate_stats() {
 		biggest_culture = 0;
-		cultureN = 0;
+		cultures_all_N = 0;
+		cultures_at_least_3_N = 0;
 		CultureStatistics cs = null;
 		culture_stats.clear();
 
@@ -979,14 +990,18 @@ public abstract class Simulation implements Callable<String>, Serializable {
 						biggest_culture = culture_size;
 					}
 
+					/**
+					 * The cultural statistics are just calculated for cultures
+					 * that have at least 3 members
+					 */
 					if (culture_size > 2) {
-
 						cs = new CultureStatistics(culture_size, ave_row / culture_size, ave_col / culture_size,
 								traits[r][c], this);
 						culture_stats.add(cs);
+						cultures_at_least_3_N++;
 					}
 
-					cultureN++;
+					cultures_all_N++;
 				}
 			}
 		}
@@ -1004,7 +1019,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	private void calculate_stats_rec(int r, int c) {
 		flags[r][c] = flag_mark;
-		cultures[r][c] = cultureN;
+		cultures[r][c] = cultures_all_N;
 		culture_size++;
 		ave_row += r;
 		ave_col += c;
@@ -1035,7 +1050,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	private void calculate_neumann_stats() {
 		biggest_neumann_culture = 0;
-		culture_neumannN = 0;
+		culture_neumann_all_N = 0;
+		culture_neumann_at_least_3_N = 0;
 		CultureStatistics cs = null;
 		neumann_stats.clear();
 
@@ -1056,9 +1072,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 						cs = new CultureStatistics(culture_size, ave_row / culture_size, ave_col / culture_size,
 								traits[r][c], this);
 						neumann_stats.add(cs);
-
+						culture_neumann_at_least_3_N++;
 					}
-					culture_neumannN++;
+					culture_neumann_all_N++;
 				}
 			}
 		}
@@ -1076,7 +1092,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	private void calculate_neumann_stats_rec(int r, int c) {
 		flags[r][c] = flag_mark;
-		cultures[r][c] = culture_neumannN;
+		cultures[r][c] = culture_neumann_all_N;
 		culture_size++;
 		ave_row += r;
 		ave_col += c;
@@ -1476,9 +1492,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		CulturalSimulator.energyPanel.addScores(
 				(double) energy / ((ROWS * (ROWS - 1) + (COLS * (COLS - 1)) * FEATURES)), -1,
 				(double) pixel_similarity / total_features);
-		CulturalSimulator.culturesPanel.addScores((double) cultureN / TOTAL_AGENTS,
+		CulturalSimulator.culturesPanel.addScores((double) cultures_all_N / TOTAL_AGENTS,
 				(double) biggest_culture / TOTAL_AGENTS, culture_similarity[FULL_SIM]);
-		CulturalSimulator.neumannPanel.addScores((double) culture_neumannN / TOTAL_AGENTS,
+		CulturalSimulator.neumannPanel.addScores((double) culture_neumann_all_N / TOTAL_AGENTS,
 				(double) biggest_neumann_culture / TOTAL_AGENTS, neumann_similarity[FULL_SIM]);
 		CulturalSimulator.cultureSimilarityPanel.addScores(culture_similarity[POS_SIM], culture_similarity[SIZE_SIM],
 				culture_similarity[TRAITS_SIM]);
