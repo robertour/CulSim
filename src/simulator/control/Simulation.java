@@ -524,7 +524,6 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			save_state();
 			save_simulation();
 			clean();
-			starter.clean();
 		}
 
 		return r;
@@ -655,6 +654,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		cultures = null;
 		culture_stats = null;
 		neumann_stats = null;
+		if (starter != null && Controller.IS_BATCH){
+			starter.clean();
+		}
 	}
 
 	/**
