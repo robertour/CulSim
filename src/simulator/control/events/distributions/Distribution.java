@@ -126,10 +126,15 @@ public class Distribution implements Serializable {
 	protected int radius = 6;
 
 	/**
+	 * The seeder guarantees that all events are different 
+	 */
+	protected static Random seeder = new Random();
+	
+	/**
 	 * Random number generation for the events. It will change each time the
 	 * event is executed.
 	 */
-	protected Random rand = new Random();
+	protected Random rand = null;
 
 	/**
 	 * The seed of the random number generator
@@ -325,7 +330,8 @@ public class Distribution implements Serializable {
 	 * Reset the random seed
 	 */
 	public void reset_rand() {
-		seed = rand.nextLong();
+		rand = new Random();
+		seed = seeder.nextLong();
 		rand.setSeed(seed);
 	}
 
