@@ -422,6 +422,31 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
+	 * Clone an event list
+	 * @param events
+	 * @return a clone list of events
+	 */
+	@SuppressWarnings("unchecked")
+	public ArrayList<Event> events_clone(ArrayList<Event> events) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
+
+			oos.writeObject(events); 
+			oos.flush(); 
+			ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray()); 
+			ObjectInputStream ois = new ObjectInputStream(bin); 
+			// return the new object
+			return (ArrayList<Event>) ois.readObject(); // G
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
 	 * Starting point of execution
 	 * 
 	 * @returns the last line of results
@@ -654,7 +679,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		cultures = null;
 		culture_stats = null;
 		neumann_stats = null;
-		if (starter != null && Controller.IS_BATCH){
+		if (starter != null && Controller.IS_BATCH) {
 			starter.clean();
 		}
 	}
@@ -924,11 +949,12 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ "Cultures:" + cultures_all_N + "(" + cultures_at_least_3_N + ")/" + biggest_culture + "/"
 				+ df.format(culture_similarity[FULL_SIM]) + "=" + df.format(culture_similarity[POS_SIM]) + "*"
 				+ df.format(culture_similarity[SIZE_SIM]) + "*" + df.format(culture_similarity[TRAITS_SIM]) + " | "
-				+ "Neumann's:" + culture_neumann_all_N + "(" + culture_neumann_at_least_3_N + ")/" + biggest_neumann_culture + "/"
-				+ df.format(neumann_similarity[FULL_SIM]) + "=" + df.format(neumann_similarity[POS_SIM]) + "*"
-				+ df.format(neumann_similarity[SIZE_SIM]) + "*" + df.format(neumann_similarity[TRAITS_SIM]) + " | "
-				+ "Inst:" + alife_institutions + "/" + biggest_institution + "/" + institution_similarity + " | "
-				+ "Traits:" + foreiners_traits + "/" + alife_institutions + ")";
+				+ "Neumann's:" + culture_neumann_all_N + "(" + culture_neumann_at_least_3_N + ")/"
+				+ biggest_neumann_culture + "/" + df.format(neumann_similarity[FULL_SIM]) + "="
+				+ df.format(neumann_similarity[POS_SIM]) + "*" + df.format(neumann_similarity[SIZE_SIM]) + "*"
+				+ df.format(neumann_similarity[TRAITS_SIM]) + " | " + "Inst:" + alife_institutions + "/"
+				+ biggest_institution + "/" + institution_similarity + " | " + "Traits:" + foreiners_traits + "/"
+				+ alife_institutions + ")";
 	}
 
 	/**
@@ -941,10 +967,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		return "Based model(Random(R) or Static (S)) RowsxColumns(Radius): "
 				+ "Features/Traits:F/T | Mutation/Sel. Error:M/S | "
 				+ "Inst. Influence/Agent Loyalty:a/a\' | Democracy/Propaganda:D/P " + "@ Epoch|Generation|Iteration "
-				+ "(Energy: E | Pixel Similarity: PS | Cultures: total(>3)/biggest/similarity="
-				+ "position similarity*" + "size similarity*" + "traits similarity | " + "Neumann's: total(>3)/"
-				+ "biggest/similarity=" + "position similarity*" + "size similarity*" + "traits similarity | "
-				+ "Institutions: total/" + "biggest/institution_similarity | " + "Traits: foreigners/alife)";
+				+ "(Energy: E | Pixel Similarity: PS | Cultures: total(>3)/biggest/similarity=" + "position similarity*"
+				+ "size similarity*" + "traits similarity | " + "Neumann's: total(>3)/" + "biggest/similarity="
+				+ "position similarity*" + "size similarity*" + "traits similarity | " + "Institutions: total/"
+				+ "biggest/institution_similarity | " + "Traits: foreigners/alife)";
 	}
 
 	/**
@@ -1310,6 +1336,9 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 *            list of events that need to be executed
 	 */
 	public void events(ArrayList<Event> events) {
+		// this is important in order to have different seeds per event
+		events = events_clone(events);
+
 		if (playing) {
 			boolean loop = true;
 			while (loop) {

@@ -140,6 +140,12 @@ public class Distribution implements Serializable {
 	 * The seed of the random number generator
 	 */
 	protected long seed = -1L;
+	
+	
+	public Distribution clone(){
+		Distribution d =  new Distribution();
+		return d;		
+	}
 
 	/**
 	 * Return the radius of the distribution (for NEUMANN distribution only)
@@ -333,7 +339,6 @@ public class Distribution implements Serializable {
 		rand = new Random();
 		seed = seeder.nextLong();
 		rand.setSeed(seed); 
-		System.out.println("the seed: " + seed);
 	}
 
 	/**

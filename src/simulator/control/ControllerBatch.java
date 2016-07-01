@@ -95,7 +95,7 @@ public class ControllerBatch extends Controller {
 	 * @param sim_files
 	 *            the list of simulation files
 	 * @param events
-	 *            the list of events that will be executed in the simuations
+	 *            the list of events that will be executed in the simulations
 	 * @param repetitions
 	 *            the number of times each event set will be executed
 	 * @throws IOException
@@ -115,7 +115,7 @@ public class ControllerBatch extends Controller {
 			for (int j = 0; j < repetitions; j++) {
 				Simulation s = this.load_simulation(simstate_file);
 				if (events != null) {
-					s.events(events);
+					s.events((ArrayList<Event>) events);
 				}
 				simulations.add(s);
 			}
