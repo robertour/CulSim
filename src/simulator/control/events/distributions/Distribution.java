@@ -332,7 +332,8 @@ public class Distribution implements Serializable {
 	public void reset_rand() {
 		rand = new Random();
 		seed = seeder.nextLong();
-		rand.setSeed(seed);
+		rand.setSeed(seed); 
+		System.out.println("the seed: " + seed);
 	}
 
 	/**
