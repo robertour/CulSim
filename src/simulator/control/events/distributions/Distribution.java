@@ -129,7 +129,7 @@ public class Distribution implements Serializable {
 	 * Random number generation for the events. It will change each time the
 	 * event is executed.
 	 */
-	protected Random rand = null;
+	protected Random rand = new Random();
 
 	/**
 	 * The seed of the random number generator
@@ -325,7 +325,6 @@ public class Distribution implements Serializable {
 	 * Reset the random seed
 	 */
 	public void reset_rand() {
-		rand = new Random();
 		seed = rand.nextLong();
 		rand.setSeed(seed);
 	}
