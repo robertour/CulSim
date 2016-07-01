@@ -287,7 +287,7 @@ public class ControllerBatch extends Controller {
 			writer.newLine();
 			for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
 				Event ev = iterator.next();
-				writer.write(ev.toString() + ev.seedToString());
+				writer.write(ev.toString());
 				writer.newLine();
 			}
 		} else {
