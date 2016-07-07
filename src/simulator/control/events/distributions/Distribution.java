@@ -356,16 +356,9 @@ public class Distribution implements Serializable {
 	 * @param d the double that should be converted into string
 	 * @return a string representing the double
 	 */
-	protected String _s (double d){
-		final DecimalFormat df = new DecimalFormat(".0");
-		final DecimalFormat df2 = new DecimalFormat(".00");
-		
-		if (((int) (d * 100) ) % 10 == 0){
-			return  df.format(d);	
-		} else {
-			return  df2.format(d);
-		}
-		
+	protected final String _s (double d){
+		final DecimalFormat df = new DecimalFormat(".0#");
+		return df.format(d);
 	}
 
 	/**

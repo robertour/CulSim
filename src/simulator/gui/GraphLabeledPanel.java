@@ -33,7 +33,7 @@ public class GraphLabeledPanel extends JPanel {
 	}
 
 	public void addScores(double s1, double s2, double s3){
-		DecimalFormat df = new DecimalFormat(".00");
+		DecimalFormat df = new DecimalFormat(".0#");
 		DecimalFormat df2 = new DecimalFormat(".0");
 		String counters = "";
 		if (s1 >= 0){

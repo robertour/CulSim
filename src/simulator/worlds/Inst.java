@@ -967,6 +967,7 @@ public class Inst extends E1 {
 
 		for (int f = 0; f < FEATURES; f++) {
 			traits[r][c][f] = TRAITS;
+			institution_traits[institution][f] = TRAITS;
 		}
 
 		return institution;

@@ -940,11 +940,12 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 * @return an identification of the system
 	 */
 	public String get_identification() {
-		DecimalFormat df = new DecimalFormat(".00");
+		final DecimalFormat df = new DecimalFormat(".0#");
+		final DecimalFormat df2 = new DecimalFormat("0.E0");
 
 		return MODEL + "(" + (RANDOM_INITIALIZATION ? "R" : "S") + ") " + ROWS + "x" + COLS + "(" + RADIUS + "): "
-				+ "F/T:" + FEATURES + "/" + TRAITS + " | " + "M/S:" + MUTATION + "/" + SELECTION_ERROR + " | "
-				+ "a/a\':" + ALPHA + "/" + ALPHA_PRIME + " | " + "D/P:" + FREQ_DEM + "/" + FREQ_PROP + " @ " + epoch
+				+ "F/T:" + FEATURES + "/" + TRAITS + " | " + "M/S:" + df2.format(MUTATION) + "/" + df2.format(SELECTION_ERROR) + " | "
+				+ "a/a\':" + df.format(ALPHA) + "/" + df.format(ALPHA_PRIME) + " | " + "D/P:" + FREQ_DEM + "/" + FREQ_PROP + " @ " + epoch
 				+ "|" + generation + "|" + iteration + " (" + "E:" + energy + " | " + "PS:" + pixel_similarity + " | "
 				+ "Cultures:" + cultures_all_N + "(" + cultures_at_least_3_N + ")/" + biggest_culture + "/"
 				+ df.format(culture_similarity[FULL_SIM]) + "=" + df.format(culture_similarity[POS_SIM]) + "*"
@@ -1246,20 +1247,14 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			for (Iterator<CultureStatistics> i2 = stats2.iterator(); i2.hasNext();) {
 				CultureStatistics cs2 = (CultureStatistics) i2.next();
 				temp_pos_sim = cs1.compare_positions(cs2);
-				if (pos_sim < temp_pos_sim) {
-					pos_sim = temp_pos_sim;
-				}
 				temp_size_sim = cs1.compare_size(cs2);
-				if (size_sim < temp_size_sim) {
-					size_sim = temp_size_sim;
-				}
 				temp_trait_sim = cs1.compare_traits(cs2);
-				if (trait_sim < temp_trait_sim) {
-					trait_sim = temp_trait_sim;
-				}
 				temp_full_sim = temp_pos_sim * temp_size_sim * temp_trait_sim;
 				if (full_sim < temp_full_sim) {
 					full_sim = temp_full_sim;
+					pos_sim = temp_pos_sim;
+					size_sim = temp_size_sim;
+					trait_sim = temp_trait_sim;
 				}
 			}
 
@@ -1279,20 +1274,14 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			for (Iterator<CultureStatistics> i2 = stats1.iterator(); i2.hasNext();) {
 				CultureStatistics cs2 = (CultureStatistics) i2.next();
 				temp_pos_sim = cs1.compare_positions(cs2);
-				if (pos_sim < temp_pos_sim) {
-					pos_sim = temp_pos_sim;
-				}
 				temp_size_sim = cs1.compare_size(cs2);
-				if (size_sim < temp_size_sim) {
-					size_sim = temp_size_sim;
-				}
 				temp_trait_sim = cs1.compare_traits(cs2);
-				if (trait_sim < temp_trait_sim) {
-					trait_sim = temp_trait_sim;
-				}
 				temp_full_sim = temp_pos_sim * temp_size_sim * temp_trait_sim;
 				if (full_sim < temp_full_sim) {
 					full_sim = temp_full_sim;
+					pos_sim = temp_pos_sim;
+					size_sim = temp_size_sim;
+					trait_sim = temp_trait_sim;
 				}
 			}
 

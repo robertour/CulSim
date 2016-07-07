@@ -14,7 +14,7 @@ public class Decimation extends Event {
 	private static final long serialVersionUID = 3408040472593937200L;
 
 	/**
-	 * Constructor of the Genocide event.
+	 * Constructor of the Decimation event.
 	 * 
 	 * @param d
 	 *            represents the distribution of the event in the grid, it could
@@ -36,7 +36,7 @@ public class Decimation extends Event {
 
 	@Override
 	public String toString() {
-		return "Genocide: " + super.toString();
+		return "Decimation: " + super.toString();
 	}
 
 }

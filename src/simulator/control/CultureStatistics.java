@@ -70,7 +70,7 @@ public class CultureStatistics implements Serializable {
 	 */
 	public double compare_size(CultureStatistics o) {
 
-		return 1 - Math.abs(size - o.size) / (double) sim.TOTAL_AGENTS;
+		return 1 - (Math.abs(size - o.size) / (double) sim.TOTAL_AGENTS);
 
 	}
 

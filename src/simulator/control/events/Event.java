@@ -15,7 +15,7 @@ import simulator.control.events.distributions.UniformDistribution;
  * This is the superclass for the possible events that can be introduced to the
  * simulations. Each event represent an occurrence in the simulation. It could
  * be change of parameters (e.g. change of propaganda rates) or a catastrohic
- * event (e.g. decimation by genocide, or pests)
+ * event (e.g. decimation, or pests)
  * 
  * @author Roberto Ulloa
  * @version 1.0, March 2016
@@ -70,8 +70,10 @@ public abstract class Event implements Serializable {
 				EstNormalDistribution d = (EstNormalDistribution) distribution;
 				normal_event(d.estimateDiagonalNormalDistribution(s),
 						d.getRow(s), d.getCol(s), s);
-				s.log.print(s.IDENTIFIER,
+				if (s.log != null) {
+					s.log.print(s.IDENTIFIER,
 						"The SD was estimated as " + d.getSd());
+				}
 			} else if (distribution.getType() == Distribution.NEUMANN) {
 				NeumannDistribution d = (NeumannDistribution) distribution;
 				neumann_event(d.getRow(s), d.getCol(s), d.getRadius(), s);
