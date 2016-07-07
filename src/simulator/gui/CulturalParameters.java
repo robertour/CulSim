@@ -537,7 +537,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 		assert classLoader != null;
 
 		for (String packageName : packageNames) {
-			String path = packageName.replace('.', '/');
+			String path = packageName; //.replace('.', '/');
 			Enumeration<URL> resources = classLoader.getResources(path);
 			List<File> dirs = new ArrayList<File>();
 			if (resources.hasMoreElements()){
