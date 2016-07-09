@@ -307,7 +307,9 @@ public class ControllerBatch extends Controller {
 
 		int id = 0;
 		for (Simulation w : simulations) {
-			w.IDENTIFIER = id++;
+			if (w.IDENTIFIER <= -1){
+				w.IDENTIFIER = id++;
+			}
 			w.log = log;
 			w.results_dir = results_dir;
 			exec.submit(w);

@@ -63,7 +63,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Identify the current simulation object
 	 */
-	public int IDENTIFIER = 0;
+	public int IDENTIFIER = -42;
 	/**
 	 * Indicate if the initialization is meant to be random or uniform
 	 */
