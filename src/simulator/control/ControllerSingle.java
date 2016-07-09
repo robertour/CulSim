@@ -143,7 +143,6 @@ public class ControllerSingle extends Controller {
 			ois.close();
 			CulturalSimulator.clean_informational_spaces();
 			if (simulation.iteration > 0) {
-				simulation.save_state();
 				simulation.results();
 				simulation.update_gui();
 			}
@@ -206,7 +205,7 @@ public class ControllerSingle extends Controller {
 		if (simulation != null) {
 			simulation.clean();
 			simulation = simulation.starter;
-			simulation.save_state();
+			simulation.save_state(); // deep cloning
 			simulation.results();
 			restore_parameters_to_interface();
 			CulturalSimulator.clean_informational_spaces();			
