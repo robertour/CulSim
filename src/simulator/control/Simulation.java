@@ -423,6 +423,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 
 	/**
 	 * Clone an event list
+	 * 
 	 * @param events
 	 * @return a clone list of events
 	 */
@@ -432,10 +433,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ObjectOutputStream oos = new ObjectOutputStream(bos);
 
-			oos.writeObject(events); 
-			oos.flush(); 
-			ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray()); 
-			ObjectInputStream ois = new ObjectInputStream(bin); 
+			oos.writeObject(events);
+			oos.flush();
+			ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bin);
 			// return the new object
 			return (ArrayList<Event>) ois.readObject(); // G
 		} catch (IOException e) {
@@ -507,6 +508,11 @@ public abstract class Simulation implements Callable<String>, Serializable {
 			}
 		} else {
 			epoch++;
+			// If is batch take save the state before continuing, so it can
+			// compare with the past
+			if (Controller.IS_BATCH) {
+				save_state();
+			}
 		}
 
 		String r = "";
@@ -546,7 +552,6 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		 * Always make sure to save and clear memory in batch mode
 		 */
 		if (Controller.IS_BATCH) {
-			save_state();
 			save_simulation();
 			clean();
 		}
@@ -944,18 +949,18 @@ public abstract class Simulation implements Callable<String>, Serializable {
 		final DecimalFormat df2 = new DecimalFormat("0.E0");
 
 		return MODEL + "(" + (RANDOM_INITIALIZATION ? "R" : "S") + ") " + ROWS + "x" + COLS + "(" + RADIUS + "): "
-				+ "F/T:" + FEATURES + "/" + TRAITS + " | " + "M/S:" + df2.format(MUTATION) + "/" + df2.format(SELECTION_ERROR) + " | "
-				+ "a/a\':" + df.format(ALPHA) + "/" + df.format(ALPHA_PRIME) + " | " + "D/P:" + FREQ_DEM + "/" + FREQ_PROP + " @ " + epoch
-				+ "|" + generation + "|" + iteration + " (" + "E:" + energy + " | " + "PS:" + pixel_similarity + " | "
-				+ "Cultures:" + cultures_all_N + "(" + cultures_at_least_3_N + ")/" + biggest_culture + "/"
-				+ df.format(culture_similarity[FULL_SIM]) + "=" + df.format(culture_similarity[POS_SIM]) + "*"
-				+ df.format(culture_similarity[SIZE_SIM]) + "*" + df.format(culture_similarity[TRAITS_SIM]) + " | "
-				+ "Neumann's:" + culture_neumann_all_N + "(" + culture_neumann_at_least_3_N + ")/"
-				+ biggest_neumann_culture + "/" + df.format(neumann_similarity[FULL_SIM]) + "="
-				+ df.format(neumann_similarity[POS_SIM]) + "*" + df.format(neumann_similarity[SIZE_SIM]) + "*"
-				+ df.format(neumann_similarity[TRAITS_SIM]) + " | " + "Inst:" + alife_institutions + "/"
-				+ biggest_institution + "/" + institution_similarity + " | " + "Traits:" + foreiners_traits + "/"
-				+ alife_institutions + ")";
+				+ "F/T:" + FEATURES + "/" + TRAITS + " | " + "M/S:" + df2.format(MUTATION) + "/"
+				+ df2.format(SELECTION_ERROR) + " | " + "a/a\':" + df.format(ALPHA) + "/" + df.format(ALPHA_PRIME)
+				+ " | " + "D/P:" + FREQ_DEM + "/" + FREQ_PROP + " @ " + epoch + "|" + generation + "|" + iteration
+				+ " (" + "E:" + energy + " | " + "PS:" + pixel_similarity + " | " + "Cultures:" + cultures_all_N + "("
+				+ cultures_at_least_3_N + ")/" + biggest_culture + "/" + df.format(culture_similarity[FULL_SIM]) + "="
+				+ df.format(culture_similarity[POS_SIM]) + "*" + df.format(culture_similarity[SIZE_SIM]) + "*"
+				+ df.format(culture_similarity[TRAITS_SIM]) + " | " + "Neumann's:" + culture_neumann_all_N + "("
+				+ culture_neumann_at_least_3_N + ")/" + biggest_neumann_culture + "/"
+				+ df.format(neumann_similarity[FULL_SIM]) + "=" + df.format(neumann_similarity[POS_SIM]) + "*"
+				+ df.format(neumann_similarity[SIZE_SIM]) + "*" + df.format(neumann_similarity[TRAITS_SIM]) + " | "
+				+ "Inst:" + alife_institutions + "/" + biggest_institution + "/" + institution_similarity + " | "
+				+ "Traits:" + foreiners_traits + "/" + alife_institutions + ")";
 	}
 
 	/**
