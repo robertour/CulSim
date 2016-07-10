@@ -962,7 +962,7 @@ public class Inst extends E1 {
 	}
 
 	@Override
-	public int pre_invasion(int r, int c) {
+	public int pre_settlement(int r, int c) {
 		int institution = abandon_institution(r, c);
 
 		for (int f = 0; f < FEATURES; f++) {
@@ -974,9 +974,19 @@ public class Inst extends E1 {
 	}
 
 	@Override
-	public void invade(int r, int c, int nr, int nc) {
-		this.invaders++;
+	public void settle(int r, int c, int nr, int nc) {
+		this.settlers++;
 		move_to_institution(r, c, nr, nc);
+		for (int f = 0; f < FEATURES; f++) {
+			traits[r][c][f] = TRAITS;
+		}
+	}
+	
+	
+	@Override
+	public void immigrate(int r, int c) {
+		this.immigrants++;
+		abandon_institution(r, c);
 		for (int f = 0; f < FEATURES; f++) {
 			traits[r][c][f] = TRAITS;
 		}

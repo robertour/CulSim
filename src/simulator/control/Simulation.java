@@ -284,9 +284,13 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 */
 	public int casualties = 0;
 	/**
-	 * Number of invaders that have been introduced to the system
+	 * Number of settlers that have been introduced to the system
 	 */
-	protected int invaders = 0;
+	protected int settlers = 0;
+	/**
+	 * Number of immigrants that have been introduced to the system
+	 */
+	protected int immigrants = 0;
 	/**
 	 * Pixel similarity with the initial state
 	 */
@@ -912,7 +916,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ "neumann_pos_sim,neumann_size_sim,neumann_traits_sim,"
 				+ "institutions,biggest_institution,pixel_institution_similarity," + "alife,foreign,"
 				+ "destroyed_institutions,stateless,apostates," + "removed_institutions,removed_traits,"
-				+ "converted_institutions,converted_traits," + "invaders,casualties";
+				+ "converted_institutions,converted_traits," + "settlers,immigrants,casualties";
 
 	}
 
@@ -936,7 +940,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ "," + neumann_similarity[TRAITS_SIM] + "," + alife_institutions + "," + biggest_institution + ","
 				+ institution_similarity + "," + alife_traits + "," + foreiners_traits + "," + destoyed_institutions
 				+ "," + stateless + "," + apostates + "," + removed_institutions + "," + removed_traits + ","
-				+ converted_institutions + "," + converted_traits + "," + invaders + "," + casualties;
+				+ converted_institutions + "," + converted_traits + "," + settlers + "," + immigrants + "," + casualties;
 	}
 
 	/**
@@ -1406,7 +1410,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
-	 * Convert an institution towards the invader TRAITS
+	 * Convert an institution towards the foreigner TRAITS
 	 * 
 	 * @param r
 	 *            row of the institution (averaged over the agents that belongs
@@ -1419,7 +1423,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
-	 * Convert some of the traits towards the invader TRAITS
+	 * Convert some of the traits towards the foreigner TRAITS
 	 * 
 	 * @param r
 	 *            row of the institution (averaged over the agents that belongs
@@ -1449,8 +1453,8 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	}
 
 	/**
-	 * Prepare elements before an invasion. Before the invasion, a free
-	 * institution has to be taken as the representation of the invaders, so
+	 * Prepare elements before a settlement. Before the settlement, a free
+	 * institution has to be taken as the representation of the settlers, so
 	 * they can refer to it as they representative. In this case, it would be
 	 * finding a free institution near the r, c coordinates.
 	 * 
@@ -1462,23 +1466,41 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 *            belongs to it)
 	 * @return the free institution that was found
 	 */
-	public int pre_invasion(int r, int c) {
+	public int pre_settlement(int r, int c) {
 		return -999;
 	}
 
 	/**
-	 * Invade a cell, replace the individual in the cell with an invader
+	 * Settle a cell, replace the individual in the cell with a settler
 	 * 
 	 * @param r
 	 *            row of the individual
 	 * @param c
 	 *            column of the individual
 	 */
-	public void invade(int r, int c, int nr, int nc) {
+	public void settle(int r, int c, int nr, int nc) {
+		this.settlers++;
 		for (int f = 0; f < FEATURES; f++) {
 			traits[r][c][f] = TRAITS;
 		}
 	}
+	
+	/**
+	 * Settle a cell, replace the individual in the cell with a settler. When there is no
+	 * institution, there is no difference between immigrate and settle.
+	 * 
+	 * @param r
+	 *            row of the individual
+	 * @param c
+	 *            column of the individual
+	 */
+	public void immigrate(int r, int c) {
+		this.immigrants++;
+		for (int f = 0; f < FEATURES; f++) {
+			traits[r][c][f] = TRAITS;
+		}
+	}
+
 
 	/**
 	 * Kill an individual in an specified cell

@@ -57,45 +57,42 @@ public abstract class Event implements Serializable {
 
 		if (distribution == null) {
 			trigger(-1, -1, -1, s);
-		} else {			
+		} else {
 			pre_execute(s);
 			if (distribution.getType() == Distribution.UNIFORM) {
 				UniformDistribution d = (UniformDistribution) distribution;
 				uniform_event(d.getProbability(), s);
 			} else if (distribution.getType() == Distribution.NORMAL) {
 				AproxNormalDistribution d = (AproxNormalDistribution) distribution;
-				normal_event(d.getDiagonalNormalDistribution(s), d.getRow(s),
-						d.getCol(s), s);
+				normal_event(d.getDiagonalNormalDistribution(s), d.getRow(s), d.getCol(s), s);
 			} else if (distribution.getType() == Distribution.NORMAL_EXPECTED) {
 				EstNormalDistribution d = (EstNormalDistribution) distribution;
-				normal_event(d.estimateDiagonalNormalDistribution(s),
-						d.getRow(s), d.getCol(s), s);
+				normal_event(d.estimateDiagonalNormalDistribution(s), d.getRow(s), d.getCol(s), s);
 				if (s.log != null) {
-					s.log.print(s.IDENTIFIER,
-						"The SD was estimated as " + d.getSd());
+					s.log.print(s.IDENTIFIER, "The SD was estimated as " + d.getSd());
 				}
 			} else if (distribution.getType() == Distribution.NEUMANN) {
 				NeumannDistribution d = (NeumannDistribution) distribution;
 				neumann_event(d.getRow(s), d.getCol(s), d.getRadius(), s);
 			} else if (distribution.getType() == Distribution.RECTANGULAR) {
 				RectangularDistribution d = (RectangularDistribution) distribution;
-				rectangular_event(d.getRow(s), d.getCol(s), d.getRow2(s),
-						d.getCol2(s), s);
+				rectangular_event(d.getRow(s), d.getCol(s), d.getRow2(s), d.getCol2(s), s);
 			}
 		}
 		if (s.log != null) {
-			s.log.print(s.IDENTIFIER, "Event executed: " + this.toString()
-					+ seedToString() + "\n");
+			s.log.print(s.IDENTIFIER, "Event executed: " + this.toString() + seedToString() + "\n");
 		}
 	}
-	
+
 	/**
 	 * 
-	 * Perform initializations before the real execution of the event. 
-	 * (e.g. see Invasion)
-	 * @param simulation the simulation might be needed by the subclasses
+	 * Perform initializations before the real execution of the event. (e.g. see
+	 * Settlement)
+	 * 
+	 * @param simulation
+	 *            the simulation might be needed by the subclasses
 	 */
-	protected void pre_execute(Simulation simulation){
+	protected void pre_execute(Simulation simulation) {
 		distribution.reset_rand();
 	}
 
@@ -105,9 +102,7 @@ public abstract class Event implements Serializable {
 	 * @return the seed of the distribution in a string
 	 */
 	public String seedToString() {
-		return " Seed: "
-				+ ((distribution == null) ? "n/a"
-						: (distribution.get_seed() + ""));
+		return " Seed: " + ((distribution == null) ? "n/a" : (distribution.get_seed() + ""));
 	}
 
 	/**
@@ -146,18 +141,14 @@ public abstract class Event implements Serializable {
 	 * @param s
 	 *            simulation in which the even occurs
 	 */
-	private void normal_event(NormalProbabilityDensityFuntion nd, int x, int y,
-			Simulation s) {
+	private void normal_event(NormalProbabilityDensityFuntion nd, int x, int y, Simulation s) {
 
 		double max = nd.density(x, y, x, y);
 
 		if (distribution.getCeil() > 0) {
 			for (int r = 0; r < s.ROWS; r++) {
 				for (int c = 0; c < s.COLS; c++) {
-					trigger(r,
-							c,
-							(nd.density(x, y, r, c) / max)
-									* distribution.getCeil(), s);
+					trigger(r, c, (nd.density(x, y, r, c) / max) * distribution.getCeil(), s);
 				}
 			}
 		} else {
@@ -243,10 +234,8 @@ public abstract class Event implements Serializable {
 	 */
 	private void rectangular_event(int r1, int c1, int r2, int c2, Simulation s) {
 
-		for (int r = Math.min(r1, r2); r <= Math.min(Math.max(r1, r2),
-				s.ROWS - 1); r++) {
-			for (int c = Math.min(c1, c2); c <= Math.min(Math.max(c1, c2),
-					s.COLS - 1); c++) {
+		for (int r = Math.min(r1, r2); r <= Math.min(Math.max(r1, r2), s.ROWS - 1); r++) {
+			for (int c = Math.min(c1, c2); c <= Math.min(Math.max(c1, c2), s.COLS - 1); c++) {
 				trigger(r, c, 1.0, s);
 			}
 		}
@@ -270,59 +259,45 @@ public abstract class Event implements Serializable {
 		case 'A':
 			return new Apostasy(Distribution.parseDistribution(s.substring(1)));
 		case 'D':
-			return new DestroyInstitutions(Distribution.parseDistribution(s
-					.substring(1)));
+			return new DestroyInstitutions(Distribution.parseDistribution(s.substring(1)));
 		case 'R':
 			switch (s.charAt(1)) {
 			case 'P':
-				return new RemoveInstitutionsPartialContent(
-						Distribution.parseDistribution(s.substring(2)));
+				return new RemoveInstitutionsPartialContent(Distribution.parseDistribution(s.substring(2)));
 			case 'F':
-				return new RemoveInstitutionsContent(
-						Distribution.parseDistribution(s.substring(2)));
+				return new RemoveInstitutionsContent(Distribution.parseDistribution(s.substring(2)));
 			default:
-				throw new IllegalArgumentException(
-						"Unexpected letter '"
-								+ s.charAt(1)
-								+ "' after '"
-								+ s.charAt(0)
-								+ " in "
-								+ s
-								+ ". Options are S (Structure), P (Partial) and F (Full).");
+				throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' after '" + s.charAt(0)
+						+ " in " + s + ". Options are S (Structure), P (Partial) and F (Full).");
 			}
 		case 'C':
 			switch (s.charAt(1)) {
 			case 'P':
-				return new ConvertTraits(Distribution.parseDistribution(s
-						.substring(2)));
+				return new ConvertTraits(Distribution.parseDistribution(s.substring(2)));
 			case 'F':
-				return new ConvertInstitutions(Distribution.parseDistribution(s
-						.substring(2)));
+				return new ConvertInstitutions(Distribution.parseDistribution(s.substring(2)));
 			default:
-				throw new IllegalArgumentException("Unexpected letter '"
-						+ s.charAt(1) + "' after '" + s.charAt(0) + " in " + s
-						+ ". Options are P (Partial) and F (Full).");
+				throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' after '" + s.charAt(0)
+						+ " in " + s + ". Options are P (Partial) and F (Full).");
 			}
 		case 'I':
-			return new Invasion(Distribution.parseDistribution(s.substring(1)));
+			return new Immigration(Distribution.parseDistribution(s.substring(1)));
+		case 'S':
+			return new Settlement(Distribution.parseDistribution(s.substring(1)));
 		case 'G':
-			return new Decimation(
-					Distribution.parseDistribution(s.substring(1)));
+			return new Decimation(Distribution.parseDistribution(s.substring(1)));
 		case 'P':
 			return ParameterChange.parseParameterChange(s.substring(1));
 		default:
-			throw new IllegalArgumentException(
-					"Unexpected letter '"
-							+ s.charAt(1)
-							+ "' in "
-							+ s
-							+ ". Options are A (Apostasy), D (Structural Destruction), RP (Partial content Removal), "
-							+ " RF (Full Content Removal), CP (Partial Conversion), CF (Full Conversion), I (Invasion) and G (Decimation), followed by "
-							+ "a distribution: e.g G(U, 0.1), decimation in which all agents have a probability of dying "
-							+ "of 0.1, I(W,0.5,0.5,6), invasion in which all agents in a Neumann's radious of 6 from the "
-							+ "center (0.5*ROWS, 0.5*COLS) will be the invadors, or CP(N,-1,-1,0.2), partial conversion "
-							+ "in which the probability of the institutional trais being converted is distributed normally "
-							+ "from a randomly selected center (-1,-1) which has probility of 1.0.");
+			throw new IllegalArgumentException("Unexpected letter '" + s.charAt(1) + "' in " + s
+					+ ". Options are A (Apostasy), D (Structural Destruction), RP (Partial content Removal), "
+					+ " RF (Full Content Removal), CP (Partial Conversion), CF (Full Conversion), I (Immigration),"
+					+ " S (Settlement) and G (Decimation), followed by "
+					+ "a distribution: e.g G(U, 0.1), decimation in which all agents have a probability of dying "
+					+ "of 0.1, I(W,0.5,0.5,6), immigration in which all agents in a Neumann's radious of 6 from the "
+					+ "center (0.5*ROWS, 0.5*COLS) will be the immigrants, or CP(N,-1,-1,0.2), partial conversion "
+					+ "in which the probability of the institutional trais being converted is distributed normally "
+					+ "from a randomly selected center (-1,-1) which has probility of 1.0.");
 		}
 	}
 

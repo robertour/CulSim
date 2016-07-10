@@ -30,8 +30,9 @@ import simulator.gui.Notifiable;
 import simulator.gui.OutputArea;
 import simulator.gui.ParametersEventDialog;
 import simulator.control.events.Event;
+import simulator.control.events.Immigration;
 import simulator.control.events.Decimation;
-import simulator.control.events.Invasion;
+import simulator.control.events.Settlement;
 import simulator.control.events.ParameterChange;
 import simulator.control.events.distributions.AproxNormalDistribution;
 import simulator.control.events.distributions.EstNormalDistribution;
@@ -144,7 +145,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	private DistributionDoubleDialog structureDialog;
 	private DistributionDoubleDialog contentDialog;
 	private DistributionDoubleDialog conversionDialog;
-	private DistributionSingleDialog invasionDialog;
+	private DistributionDoubleDialog foreignersDialog;
 	private DistributionSingleDialog decimationDialog;
 	private ParametersEventDialog parametersDialog;
 
@@ -629,7 +630,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		structureDialog = new DistributionDoubleDialog(new AproxNormalDistribution(0.5, 0.5, 1.0, 0.5), null, "Apostasy", "Destruction", this);
 		contentDialog = new DistributionDoubleDialog(new UniformDistribution(1.0), null, "Partial", "Full", this);
 		conversionDialog = new DistributionDoubleDialog(null, new EstNormalDistribution(0.5, 0.5, 1.0, 0.3), "Partial", "Full", this);
-		invasionDialog = new DistributionSingleDialog(new AproxNormalDistribution(0.5, 0.5, 1.0, 0.2), "Invasion", this);
+		foreignersDialog = new DistributionDoubleDialog(null, new AproxNormalDistribution(0.5, 0.5, 1.0, 0.2), "Immigration", "Settlement", this);
 		decimationDialog = new DistributionSingleDialog(new EstNormalDistribution(0.5, 0.5, 0.85, 0.5), "Decimation", this);
 		parametersDialog = new ParametersEventDialog("Parameter Change Event", this);
 
@@ -716,26 +717,33 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		});
 		conversionDialog.addNotifiable(conversionPanelSet);
 		eventPanels.add(conversionPanelSet);
-		EventPanel invasionPanelSet = new EventPanel("Invasion", invasionDialog);
-		invasionPanelSet.addAddActionListener(new ActionListener() {
+		EventPanel foreignersPanelSet = new EventPanel("Foreigners", foreignersDialog);
+		foreignersPanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (invasionDialog.get_distribution() != null) {
-					events.add(new Invasion(invasionDialog.get_distribution()));
-					update_event_set();
+				if (foreignersDialog.get_distribution1() != null) {
+					events.add(new Immigration(foreignersDialog.get_distribution1()));					
 				}
+				if (foreignersDialog.get_distribution2() != null) {
+					events.add(new Settlement(foreignersDialog.get_distribution2()));					
+				}
+				update_event_set();
 			}
 		});
-		invasionPanelSet.addApplyActionListener(new ActionListener() {
+		foreignersPanelSet.addApplyActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Event> events = new ArrayList<Event>();
-				if (invasionDialog.get_distribution() != null) {
-					events.add(new Invasion(invasionDialog.get_distribution()));
+				if (foreignersDialog.get_distribution1() != null) {
+					events.add(new Immigration(foreignersDialog.get_distribution1()));
+				}
+				if (foreignersDialog.get_distribution2() != null) {
+					events.add(new Settlement(foreignersDialog.get_distribution2()));
 				}
 				controller.add_events(events);
 			}
 		});
-		invasionDialog.addNotifiable(invasionPanelSet);
-		eventPanels.add(invasionPanelSet);
+		
+		foreignersDialog.addNotifiable(foreignersPanelSet);
+		eventPanels.add(foreignersPanelSet);
 		EventPanel decimationPanelSet = new EventPanel("Decimation", decimationDialog);
 		decimationPanelSet.addAddActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -774,13 +782,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 				controller.add_events(events);
 			}
 		});
-		/*parametersDialog.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentShown(ComponentEvent e) {
-				controller.restore_parameters_to_interface();
-				ParametersEventDialog.refresh_dialog();
-			}
-		});*/
+		
 		parametersDialog.addNotifiable(parameterEventPanel);
 		eventPanels.add(parameterEventPanel);
 
