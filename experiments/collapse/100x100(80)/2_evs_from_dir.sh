@@ -12,5 +12,6 @@ java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory 
 java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory -evs P@iterations,$iter RP$distribution -id $preid"_removal_partial_"$id
 java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory -evs P@iterations,$iter CF$distribution -id $preid"_conversion_full_"$id
 java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory -evs P@iterations,$iter CP$distribution -id $preid"_conversion_partial_"$id
-java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory -evs P@iterations,$iter I$distribution -id $preid"_invasion_"$id
+java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory -evs P@iterations,$iter I$distribution -id $preid"_immigration_"$id
+java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory -evs P@iterations,$iter S$distribution -id $preid"_settlement_"$id
 java -Xss100m -Xms2g -Xmx2g -jar ../../../executables/culsim.jar -rd $directory -evs P@iterations,$iter G$distribution -id $preid"_genocide_"$id
