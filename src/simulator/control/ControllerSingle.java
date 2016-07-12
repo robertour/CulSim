@@ -20,7 +20,7 @@ import simulator.control.events.Event;
 import simulator.gui.CulturalParameters;
 import simulator.gui.Notifiable;
 import simulator.gui.ParametersEventDialog;
-import simulator.worlds.Inst;
+import simulator.worlds.M4;
 
 /**
  * The controller of the simulations handles the simulation. It creates the
@@ -73,7 +73,7 @@ public class ControllerSingle extends Controller {
 		if (simulation != null) {
 			simulation.clean();
 		}
-		simulation = new Inst();
+		simulation = new M4();
 		is_saved = true;
 		CulturalSimulator.clean_informational_spaces();
 		if (simulation.iteration > 0) {

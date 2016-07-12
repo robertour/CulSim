@@ -978,7 +978,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 				+ "Features/Traits:F/T | Mutation/Sel. Error:M/S | "
 				+ "Inst. Influence/Agent Loyalty:a/a\' | Democracy/Propaganda:D/P " + "@ Epoch|Generation|Iteration "
 				+ "(Energy: E | Pixel Similarity: PS | Cultures: total(>3)/biggest/similarity=" + "position similarity*"
-				+ "size similarity*" + "traits similarity | " + "Neumann's: total(>3)/" + "biggest/similarity="
+				+ "size similarity*" + "traits similarity | " + "Neumann's: total(>2)/" + "biggest/similarity="
 				+ "position similarity*" + "size similarity*" + "traits similarity | " + "Institutions: total/"
 				+ "biggest/institution_similarity | " + "Traits: foreigners/alife)";
 	}

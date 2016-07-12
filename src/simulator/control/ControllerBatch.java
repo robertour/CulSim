@@ -18,10 +18,10 @@ import java.util.zip.GZIPInputStream;
 
 import simulator.control.events.Event;
 import simulator.gui.Notifiable;
-import simulator.worlds.E1;
-import simulator.worlds.E3;
-import simulator.worlds.E2;
-import simulator.worlds.Inst;
+import simulator.worlds.M1;
+import simulator.worlds.M3;
+import simulator.worlds.M2;
+import simulator.worlds.M4;
 
 /**
  * The controller of the simulations handles the simulations and run them in
@@ -201,14 +201,14 @@ public class ControllerBatch extends Controller {
 			if (repetitions > 0) {
 				Simulation simulation = null;
 				String type = scanner.next();
-				if (type.equals(E3.class.getSimpleName()))
-					simulation = new E3();
-				else if (type.equals(Inst.class.getSimpleName()))
-					simulation = new Inst();
-				else if (type.equals(E1.class.getSimpleName()))
-					simulation = new E1();
-				else if (type.equals(E2.class.getSimpleName()))
-					simulation = new E2();
+				if (type.equals(M3.class.getSimpleName()))
+					simulation = new M3();
+				else if (type.equals(M4.class.getSimpleName()))
+					simulation = new M4();
+				else if (type.equals(M1.class.getSimpleName()))
+					simulation = new M1();
+				else if (type.equals(M2.class.getSimpleName()))
+					simulation = new M2();
 				else{
 					log.print(-1, "No class was recognized with the type: " + type + ". Please check your csv.");
 					System.exit(1);

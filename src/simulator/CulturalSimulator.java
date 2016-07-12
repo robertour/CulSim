@@ -58,7 +58,7 @@ import java.util.Iterator;
 
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import java.awt.RenderingHints;
+//import java.awt.RenderingHints;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -297,6 +297,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 						String simstate_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
 						try {
 							controller.load_simulation(simstate_file, printer);
+							setStopState();
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
@@ -1020,9 +1021,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	 * @return a resized image
 	 */
 	public static BufferedImage resize(BufferedImage image, int width, int height) {
-		BufferedImage bi = new BufferedImage(width, height, BufferedImage.TRANSLUCENT);
+		BufferedImage bi = new BufferedImage(width, height, BufferedImage.SCALE_FAST);
 		Graphics2D g2d = (Graphics2D) bi.createGraphics();
-		g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+		//g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
 		g2d.drawImage(image, 0, 0, width, height, null);
 		g2d.dispose();
 		return bi;

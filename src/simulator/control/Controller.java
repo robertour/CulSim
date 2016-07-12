@@ -39,7 +39,7 @@ public abstract class Controller {
 	public static final String WORLDS_DIR = "worlds/";
 
 	/**
-	 * Directory to save preset configurations, e.g. Axelrod or Flache defaults
+	 * Directory to save preset configurations, e.g. Axelrod or Flache & Macy defaults
 	 */
 	public static final String PRESETS_DIR = "presets/";
 

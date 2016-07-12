@@ -8,8 +8,8 @@ import simulator.CulturalSimulator;
 import simulator.control.Controller;
 
 /**
- * Based on experiment 1 of Flache(2011) this class implements: homophily
- * (Axelrod , 1997), mutations and selection error.
+ * Based on experiment 1 of Flache & Macy (2011) this class implements:
+ * homophily (Axelrod , 1997), mutations and selection error.
  * 
  * This class also implements: 1. Institutional influence: a probabilistic
  * change confronting agents homophily and institution homophily (and associated
@@ -30,7 +30,7 @@ import simulator.control.Controller;
  * @version 1.0, March 2016
  *
  */
-public class Inst extends E1 {
+public class M4 extends M1 {
 
 	private static final long serialVersionUID = 6739780243602561128L;
 
@@ -188,11 +188,10 @@ public class Inst extends E1 {
 		max_traits = null;
 		max_features = null;
 	}
-	
-	
+
 	@Override
-	public String getModelDescription(){
-		return MODEL + ": Institutions including homophily Axelrod (1997) - Ulloa(2016)";
+	public String getModelDescription() {
+		return MODEL + ": Institutions including homophily Axelrod (1997) - Ulloa et al. (2016)";
 	}
 
 	@Override
@@ -981,8 +980,7 @@ public class Inst extends E1 {
 			traits[r][c][f] = TRAITS;
 		}
 	}
-	
-	
+
 	@Override
 	public void immigrate(int r, int c) {
 		this.immigrants++;

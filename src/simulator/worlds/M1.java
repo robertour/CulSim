@@ -5,17 +5,17 @@ import simulator.control.Simulation;
 /**
  * This class implements Axelrod (1997), but includes the perturbation elements
  * tested in the experiment 1 (The collapse of diversity in Axelrod model) of
- * Flache (2011): 1. Mutation: in each possible interaction, randomly change one
- * cultural trait of the individual 2. Selection error: in each possible
- * interaction, there is a possibility of a perception error, so that an agent
- * would reject to interact with a similar agent (homophily) or accept to
- * interact with a dissimilar one
+ * Flache & Macy (2011): 1. Mutation: in each possible interaction, randomly
+ * change one cultural trait of the individual 2. Selection error: in each
+ * possible interaction, there is a possibility of a perception error, so that
+ * an agent would reject to interact with a similar agent (homophily) or accept
+ * to interact with a dissimilar one
  * 
  * 
  * @author Roberto Ulloa
  * @version 1.0, March 2016
  */
-public class E1 extends Simulation {
+public class M1 extends Simulation {
 
 	private static final long serialVersionUID = 8293331514566105316L;
 
@@ -52,7 +52,7 @@ public class E1 extends Simulation {
 	@Override
 	public String getModelDescription() {
 		return MODEL
-				+ ": Homophily (Axelrod, 1997) including mutation and selection error - Experiment 1, Flache(2011)";
+				+ ": Homophily (Axelrod, 1997) including mutation and selection error - Experiment 1, Flache & Macy (2011)";
 	}
 
 	@Override
@@ -102,15 +102,12 @@ public class E1 extends Simulation {
 					boolean is_interaction = rand.nextFloat() >= 1 - ((float) agents_overlap / (float) FEATURES);
 
 					// check if there is actual interaction
-					if (is_interaction && !is_selection_error
-							|| !is_interaction && is_selection_error) {
+					if (is_interaction && !is_selection_error || !is_interaction && is_selection_error) {
 						int selected_feature = -99;
 						if (mismatchesN > 0)
-							selected_feature = mismatches[rand
-									.nextInt(mismatchesN)];
+							selected_feature = mismatches[rand.nextInt(mismatchesN)];
 						else
-							selected_feature = mismatches[rand
-									.nextInt(FEATURES)];
+							selected_feature = mismatches[rand.nextInt(FEATURES)];
 						traits[r][c][selected_feature] = traits[nr][nc][selected_feature];
 					}
 

@@ -30,10 +30,10 @@ import simulator.CulturalSimulator;
 import simulator.control.Controller;
 import simulator.control.ControllerSingle;
 import simulator.control.Simulation;
-import simulator.worlds.E1;
-import simulator.worlds.E2;
-import simulator.worlds.E3;
-import simulator.worlds.Inst;
+import simulator.worlds.M1;
+import simulator.worlds.M2;
+import simulator.worlds.M3;
+import simulator.worlds.M4;
 
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -550,16 +550,16 @@ public class CulturalParameters extends JDialog implements Notifiable {
 					findClasses(directory, packageName);
 				}
 			} else {
-				Simulation sim = new E1();
+				Simulation sim = new M1();
 				prettyNames.add(sim.getModelDescription());
 				classes.add(sim.getClass());
-				sim = new E2();
+				sim = new M2();
 				prettyNames.add(sim.getModelDescription());
 				classes.add(sim.getClass());
-				sim = new E3();
+				sim = new M3();
 				prettyNames.add(sim.getModelDescription());
 				classes.add(sim.getClass());
-				sim = new Inst();
+				sim = new M4();
 				prettyNames.add(sim.getModelDescription());
 				classes.add(sim.getClass());
 			}

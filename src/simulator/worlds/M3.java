@@ -1,56 +1,29 @@
 package simulator.worlds;
 
 /**
- * This class implements the experiment 2 (Multilateral Social influence without
- * homophily) of Flache (2011), in which: 1. Homophily is not considered in the
- * social process. 2. Multilateral social influence is introduced, i.e. the
- * interactions between agents don't happen only between two agents but many of
- * them
+ * This class implements the experiment 3 (Social influence and homophily
+ * combined) of Flache & Macy (2011), in which multilateral social influence is
+ * introduced (i.e. the interactions between agents don't happen only between
+ * two agents but many of them) together with Homophily, Axelrod (1997).
  * 
  * @author Roberto Ulloa
  * @version 1.0, March 2016
  */
-public class E2 extends E1 {
-	private static final long serialVersionUID = -340464590651694335L;
+public class M3 extends M2 {
 
-	/**
-	 * Counts the votes of each trait per feature
-	 */
-	protected int[][] votes;
-	/**
-	 * Candidates for the feature
-	 */
-	protected int[] feature_candidates;
-	/**
-	 * Candidates for the trait
-	 */
-	protected int[] trait_candidates;
+	private static final long serialVersionUID = -4468160398655999146L;
 
 	@Override
-	public void setup() {
-		votes = new int[FEATURES][TRAITS+1];
-		feature_candidates = new int[FEATURES];
-		trait_candidates = new int[TRAITS];
-
+	public String getModelDescription() {
+		return MODEL + ": Multilateral social influence with homophily - Experiment 3, Flache & Macy (2011)";
 	}
 
-	@Override
-	protected void reset() {
-		super.reset();
-		votes = null;
-		feature_candidates = null;
-		trait_candidates = null;
-	}
-
-	@Override
-	public String getModelDescription(){
-		return MODEL + ": Multilateral social influence without homophily - Experiment 2, Flache(2011)";
-	}
-	
 	@Override
 	public void run_iterations() {
 		for (int ic = 0; ic < SPEED; ic++) {
 			for (int i = 0; i < TOTAL_AGENTS; i++) {
+
+				// row and column of the participating agent
 				int r = rand.nextInt(ROWS);
 				int c = rand.nextInt(COLS);
 
@@ -63,10 +36,44 @@ public class E2 extends E1 {
 
 				// iterate over the neighbors to calculate the votes
 				for (int n = 0; n < neighboursN[r][c]; n++) {
+
+					// row and column of the neighbor
+					int nr = neighboursX[r][c][n];
+					int nc = neighboursY[r][c][n];
+
+					// get the number of identical traits
+					int matches = 0;
+					for (int f = 0; f < FEATURES; f++) {
+						if (traits[nr][nc][f] != DEAD_TRAIT
+								&& (traits[r][c][f] == DEAD_TRAIT || traits[r][c][f] == traits[nr][nc][f])) {
+							matches++;
+						}
+					}
+
 					// selection error
-					if (rand.nextFloat() < 1 - SELECTION_ERROR) {
-						int nr = neighboursX[r][c][n];
-						int nc = neighboursY[r][c][n];
+					boolean is_selection_error = rand.nextFloat() > 1 - SELECTION_ERROR;
+
+					// check homophily
+					if (rand.nextFloat() < matches / (float) FEATURES) {
+
+						// if there isn't selection error,
+						// then don't include the neighbor
+						if (!is_selection_error) {
+
+							// include the neighbor's traits
+							for (int f = 0; f < FEATURES; f++) {
+								if (traits[nr][nc][f] != DEAD_TRAIT) {
+									votes[f][traits[nr][nc][f]]++;
+								}
+							}
+						}
+					}
+
+					// if it was not selected but there was a selection error,
+					// then include the neighbor
+					else if (is_selection_error) {
+
+						// include the neighbor's traits
 						for (int f = 0; f < FEATURES; f++) {
 							if (traits[nr][nc][f] != DEAD_TRAIT) {
 								votes[f][traits[nr][nc][f]]++;
@@ -130,7 +137,6 @@ public class E2 extends E1 {
 				}
 			}
 		} // END of checkpoint
-
 	} // END of run_experiment
 
 }
