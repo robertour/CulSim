@@ -428,7 +428,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Clone an event list
 	 * 
-	 * @param events
+	 * @param events the events that need to be cloned
 	 * @return a clone list of events
 	 */
 	@SuppressWarnings("unchecked")
@@ -454,7 +454,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	/**
 	 * Starting point of execution
 	 * 
-	 * @returns the last line of results
+	 * @return the last line of results
 	 */
 	public String call() {
 		monitor = new Object();
@@ -1378,7 +1378,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 *            belongs to it)
 	 * @param prob
 	 *            probability of a trait of being deleted
-	 * @param r
+	 * @param rand
 	 *            random generator
 	 * 
 	 */
@@ -1433,7 +1433,7 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 *            belongs to it)
 	 * @param prob
 	 *            probability of a trait of being converted
-	 * @param r
+	 * @param rand
 	 *            random generator
 	 */
 	public void convert_partial_institution(int r, int c, double prob, Random rand) {
@@ -1477,6 +1477,10 @@ public abstract class Simulation implements Callable<String>, Serializable {
 	 *            row of the individual
 	 * @param c
 	 *            column of the individual
+	 * @param nr
+	 *            row of the individual that has a link to the institution
+	 * @param nc
+	 *            column of the individual that has a link to the institution
 	 */
 	public void settle(int r, int c, int nr, int nc) {
 		this.settlers++;

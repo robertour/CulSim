@@ -2,7 +2,7 @@ package simulator.worlds;
 
 /**
  * This class implements the experiment 2 (Multilateral Social influence without
- * homophily) of Flache & Macy (2011), in which: 1. Homophily is not considered
+ * homophily) of Flache and Macy (2011), in which: 1. Homophily is not considered
  * in the social process. 2. Multilateral social influence is introduced, i.e.
  * the interactions between agents don't happen only between two agents but many
  * of them

@@ -51,12 +51,12 @@ public class NormalProbabilityDensityFuntion implements Serializable {
 	}
 	
 	/** 
-	 * TODO
-	 * @param x
-	 * @param y
-	 * @param r
-	 * @param c
-	 * @return
+	 * Return the density on a point
+	 * @param x center x for the distribution
+	 * @param y center y for the distribution
+	 * @param r point r for the distribution
+	 * @param c point c for the distribution
+	 * @return the density in the point r,c when x,y is the center
 	 */
 	public double density(int x, int y, int r, int c){
 		return density(Math.abs(x - r) + Math.abs(y - c));

@@ -5,7 +5,7 @@ import simulator.control.Simulation;
 /**
  * This class implements Axelrod (1997), but includes the perturbation elements
  * tested in the experiment 1 (The collapse of diversity in Axelrod model) of
- * Flache & Macy (2011): 1. Mutation: in each possible interaction, randomly
+ * Flache and Macy (2011): 1. Mutation: in each possible interaction, randomly
  * change one cultural trait of the individual 2. Selection error: in each
  * possible interaction, there is a possibility of a perception error, so that
  * an agent would reject to interact with a similar agent (homophily) or accept

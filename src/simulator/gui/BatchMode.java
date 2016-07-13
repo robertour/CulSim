@@ -113,6 +113,9 @@ public class BatchMode extends JDialog implements Notifiable {
 
 	/**
 	 * Create the frame.
+	 * 
+	 * @param cultural_simulator
+	 *            the interface of the cultural simulator batch
 	 */
 	public BatchMode(CulturalSimulator cultural_simulator) {
 		super(cultural_simulator);
@@ -125,7 +128,6 @@ public class BatchMode extends JDialog implements Notifiable {
 				dispose();
 			}
 		});
-
 
 		setBounds(100, 100, 618, 551);
 		contentPane = new JPanel();
@@ -164,13 +166,14 @@ public class BatchMode extends JDialog implements Notifiable {
 		}
 		jfc_configurations.setCurrentDirectory(conf_dir);
 
-//		File[] directoryListing = jfc_configurations.getCurrentDirectory().listFiles();
-//		if (directoryListing != null) {
-//			for (File child : directoryListing) {
-//				conf_list.addElement(child.getAbsolutePath());
-//				file_list.add(child.getAbsolutePath());
-//			}
-//		}
+		// File[] directoryListing =
+		// jfc_configurations.getCurrentDirectory().listFiles();
+		// if (directoryListing != null) {
+		// for (File child : directoryListing) {
+		// conf_list.addElement(child.getAbsolutePath());
+		// file_list.add(child.getAbsolutePath());
+		// }
+		// }
 
 		tab_conf_file = new JPanel();
 		tp_batch_mode.addTab("From Configuration Files", null, tab_conf_file, null);
@@ -204,9 +207,9 @@ public class BatchMode extends JDialog implements Notifiable {
 					for (int i = 0; i < files.length; i++) {
 						conf_list.addElement(files[i].getAbsolutePath());
 						file_list.add(files[i].getAbsolutePath());
-						
+
 					}
-					
+
 				}
 			}
 		});
@@ -230,12 +233,14 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_conf_file.add(scrollPane_1);
 
 		JList<String> sel_conf_files = new JList<String>();
-		sel_conf_files.setToolTipText("Configurations of the simulations that are going to be tested. Usually saved with 'Simulation -> Parameters'");
+		sel_conf_files.setToolTipText(
+				"Configurations of the simulations that are going to be tested. Usually saved with 'Simulation -> Parameters'");
 		scrollPane_1.setViewportView(sel_conf_files);
 		sel_conf_files.setModel(conf_list);
 
 		JLabel lblConfigurations = new JLabel("Configurations:");
-		lblConfigurations.setToolTipText("Configurations of the simulations that are going to be tested. Usually saved with 'Simulation -> Parameters'");
+		lblConfigurations.setToolTipText(
+				"Configurations of the simulations that are going to be tested. Usually saved with 'Simulation -> Parameters'");
 		lblConfigurations.setLabelFor(scrollOutput);
 		lblConfigurations.setBounds(10, 13, 85, 14);
 		tab_conf_file.add(lblConfigurations);
@@ -258,7 +263,8 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_catastrophic.add(btnOpen);
 
 		tf_scenarios_dir = new JTextField();
-		tf_scenarios_dir.setToolTipText("This folder serves as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
+		tf_scenarios_dir.setToolTipText(
+				"This folder serves as a starting point to apply the catastrophes. Basically, a folder with the results obtained in the other two tabs \"From Configuration Files\"");
 		tf_scenarios_dir.setText(jfc_scenarios.getCurrentDirectory().getAbsolutePath() + File.separator);
 		tf_scenarios_dir.setEditable(false);
 		tf_scenarios_dir.setColumns(10);
@@ -320,8 +326,7 @@ public class BatchMode extends JDialog implements Notifiable {
 		tab_catastrophic.add(btnClearEvents);
 
 		JLabel lblEvents = new JLabel("Events");
-		lblEvents.setToolTipText(
-				"The events that will be applied to the scenarios contained in the result folder");
+		lblEvents.setToolTipText("The events that will be applied to the scenarios contained in the result folder");
 		lblEvents.setBounds(10, 47, 55, 15);
 		tab_catastrophic.add(lblEvents);
 
@@ -332,8 +337,7 @@ public class BatchMode extends JDialog implements Notifiable {
 
 		sp_repetitions_events = new JSpinner();
 		sp_repetitions_events.setToolTipText("How many times will the events be repeated in each scenario");
-		sp_repetitions_events
-				.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		sp_repetitions_events.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
 		sp_repetitions_events.setBounds(107, 152, 55, 20);
 		tab_catastrophic.add(sp_repetitions_events);
 

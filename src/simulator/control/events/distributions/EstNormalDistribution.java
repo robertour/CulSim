@@ -29,7 +29,7 @@ public class EstNormalDistribution extends Distribution {
 	 * @param expected
 	 *            the expected ratio (%) of agents or institutions that will be
 	 *            affected by the distribution
-	 * @throws IllegalArgumentException
+	 * @throws IllegalArgumentException when an illegal argument is present
 	 */
 	public EstNormalDistribution(double row_ratio, double col_ratio, double ceil, double expected) throws IllegalArgumentException {
 		

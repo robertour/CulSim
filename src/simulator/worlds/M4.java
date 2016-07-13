@@ -8,7 +8,7 @@ import simulator.CulturalSimulator;
 import simulator.control.Controller;
 
 /**
- * Based on experiment 1 of Flache & Macy (2011) this class implements:
+ * Based on experiment 1 of Flache and Macy (2011) this class implements:
  * homophily (Axelrod , 1997), mutations and selection error.
  * 
  * This class also implements: 1. Institutional influence: a probabilistic
