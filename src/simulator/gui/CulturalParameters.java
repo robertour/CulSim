@@ -119,7 +119,8 @@ public class CulturalParameters extends JDialog implements Notifiable {
 	 *            the owner for the modal
 	 */
 	public CulturalParameters(JFrame owner) {
-		super(owner);
+		super(owner, true);
+		setLocationRelativeTo(owner);
 
 		setTitle("Simulation Parameters");
 		setBounds(100, 100, 687, 380);

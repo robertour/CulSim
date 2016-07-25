@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -41,6 +42,8 @@ import simulator.control.events.distributions.UniformDistribution;
 import javax.swing.ImageIcon;
 
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -54,9 +57,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
 //import java.awt.RenderingHints;
 import javax.swing.JMenuBar;
@@ -75,11 +78,11 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.JButton;
 import javax.swing.JSplitPane;
 import javax.swing.border.TitledBorder;
 import java.awt.Font;
-import javax.swing.JTextArea;
 import java.awt.SystemColor;
 import java.awt.FlowLayout;
 import javax.swing.ScrollPaneConstants;
@@ -137,7 +140,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	/**
 	 * These components are related to the event sets
 	 */
-	private JTextArea taEventSet;
+	private JList<Event> jlEvents;
 
 	/**
 	 * These are the dialogs for configuring the events
@@ -251,7 +254,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				if (want_to_continue(CulturalSimulator.this)) {
+				if (want_to_continue(cultural_space)) {
 					controller.cancel();
 					dispose();
 				}
@@ -293,7 +296,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		mntmLoadSimulationState.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (jfc_simulation_state.showOpenDialog(contentPane) == JFileChooser.APPROVE_OPTION) {
-					if (want_to_continue(jfc_simulation_state)) {
+					if (want_to_continue(cultural_space)) {
 						String simstate_file = jfc_simulation_state.getSelectedFile().getAbsolutePath();
 						try {
 							controller.load_simulation(simstate_file, printer);
@@ -313,7 +316,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		mntmExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				if (want_to_continue(CulturalSimulator.this)) {
+				if (want_to_continue(cultural_space)) {
 					controller.cancel();
 					CulturalSimulator.this.dispose();
 				}
@@ -369,6 +372,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		mntmParameters.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				controller.restore_parameters_to_interface();
+				parameters_dialog.setLocation(CulturalSimulator.this.getBounds().x+100, CulturalSimulator.this.getBounds().y+100);
 				parameters_dialog.setVisible(true);
 			}
 		});
@@ -797,11 +801,88 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 		scrollEventSet.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		panelSet.add(scrollEventSet, BorderLayout.CENTER);
 
-		taEventSet = new JTextArea();
-		taEventSet.setRows(4);
-		taEventSet.setFont(new Font("Arial Narrow", Font.PLAIN, 10));
-		taEventSet.setEditable(false);
-		scrollEventSet.setViewportView(taEventSet);
+
+		jlEvents = new JList<Event>();
+		jlEvents.setVisibleRowCount(4);
+		jlEvents.setFont(new Font("Arial Narrow", Font.PLAIN, 10));
+		scrollEventSet.setViewportView(jlEvents);
+
+		jlEvents.addMouseListener( new MouseAdapter() {
+	        public void mousePressed(MouseEvent e) {
+	            if ( SwingUtilities.isRightMouseButton(e) ) {
+	                
+	            	jlEvents.setSelectedIndex(jlEvents.locationToIndex(e.getPoint()));
+	            	
+	            	JPopupMenu menu = new JPopupMenu();
+	                JMenuItem itemRemove = new JMenuItem("Remove");
+	                itemRemove.addActionListener(new ActionListener() {
+	                    public void actionPerformed(ActionEvent e) {
+	                    	events.remove(jlEvents.getSelectedValue());
+	    	                update_event_set();
+	                    }
+	                });
+	                menu.add(itemRemove);
+	                
+	                JMenuItem itemup = new JMenuItem("Move Up");
+	                itemup.addActionListener(new ActionListener() {
+	                    public void actionPerformed(ActionEvent e) {
+	                    	if (jlEvents.getSelectedIndex() != 0){
+	                    		int new_ind = jlEvents.getSelectedIndex() - 1;
+	                    		Event ev = events.get(jlEvents.getSelectedIndex());
+	                    		events.remove(jlEvents.getSelectedIndex());
+	                    		events.add(new_ind, ev);
+	                    		update_event_set();
+	                    	}
+	                    }
+	                });	                
+	                menu.add(itemup);
+	                
+	               
+	                JMenuItem itemdown = new JMenuItem("Move Down");
+	                itemdown.addActionListener(new ActionListener() {
+	                    public void actionPerformed(ActionEvent e) {
+	                    	if (jlEvents.getSelectedIndex() < events.size()){
+	                    		int new_ind = jlEvents.getSelectedIndex() + 1;
+	                    		Event ev = events.get(jlEvents.getSelectedIndex());
+	                    		events.remove(jlEvents.getSelectedIndex());
+	                    		events.add(new_ind, ev);
+	                    		update_event_set();
+	                    	}
+	                    }
+	                });
+	                menu.add(itemdown);
+	                
+	                JMenuItem itemtop = new JMenuItem("Move to Top");
+	                itemtop.addActionListener(new ActionListener() {
+	                    public void actionPerformed(ActionEvent e) {
+                    		Event ev = events.get(jlEvents.getSelectedIndex());
+                    		events.remove(jlEvents.getSelectedIndex());
+                    		events.add(0, ev);
+                    		update_event_set();
+	                    }
+	                });
+	                menu.add(itemtop);
+	                
+
+	                JMenuItem itembottom = new JMenuItem("Move to Bottom");
+	                itembottom.addActionListener(new ActionListener() {
+	                    public void actionPerformed(ActionEvent e) {
+                    		Event ev = events.get(jlEvents.getSelectedIndex());
+                    		events.remove(jlEvents.getSelectedIndex());
+                    		events.add(ev);
+                    		update_event_set();
+	                    }
+	                });
+	                menu.add(itembottom);
+	                
+	                
+	                menu.show(jlEvents, e.getPoint().x, e.getPoint().y);
+	                
+	            }
+	        }
+	     });
+
+		
 
 		JPanel eventSetControls = new JPanel();
 		FlowLayout fl_eventSetControls = (FlowLayout) eventSetControls.getLayout();
@@ -830,7 +911,7 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 					String dis_file = jfc_events.getSelectedFile().getAbsolutePath();
 					try {
 						ObjectInputStream inFile = new ObjectInputStream(new FileInputStream(dis_file));
-						events = (ArrayList<Event>) inFile.readObject();
+						events.addAll((ArrayList<Event>) inFile.readObject());
 						inFile.close();
 						update_event_set();
 					} catch (FileNotFoundException e1) {
@@ -984,13 +1065,9 @@ public class CulturalSimulator extends JFrame implements Notifiable {
 	 * Updates the display of the event set
 	 */
 	private void update_event_set() {
-		int i = 1;
-		taEventSet.setText("");
-		for (Iterator<Event> iterator = events.iterator(); iterator.hasNext();) {
-			Event event = (Event) iterator.next();
-			taEventSet.append(i + ". " + event + "\n");
-			i++;
-		}
+			
+		jlEvents.setListData((Event[]) events.toArray(new Event[events.size()]));
+		
 	}
 
 	/**

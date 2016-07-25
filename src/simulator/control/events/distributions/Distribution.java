@@ -60,12 +60,12 @@ public class Distribution implements Serializable {
 	 * If different of -1, the calculated_row_ratio will use this value. If
 	 * equal to -1, the calculated_row_ratio will be picked up at random.
 	 */
-	protected double row_ratio = 0.5;
+	public double row_ratio = 0.5;
 	/**
 	 * If different of -1, the calculated_col_ratio will use this value. If
 	 * equal to -1, the calculated_col_ratio will be picked up at random.
 	 */
-	protected double col_ratio = 0.5;
+	public double col_ratio = 0.5;
 	/**
 	 * If different of -1, the calculated_row2_ratio will use this value. If
 	 * equal to -1, the calculated_row3_ratio will be picked up at random.
@@ -84,7 +84,7 @@ public class Distribution implements Serializable {
 	 * which the event is centered. For RECTANGULAR distribution, it represents
 	 * the row of the initial position of the rectangle.
 	 */
-	protected double calculated_row_ratio = -1;
+	public double calculated_row_ratio = -1;
 	/**
 	 * A column that indicates one position where the event is located
 	 * represented as a ratio of the total columns to keep the events scalable
@@ -93,7 +93,7 @@ public class Distribution implements Serializable {
 	 * distribution, it represents the column of the initial position of the
 	 * rectangle.
 	 */
-	protected double calculated_col_ratio = -1;
+	public double calculated_col_ratio = -1;
 	/**
 	 * For RECTANGULAR distribution, it represents the row of the final position
 	 * of the rectangle.
@@ -189,7 +189,7 @@ public class Distribution implements Serializable {
 		}
 		return (int) Math.round(calculated_row_ratio * (sim.ROWS - 1));
 	}
-
+	
 	/**
 	 * Calculates the exact column (center for UNIFORM or NEUMAN, initIal
 	 * position for RECTANGULAR) of the event according to the world size of the

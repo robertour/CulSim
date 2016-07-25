@@ -796,7 +796,7 @@ public class M4 extends M1 {
 	 * @return a coordinate (r,c) representing a free cell to be the
 	 *         geographical institutional center
 	 */
-	private int[] search_free_institutionCenter(int r, int c) {
+	public int[] search_free_institutionCenter(int r, int c) {
 		int x = 0, y = 0, dx = 0, dy = -1;
 		int t = Math.max(ROWS, COLS);
 		int maxI = (t * 2) * (t * 2);
@@ -835,6 +835,44 @@ public class M4 extends M1 {
 
 		log.print(IDENTIFIER, "ERROR! No free institution center was found in an exhaustive search.");
 		return new int[] { -99999, -99999 };
+	}
+
+	/**
+	 * This looks for a currently occupied institution near the specified
+	 * (ideal) coordinates in the geographical representation of institutions.
+	 * The ideal center is probably not occupied by other institution already,
+	 * so it is necessary for one around
+	 * 
+	 * @param r
+	 *            ideal row for the institutional center
+	 * @param c
+	 *            ideal column for the institutional center
+	 * @return a coordinate (r,c) representing the nearest cell to the
+	 *         geographical institutional center
+	 */
+	public int[] search_nearest_institutionCenter(int r, int c) {
+		int x = 0, y = 0, dx = 0, dy = -1;
+		int t = Math.max(ROWS, COLS);
+		int maxI = (t * 2) * (t * 2);
+
+		for (int i = 0; i < maxI; i++) {
+			if ((-1 < r + x) && (r + x < ROWS) && (-1 < c + y) && (c + y < COLS)) {
+				if (institutionsCenters[r + x][c + y] != EMPTY && institutionsN[institutionsCenters[r + x][c + y]] > 1 ) {
+					return new int[] { (r + x), (c + y) };
+				}
+			}
+
+			if ((x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1 - y))) {
+				t = dx;
+				dx = -dy;
+				dy = t;
+			}
+			x += dx;
+			y += dy;
+		}
+		
+		return new int[] { r, c };
+
 	}
 
 	/**
@@ -1152,7 +1190,8 @@ public class M4 extends M1 {
 				institutonal_cultural_association_ohex = "#" + institutonal_cultural_association_ohex;
 
 				// Institution association
-				if (institution == EMPTY) {
+				if ((institution != EMPTY && institutionsN[institution] <= 1 ) || institution == EMPTY) {
+				//if ( institution == EMPTY) {
 					ohex_alife_institutions_cultural_space_image = "000000";
 				} else {
 					for (int f = 0; f < Math.min(FEATURES, 6); f++) {
@@ -1163,7 +1202,8 @@ public class M4 extends M1 {
 				ohex_alife_institutions_cultural_space_image = "#" + ohex_alife_institutions_cultural_space_image;
 
 				// Alife Institutions
-				if (institution == EMPTY) {
+				if ((institution != EMPTY && institutionsN[institution] <= 1 ) || institution == EMPTY) {
+				//if ( institution == EMPTY) {
 					alife_institution_ohex = "#000000";
 				} else {
 					alife_institution_ohex = "#ffffff";
