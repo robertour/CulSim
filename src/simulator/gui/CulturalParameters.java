@@ -33,7 +33,7 @@ import simulator.control.Simulation;
 import simulator.worlds.M1;
 import simulator.worlds.M2;
 import simulator.worlds.M3;
-import simulator.worlds.Inst;
+import simulator.worlds.M4;
 
 import javax.swing.UIManager;
 import java.awt.Color;
@@ -560,7 +560,7 @@ public class CulturalParameters extends JDialog implements Notifiable {
 				sim = new M3();
 				prettyNames.add(sim.getModelDescription());
 				classes.add(sim.getClass());
-				sim = new Inst();
+				sim = new M4();
 				prettyNames.add(sim.getModelDescription());
 				classes.add(sim.getClass());
 			}

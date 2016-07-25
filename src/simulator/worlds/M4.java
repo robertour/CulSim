@@ -30,7 +30,7 @@ import simulator.control.Controller;
  * @version 1.0, March 2016
  *
  */
-public class Inst extends M1 {
+public class M4 extends M1 {
 
 	private static final long serialVersionUID = 6739780243602561128L;
 
