@@ -2,7 +2,7 @@ package simulator.control.events;
 
 import simulator.control.Simulation;
 import simulator.control.events.distributions.Distribution;
-import simulator.worlds.M4;
+import simulator.worlds.Inst;
 
 /**
  * This event removes all the agents that belongs to an institution. This agents
@@ -32,12 +32,12 @@ public class DestroyInstitutions extends Event {
 	@Override
 	protected void pre_execute(Simulation simulation) {
 		super.pre_execute(simulation);
-		if (simulation instanceof M4){
+		if (simulation instanceof Inst){
 			distribution.calculated_row_ratio = distribution.row_ratio;
 			distribution.calculated_col_ratio = distribution.col_ratio;
 			int i_r = distribution.getRow(simulation);
 			int i_c = distribution.getCol(simulation);
-			int []coor = ((M4) simulation).search_nearest_institutionCenter(i_r, i_c);
+			int []coor = ((Inst) simulation).search_nearest_institutionCenter(i_r, i_c);
 			distribution.calculated_row_ratio = (double) coor[0] / simulation.ROWS;
 			distribution.calculated_col_ratio = (double) coor[1] / simulation.COLS;
 		}

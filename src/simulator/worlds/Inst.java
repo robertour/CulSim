@@ -30,7 +30,7 @@ import simulator.control.Controller;
  * @version 1.0, March 2016
  *
  */
-public class M4 extends M1 {
+public class Inst extends M1 {
 
 	private static final long serialVersionUID = 6739780243602561128L;
 
@@ -796,7 +796,7 @@ public class M4 extends M1 {
 	 * @return a coordinate (r,c) representing a free cell to be the
 	 *         geographical institutional center
 	 */
-	public int[] search_free_institutionCenter(int r, int c) {
+	private int[] search_free_institutionCenter(int r, int c) {
 		int x = 0, y = 0, dx = 0, dy = -1;
 		int t = Math.max(ROWS, COLS);
 		int maxI = (t * 2) * (t * 2);
