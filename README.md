@@ -23,26 +23,27 @@ How to use it?
 
 The wiki (user manual) is [now available](https://github.com/robertour/cultural-simulations/wiki), and a GUI; the [Quick Start] (https://github.com/robertour/cultural-simulations/wiki/A.-Quick-Start) will introduce you very fast.
 
-There is also a [Batch Mode](https://github.com/robertour/cultural-simulations/wiki/I.-Batch-Mode) and a [Command Line Interface](https://github.com/robertour/cultural-simulations/wiki/J.-Command-Line-Interface) to run experimental designs. Statistical analysis of the resutls is possible through the [Output Files](https://github.com/robertour/cultural-simulations/wiki/H.-Output-Files).
+There is also a [Batch Mode](https://github.com/robertour/cultural-simulations/wiki/I.-Batch-Mode) and a [Command Line Interface](https://github.com/robertour/cultural-simulations/wiki/J.-Command-Line-Interface) to run experimental designs. Statistical analysis of the results is possible through the [Output Files](https://github.com/robertour/cultural-simulations/wiki/H.-Output-Files).
 
 
 Installation
 -------------
 
-Install Java 1.7 or 1.8. It also need to be tested with IcedTea because it was not working a few months ago; if it doesnt, Oracle will have to be.
+2023-09-31: This is working again with the latest version of the OpenJDK: openjdk 11.0.20.1 2023-08-24
+2021: Install Java 1.7 or 1.8. It also needs to be tested with IcedTea because it was not working a few months ago; if it doesn't, Oracle will have to be.
 
 ###### For **windows users**: 
 
  * If you don't know how to use the terminal/command line, try:
   1. Download the `culsim.jar` file from [here](https://github.com/robertour/CulSim/commit/1c45dc3c8d5cfb2051afe1d8aa70264facdad046)
-  2. Right click in the `culsim.jar` file
+  2. Right-click in the `culsim.jar` file
   3. Open With...
   4. Select "Java runtime environment" (if the option doesn't appear, please [install Java 7 first](https://www.java.com/en/download/help/windows_manual_download.xml))
-  5. After that double click should be enough.
+  5. After that, a double-click should be enough.
  
- * Alternatively, you can double click the `culsim.bat`
+ * Alternatively, you can double-click the `culsim.bat`
  
- * If not the open the Windows CMD:
+ * If not open the Windows CMD:
   1. Go to the directory that contains the `culsim.jar`
   2. Write  `java -jar culsim.jar`
   3. Hit Enter
@@ -62,16 +63,16 @@ Install Java 1.7 or 1.8. It also need to be tested with IcedTea because it was n
 About this implementation
 --------------------------
 
-This code was created with the goal of running fast, most of them apply to the Batch Mode or Command Line Interfacce:
+This code was created with the goal of running fast; most of them apply to the Batch Mode or Command Line Interface:
 
-1. All is kept in memory and I/O access is kept at the minimum.
+1. All is kept in memory, and I/O access is kept at a minimum.
 
-2. Each simulation is run in a different core. There will be as many threads as your computer have running at the same time. If you have 4 cores, you will have 4 threads (simulations) running simultaneously, and the rest waiting for them to finish.
+2. Each simulation is run in a different core. There will be as many threads as your computer has running at the same time. If you have 4 cores, you will have 4 threads (simulations) running simultaneously and the rest waiting for them to finish.
 
-3. The use of objects in the simulation is avoided in the classes that correspond to the core implementation of the simulation. Instead, direct Java Matrices is used. You will see a lot of confusing indexes, fun times!! I did my best to keep decent names for them without being extremely verbose, and it is very well documented.
+3. The use of objects in the simulation is avoided in the classes that correspond to the core implementation of the simulation. Instead, direct Java Matrices are used. You will see a lot of indices. I did my best to keep decent names for them without being extremely verbose, and it is very well documented.
  
 4. Modularization in the simulation core method is avoided in order to reduce the number of method calls. 
 
-5. As a consequence of the previous, the code is repetitive. Each class (that inherits from simulation) re-implement the wheel. You will find that most of the code in `run_experiment` is very repetitive, i.e. I didn't factorize intentionally.
+5. As a consequence of the previous, the code is repetitive. Each class (that inherits from simulation) re-implement the wheel. You will find that most of the code in `run_experiment` is repetitive, i.e., I didn't factorize intentionally.
 
-6. Buffered writers are used, so I/O is reduced and the output to files is not immediate.
+6. Buffered writers are used, so I/O is reduced, and the output to files is not immediate.
